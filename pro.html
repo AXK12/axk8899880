@@ -477,6 +477,12 @@ function predict(front, back, isSSQ, bluePrev2, blueHistory) {
     blueFilter = filterBlues(bluePreds, back[0], bluePrev2, blueHistory);
   }
 
+  // 天平支点杀红（仅双色球）：上期蓝球 = 天平支点，下期红球排除此号
+  var pivotKill = null;
+  if (isSSQ && back.length > 0) {
+    pivotKill = back[0];
+  }
+
   var frontAP = Array.from(frontPredsA).sort(function(a, b) { return a - b; });
   var frontBP = Array.from(frontPredsB).sort(function(a, b) { return a - b; });
 
@@ -491,6 +497,7 @@ function predict(front, back, isSSQ, bluePrev2, blueHistory) {
     b_only: frontBP.filter(function(x) { return !frontPredsA.has(x); }),
     blue_preds: bluePreds,
     blue_filter: blueFilter,
+    pivot_kill: pivotKill,
     crash_pages: crashCount,
     has_crash: crashCount > 0,
     page_details: pageDetails,
@@ -678,6 +685,19 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
       html += '<div style="font-size:10px;color:#6a7a90;margin:4px 0 8px;display:flex;gap:14px;flex-wrap:wrap">' +
         '<span>⭐发光=共识号码</span><span style="color:#3498db">●蓝圈=仅方法A</span><span style="color:#27ae60">●绿圈=仅方法B</span></div>';
 
+      // 天平支点杀红（仅双色球）
+      if (isSSQ && result.pivot_kill !== null) {
+        html += '<div class="pool-section" style="border-left:3px solid #e74c3c">' +
+          '<div class="pool-title">⚖️ 天平支点杀红 <span style="font-size:11px;color:#e74c3c">（双色球专属）</span></div>' +
+          '<div style="display:flex;align-items:center;gap:8px">' +
+            '<span style="font-size:12px;color:#8899b0">上期蓝球 = </span>' +
+            '<span style="font-size:18px;color:#e74c3c;font-weight:bold;background:rgba(231,76,60,.1);padding:4px 12px;border-radius:6px">' + result.pivot_kill + '</span>' +
+            '<span style="font-size:12px;color:#8899b0">→ 下期红球大概率不出现</span>' +
+          '</div>' +
+          '<div class="db-ref"><strong>📊 回测：</strong>3469期支点未出现82.3% | 安总统计2014069~2026072共603期80.9%</div>' +
+          '</div>';
+      }
+
       // Back zone / Blue
       if (!isSSQ) {
         var backPool = Array.from(new Set(result.back_a.concat(result.back_b))).sort(function(a, b) { return a - b; });
@@ -740,6 +760,12 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
       var mainPool = result.front_consensus.length >= (isSSQ ? 6 : 5)
         ? result.front_consensus
         : Array.from(new Set(result.front_consensus.concat(result.front_a).concat(result.front_b))).sort(function(a, b) { return a - b; });
+
+      // 天平支点杀红：从推荐池中排除
+      if (isSSQ && result.pivot_kill !== null) {
+        mainPool = mainPool.filter(function(n) { return n !== result.pivot_kill; });
+      }
+
       var secPool = isSSQ ? result.blue_preds
         : (Array.from(new Set(result.back_consensus.concat(result.back_a).concat(result.back_b))).sort(function(a, b) { return a - b; }));
 
