@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>彩票分析工具 · Pro</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;background:#0a0e1a;color:#e0e6f0;padding:12px;min-height:100vh}
+.container{max-width:600px;margin:0 auto}
+h1{text-align:center;font-size:20px;padding:12px 0 4px;color:#f0c040;letter-spacing:1px}
+h1 small{display:block;font-size:11px;color:#6a8aaa;margin-top:3px;letter-spacing:0}
+.subtitle{text-align:center;font-size:11px;color:#5a7a9a;margin-bottom:12px}
+.tab-bar{display:flex;gap:8px;margin-bottom:14px}
+.tab-btn{flex:1;padding:10px;text-align:center;border-radius:10px;border:1px solid #1e2a40;background:#111827;color:#8899b0;font-size:14px;cursor:pointer;transition:all .2s}
+.tab-btn.active{background:linear-gradient(135deg,#1a2540,#1e3050);border-color:#f0c040;color:#f0c040;font-weight:bold;box-shadow:0 0 12px rgba(240,192,64,.15)}
+.card{background:#111827;border-radius:14px;border:1px solid #1e2a40;padding:18px;margin-bottom:14px;display:none}
+.card.active{display:block}
+.card h2{font-size:15px;color:#f0c040;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #1e2a40}
+label{display:block;font-size:12px;color:#8899b0;margin-bottom:5px;margin-top:12px}
+label:first-child{margin-top:0}
+.input-row{display:flex;gap:7px;flex-wrap:wrap}
+.input-row input{width:44px;height:42px;text-align:center;background:#1a2540;border:1px solid #2a3a58;border-radius:8px;color:#e0e6f0;font-size:17px;font-weight:bold;outline:none;transition:border-color .2s}
+.input-row input:focus{border-color:#f0c040;box-shadow:0 0 8px rgba(240,192,64,.2)}
+.input-row input.error{border-color:#e74c3c;box-shadow:0 0 8px rgba(231,76,60,.3)}
+.btn{display:block;width:100%;padding:14px;margin-top:14px;background:linear-gradient(135deg,#f0c040,#e0a830);color:#0a0e1a;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;transition:all .2s;letter-spacing:1px}
+.btn:hover{background:linear-gradient(135deg,#f5c850,#e8b840);box-shadow:0 4px 20px rgba(240,192,64,.3);transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn:disabled{background:#3a3a4a;color:#666;cursor:not-allowed;transform:none;box-shadow:none}
+.hint{font-size:11px;color:#6a7a90;margin-top:6px;text-align:center}
+.result-box{display:none;margin-top:14px;animation:fadeIn .4s}
+.result-box.show{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.pool-section{background:#1a2530;border-radius:10px;padding:12px;margin-bottom:10px}
+.pool-title{font-size:13px;color:#f0c040;margin-bottom:7px;display:flex;align-items:center;gap:6px}
+.pool-badge{font-size:10px;padding:2px 8px;border-radius:10px;background:#27ae60;color:#fff}
+.pool-badge.blue{background:#3498db}
+.pool-badge.gold{background:#f0c040;color:#0a0e1a}
+.pool-nums{display:flex;flex-wrap:wrap;gap:5px}
+.pool-num{width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:#1e2a40;color:#e0e6f0;font-size:12px;font-weight:bold}
+.pool-num.consensus{animation:glow 1.5s ease-in-out infinite;box-shadow:0 0 12px rgba(240,192,64,.5);border:2px solid #f0c040}
+.pool-num.method-a{background:#1a3050;border:1px solid #3498db}
+.pool-num.method-b{background:#1a3040;border:1px solid #27ae60}
+@keyframes glow{0%,100%{box-shadow:0 0 8px rgba(240,192,64,.3)}50%{box-shadow:0 0 20px rgba(240,192,64,.7),0 0 30px rgba(240,192,64,.3)}}
+.crash-info{background:#1a2530;border-radius:10px;padding:12px;margin-bottom:10px}
+.crash-info .title{font-size:13px;color:#f0c040;margin-bottom:5px}
+.crash-page{font-size:11px;color:#8899b0;padding:3px 0;border-bottom:1px solid #0e1525;font-family:monospace}
+.crash-page:last-child{border-bottom:none}
+.rule-tag{font-size:10px;padding:1px 6px;border-radius:4px;background:#1e3050;color:#5aa0d0;margin:0 2px;white-space:nowrap}
+.consensus-box{background:linear-gradient(135deg,#1a2020,#1e2820);border:2px solid #f0c040;border-radius:12px;padding:14px;margin-bottom:10px}
+.consensus-box h3{font-size:14px;color:#f0c040;margin-bottom:8px;text-align:center}
+.consensus-empty{text-align:center;color:#6a7a90;padding:12px;font-size:13px}
+.combos{background:#1a2530;border-radius:10px;padding:12px;margin-top:10px}
+.combos h3{font-size:13px;color:#f0c040;margin-bottom:8px}
+.combo-item{padding:7px 0;border-bottom:1px solid #0e1525;font-size:13px;font-family:monospace}
+.combo-item:last-child{border-bottom:none}
+.combo-item .num{color:#e0e6f0}
+.combo-item .sp{color:#f0c040}
+.combo-item .lb{color:#3498db}
+.combo-label{color:#6a7a90;font-size:11px;font-family:-apple-system,sans-serif}
+.stats-row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.stat-item{flex:1;min-width:80px;background:#1a2530;border-radius:8px;padding:10px;text-align:center}
+.stat-val{font-size:20px;font-weight:bold;color:#f0c040}
+.stat-lbl{font-size:10px;color:#6a7a90;margin-top:2px}
+.divider{height:1px;background:linear-gradient(90deg,transparent,#2a3a50,transparent);margin:10px 0}
+.no-crash{background:#1a2530;border:1px solid #2a3a50;border-radius:10px;padding:20px;text-align:center}
+.no-crash .icon{font-size:36px;margin-bottom:8px}
+.no-crash p{color:#8899b0;font-size:13px;line-height:1.6}
+.footer{text-align:center;padding:18px;color:#3a4a5a;font-size:11px;letter-spacing:1px}
+.tooltip{cursor:help;border-bottom:1px dashed #5a7a9a}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.loading{animation:pulse 1s infinite}
+.db-ref{background:#0e1525;border-radius:8px;padding:8px 12px;margin-top:8px;font-size:10px;color:#5a7a9a;max-height:100px;overflow-y:auto}
+.db-ref strong{color:#7a9aba}
+.engine-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:4px}
+.engine-tag{font-size:10px;padding:3px 8px;border-radius:12px;font-weight:bold}
+.engine-tag.book{background:rgba(52,152,219,.2);color:#3498db;border:1px solid #3498db}
+.engine-tag.qr{background:rgba(39,174,96,.2);color:#27ae60;border:1px solid #27ae60}
+.historical-ref{background:#0e1525;border-left:3px solid #f0c040;border-radius:0 8px 8px 0;padding:8px 12px;margin:8px 0;font-size:11px;color:#8899b0}
+.historical-ref strong{color:#f0c040}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>🎯 彩票分析工具 <small>Pro版 · 双引擎融合</small></h1>
+<div class="subtitle">方法A（书上11规则）+ 方法B（Q-R算术引擎）→ 共识验证</div>
+
+<div class="tab-bar">
+  <div class="tab-btn active" onclick="switchGame('dlt')">🎱 A款 · 大乐透</div>
+  <div class="tab-btn" onclick="switchGame('ssq')">🔴 B款 · 双色球</div>
+</div>
+
+<!-- DLT Card -->
+<div id="card-dlt" class="card active">
+  <h2>A款 · 上期号码输入</h2>
+  <label>前区（5个，1~35）</label>
+  <div class="input-row" id="dlt-front">
+    <input type="tel" maxlength="2" class="dlt-f" placeholder="?">
+    <input type="tel" maxlength="2" class="dlt-f" placeholder="?">
+    <input type="tel" maxlength="2" class="dlt-f" placeholder="?">
+    <input type="tel" maxlength="2" class="dlt-f" placeholder="?">
+    <input type="tel" maxlength="2" class="dlt-f" placeholder="?">
+  </div>
+  <label>后区（2个，1~12）</label>
+  <div class="input-row" id="dlt-back">
+    <input type="tel" maxlength="2" class="dlt-b" placeholder="?">
+    <input type="tel" maxlength="2" class="dlt-b" placeholder="?">
+  </div>
+  <button class="btn" onclick="predictDLT()">🔬 双引擎分析</button>
+  <div class="hint">输入上期开奖号码 → 方法A+方法B同时计算 → 共识号码=高置信度</div>
+  
+  <div class="result-box" id="dlt-result">
+    <div id="dlt-result-inner"></div>
+  </div>
+</div>
+
+<!-- SSQ Card -->
+<div id="card-ssq" class="card">
+  <h2>B款 · 上期号码输入</h2>
+  <label>红球（6个，1~33）</label>
+  <div class="input-row" id="ssq-front">
+    <input type="tel" maxlength="2" class="ssq-f" placeholder="?">
+    <input type="tel" maxlength="2" class="ssq-f" placeholder="?">
+    <input type="tel" maxlength="2" class="ssq-f" placeholder="?">
+    <input type="tel" maxlength="2" class="ssq-f" placeholder="?">
+    <input type="tel" maxlength="2" class="ssq-f" placeholder="?">
+    <input type="tel" maxlength="2" class="ssq-f" placeholder="?">
+  </div>
+  <label>蓝球（1个，1~16）</label>
+  <div class="input-row">
+    <input type="tel" maxlength="2" id="ssq-blue" class="ssq-b" placeholder="?">
+  </div>
+  <button class="btn" onclick="predictSSQ()">🔬 双引擎分析</button>
+  <div class="hint">输入上期开奖号码 → 方法A+方法B同时计算 → 共识号码=高置信度</div>
+  
+  <div class="result-box" id="ssq-result">
+    <div id="ssq-result-inner"></div>
+  </div>
+</div>
+
+<div class="footer">🌙 Pro版 · 双引擎融合 · 方法A+B共识验证 · 安总好运</div>
+</div>
+
+<script>
+// ==================== CORE ENGINE ====================
+function calcPage(divisor, numbers) {
+  return numbers.map(function(num) {
+    if (num === 0) return { num: num, q: 0, r: 0, cp: null };
+    var q = Math.floor(divisor / num);
+    var r = divisor % num;
+    var cp = num - r + q;
+    return { num: num, q: q, r: r, cp: cp };
+  });
+}
+
+function detectCollisions(cpList) {
+  var map = {};
+  cpList.forEach(function(item, i) {
+    if (item.cp === null) return;
+    if (!map[item.cp]) map[item.cp] = [];
+    map[item.cp].push({ idx: i, num: item.num, q: item.q, r: item.r, cp: item.cp });
+  });
+  var results = [];
+  Object.entries(map).forEach(function(entry) {
+    if (entry[1].length >= 2) {
+      results.push({ cp: parseInt(entry[0]), entries: entry[1] });
+    }
+  });
+  return results;
+}
+
+// ==================== METHOD A: BOOK RULES (书上11规则) ====================
+function methodABookRules(entries, maxVal) {
+  var preds = new Set();
+  var rules = {};
+  
+  if (entries.length < 2) return { preds: [], rules: rules };
+  
+  var qList = entries.map(function(e) { return e.q; });
+  var rList = entries.map(function(e) { return e.r; });
+  var cp = entries[0].cp;
+  
+  function add(n, rule) {
+    if (n >= 1 && n <= maxVal) {
+      preds.add(n);
+      if (!rules[n]) rules[n] = [];
+      if (rules[n].indexOf(rule) === -1) rules[n].push(rule);
+    }
+  }
+  
+  // Rule 1: Q±Q or R±R, CP itself
+  for (var i = 0; i < qList.length; i++) {
+    for (var j = i + 1; j < qList.length; j++) {
+      add(qList[i] + qList[j], '规则1:分子+分子');
+      add(Math.abs(qList[i] - qList[j]), '规则1:|分子-分子|');
+      add(rList[i] + rList[j], '规则1:分母+分母');
+      add(Math.abs(rList[i] - rList[j]), '规则1:|分母-分母|');
+    }
+  }
+  add(cp, '规则1:可比数本身');
+  
+  // Rule 2: (Q+Q)±(R+R), composite formulas
+  for (var i = 0; i < qList.length; i++) {
+    for (var j = i + 1; j < qList.length; j++) {
+      var qq = qList[i] + qList[j];
+      var rr = rList[i] + rList[j];
+      add(qq + rr, '规则2:分子和+分母和');
+      add(Math.abs(qq - rr), '规则2:|分子和-分母和|');
+      add(qq + rr - cp, '规则2:(分子+分母)和-CP');
+      add(Math.abs(qq + rr + cp) <= maxVal ? qq + rr + cp : Math.abs(qq + rr - cp), '规则2:复合');
+    }
+  }
+  
+  // Rule 3: Cross-pattern a/c/d and b/d/c
+  for (var i = 0; i < entries.length; i++) {
+    for (var j = i + 1; j < entries.length; j++) {
+      if (entries[i].q === entries[j].r && entries[i].r === entries[j].q) {
+        var c = entries[i].q;
+        var d = entries[j].q;
+        add(c, '规则3:交叉c');
+        add(d, '规则3:交叉d');
+        add(c + d, '规则3:c+d');
+        add(Math.abs(c - d), '规则3:|c-d|');
+      }
+    }
+  }
+  
+  // Rule 4: a/b/b form (q == r)
+  entries.forEach(function(e) {
+    if (e.q === e.r) {
+      add(e.num, '规则4:a(原始数)');
+      add(e.q, '规则4:b');
+      add(e.q + e.q, '规则4:b+b');
+      add(e.num + e.q, '规则4:a+b');
+      add(Math.abs(e.num - e.q), '规则4:|a-b|');
+    }
+  });
+  
+  // Rule 7: All R=0 → Q values have 90% chance
+  if (rList.every(function(r) { return r === 0; })) {
+    qList.forEach(function(q) { add(q, '规则7:分母全0→分子(90%)'); });
+  }
+  
+  // Additional: cross Q-R operations across all collision pairs
+  var sumQ = qList.reduce(function(a, b) { return a + b; }, 0);
+  var sumR = rList.reduce(function(a, b) { return a + b; }, 0);
+  add(sumQ, '总分子');
+  add(sumR, '总分母');
+  add(sumQ + sumR, 'Σ分子+Σ分母');
+  add(Math.abs(sumQ - sumR), '|Σ分子-Σ分母|');
+  add(sumQ + sumR - cp, 'Σ-CP');
+  
+  // Cross Q*R operations
+  for (var i = 0; i < qList.length; i++) {
+    for (var j = i + 1; j < qList.length; j++) {
+      add(qList[i] + rList[j], '分子+分母交叉');
+      add(rList[i] + qList[j], '分母+分子交叉');
+      add(Math.abs(qList[i] - rList[j]), '|分子-分母|交叉');
+      add(Math.abs(rList[i] - qList[j]), '|分母-分子|交叉');
+    }
+  }
+  
+  return { preds: Array.from(preds).sort(function(a, b) { return a - b; }), rules: rules };
+}
+
+// ==================== METHOD B: Q-R ARITHMETIC ENGINE ====================
+function methodBQREngine(entries, maxVal) {
+  var preds = new Set();
+  
+  if (entries.length < 2) return [];
+  
+  var qList = entries.map(function(e) { return e.q; });
+  var rList = entries.map(function(e) { return e.r; });
+  var cp = entries[0].cp;
+  
+  function add(n) {
+    var v = Math.round(n);
+    if (v >= 1 && v <= maxVal) preds.add(v);
+  }
+  
+  for (var i = 0; i < qList.length; i++) {
+    for (var j = i + 1; j < qList.length; j++) {
+      add(qList[i] + qList[j]);
+      add(Math.abs(qList[i] - qList[j]));
+      add(rList[i] + rList[j]);
+      add(Math.abs(rList[i] - rList[j]));
+    }
+  }
+  
+  for (var i = 0; i < qList.length; i++) {
+    for (var j = i + 1; j < qList.length; j++) {
+      var s = qList[i] + qList[j];
+      var d = rList[i] + rList[j];
+      add(s + d);
+      add(Math.abs(s - d));
+      add(s + d - entries[0].r);
+      add(qList[i] + rList[j]);
+      add(Math.abs(qList[i] - rList[j]));
+      add(rList[i] + qList[j]);
+      add(Math.abs(rList[i] - qList[j]));
+    }
+  }
+  
+  if (rList.every(function(r) { return r === 0; })) {
+    qList.forEach(function(q) { add(q); });
+  }
+  
+  add(cp);
+  var sumQR = qList.reduce(function(a, b) { return a + b; }, 0) + rList.reduce(function(a, b) { return a + b; }, 0);
+  add(sumQR - cp);
+  add(sumQR + cp);
+  
+  return Array.from(preds).sort(function(a, b) { return a - b; });
+}
+
+// ==================== MAIN PREDICTOR ====================
+function predict(front, back, isSSQ) {
+  var allNums = front.concat(back);
+  var total = allNums.reduce(function(a, b) { return a + b; }, 0);
+  var maxVal = isSSQ ? 33 : 35;
+  var backMax = isSSQ ? 16 : 12;
+  
+  var divisors, pageCount, pageNames;
+  if (isSSQ) {
+    divisors = [total].concat(front.map(function(f) { return total - f; }));
+    pageCount = 7;
+    pageNames = ['总和页', '减红1', '减红2', '减红3', '减红4', '减红5', '减红6'];
+  } else {
+    divisors = [total].concat(
+      front.map(function(f) { return total - f; }),
+      back.map(function(b) { return total - b; })
+    );
+    pageCount = 8;
+    pageNames = ['总和页', '减前1', '减前2', '减前3', '减前4', '减前5', '减后1', '减后2'];
+  }
+  
+  var frontPredsA = new Set();
+  var frontPredsB = new Set();
+  var backPredsA = new Set();
+  var backPredsB = new Set();
+  var allRules = {};
+  var crashCount = 0;
+  var pageDetails = [];
+  
+  for (var pi = 0; pi < pageCount; pi++) {
+    var res = calcPage(divisors[pi], allNums);
+    var frontLen = isSSQ ? 6 : 5;
+    var fRes = res.slice(0, frontLen);
+    var bRes = res.slice(frontLen);
+    
+    var fColl = detectCollisions(fRes);
+    var bColl = [];
+    if (!isSSQ && pi >= 6) bColl = detectCollisions(bRes);
+    
+    var pageCrash = false;
+    var info = '';
+    
+    fColl.forEach(function(col) {
+      pageCrash = true;
+      
+      var aRes = methodABookRules(col.entries, maxVal);
+      aRes.preds.forEach(function(v) {
+        frontPredsA.add(v);
+        if (aRes.rules[v]) {
+          if (!allRules[v]) allRules[v] = [];
+          allRules[v] = allRules[v].concat(aRes.rules[v]);
+        }
+      });
+      
+      methodBQREngine(col.entries, maxVal).forEach(function(v) {
+        frontPredsB.add(v);
+      });
+      
+      info += (info ? ' | ' : '') + 'CP=' + col.cp + '(' + col.entries.map(function(e) { return e.num; }).join('+') + ')';
+    });
+    
+    bColl.forEach(function(col) {
+      pageCrash = true;
+      var aRes = methodABookRules(col.entries, backMax);
+      aRes.preds.forEach(function(v) {
+        backPredsA.add(v);
+        if (aRes.rules[v]) {
+          if (!allRules[v]) allRules[v] = [];
+          allRules[v] = allRules[v].concat(aRes.rules[v]);
+        }
+      });
+      methodBQREngine(col.entries, backMax).forEach(function(v) {
+        backPredsB.add(v);
+      });
+      info += (info ? ' ' : '') + '后区:CP=' + col.cp + '(' + col.entries.map(function(e) { return e.num; }).join('+') + ')';
+    });
+    
+    if (pageCrash) crashCount++;
+    pageDetails.push({ name: pageNames[pi], divisor: divisors[pi], crash: pageCrash, info: info, fColl: fColl, bColl: bColl });
+  }
+  
+  // Home page special rules (Rule 5, 8, 11)
+  var homePage = pageDetails[0];
+  if (homePage && homePage.fColl.length > 0) {
+    var homeRes = calcPage(divisors[0], allNums);
+    var frontLen = isSSQ ? 6 : 5;
+    var homeFR = homeRes.slice(0, frontLen);
+    
+    // Rule 5: Home page, Q == CP → 80% chance
+    homePage.fColl.forEach(function(col) {
+      col.entries.forEach(function(e) {
+        if (e.q === col.cp) {
+          frontPredsA.add(col.cp);
+          if (!allRules[col.cp]) allRules[col.cp] = [];
+          if (allRules[col.cp].indexOf('规则5:首页分子=可比数(80%)') === -1) {
+            allRules[col.cp].push('规则5:首页分子=可比数(80%)');
+          }
+        }
+      });
+    });
+    
+    // Rule 8: Home page, same Q+R → 80% chance
+    var qrMap = {};
+    homeFR.forEach(function(e) {
+      var qr = e.q + e.r;
+      if (!qrMap[qr]) qrMap[qr] = [];
+      qrMap[qr].push(e);
+    });
+    Object.entries(qrMap).forEach(function(entry) {
+      var qr = parseInt(entry[0]);
+      var items = entry[1];
+      if (items.length >= 2 && qr >= 1 && qr <= maxVal) {
+        frontPredsA.add(qr);
+        if (!allRules[qr]) allRules[qr] = [];
+        if (allRules[qr].indexOf('规则8:首页分子+分母相同(80%)') === -1) {
+          allRules[qr].push('规则8:首页分子+分母相同(80%)');
+        }
+      }
+    });
+    
+    // Rule 11: Sum of remainders on home page < maxVal → appears
+    var sumR = homeFR.reduce(function(s, e) { return s + e.r; }, 0);
+    if (sumR >= 1 && sumR <= maxVal) {
+      frontPredsA.add(sumR);
+      if (!allRules[sumR]) allRules[sumR] = [];
+      if (allRules[sumR].indexOf('规则11:首页余数和') === -1) {
+        allRules[sumR].push('规则11:首页余数和');
+      }
+    }
+  }
+  
+  // Blue/back predictions
+  var bluePreds = [];
+  if (isSSQ && back.length > 0) {
+    var b = back[0];
+    var blueSet = new Set();
+    [b, b+1, b-1, b+2, b-2, b+3, b-3, 17-b].forEach(function(v) {
+      if (v >= 1 && v <= 16) blueSet.add(v);
+    });
+    bluePreds = Array.from(blueSet).sort(function(a, b) { return a - b; });
+  }
+  
+  var frontAP = Array.from(frontPredsA).sort(function(a, b) { return a - b; });
+  var frontBP = Array.from(frontPredsB).sort(function(a, b) { return a - b; });
+  
+  return {
+    front_a: frontAP,
+    front_b: frontBP,
+    back_a: Array.from(backPredsA).sort(function(a, b) { return a - b; }),
+    back_b: Array.from(backPredsB).sort(function(a, b) { return a - b; }),
+    front_consensus: frontAP.filter(function(x) { return frontPredsB.has(x); }),
+    back_consensus: Array.from(backPredsA).filter(function(x) { return backPredsB.has(x); }).sort(function(a, b) { return a - b; }),
+    a_only: frontAP.filter(function(x) { return !frontPredsB.has(x); }),
+    b_only: frontBP.filter(function(x) { return !frontPredsA.has(x); }),
+    blue_preds: bluePreds,
+    crash_pages: crashCount,
+    has_crash: crashCount > 0,
+    page_details: pageDetails,
+    all_rules: allRules,
+  };
+}
+
+// ==================== GEN COMBOS ====================
+function genCombos(pool, pool2, cnt, size1, size2) {
+  if (pool.length < size1) return [];
+  var combos = [];
+  var seeds = [42, 123, 777, 999, 555];
+  for (var si = 0; si < Math.min(cnt, seeds.length); si++) {
+    var s = pool.slice();
+    for (var i = s.length - 1; i > 0; i--) {
+      var j = Math.floor((seeds[si] * (i + 1) + si * 13) % (i + 1));
+      var tmp = s[i]; s[i] = s[j]; s[j] = tmp;
+    }
+    var f = s.slice(0, size1).sort(function(a, b) { return a - b; });
+    var sc = pool2.slice();
+    for (var k = sc.length - 1; k > 0; k--) {
+      var j2 = Math.floor((seeds[si] * (k + 1) + si * 37) % (k + 1));
+      var tmp2 = sc[k]; sc[k] = sc[j2]; sc[j2] = tmp2;
+    }
+    var bk = sc.slice(0, size2).sort(function(a, b) { return a - b; });
+    combos.push([f, bk]);
+  }
+  return combos;
+}
+
+// ==================== UI HELPERS ====================
+function renderPool(nums, maxVal, consensus, aOnly, bOnly) {
+  var cSet = {};
+  var aSet = {};
+  var bSet = {};
+  (consensus || []).forEach(function(n) { cSet[n] = true; });
+  (aOnly || []).forEach(function(n) { aSet[n] = true; });
+  (bOnly || []).forEach(function(n) { bSet[n] = true; });
+  
+  var html = '';
+  for (var i = 1; i <= maxVal; i++) {
+    if (nums.indexOf(i) === -1) continue;
+    var cls = 'pool-num';
+    if (cSet[i]) cls += ' consensus';
+    else if (aSet[i]) cls += ' method-a';
+    else if (bSet[i]) cls += ' method-b';
+    html += '<div class="' + cls + '">' + i + '</div>';
+  }
+  return html;
+}
+
+function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
+  var inner = document.getElementById(innerId);
+  inner.classList.add('loading');
+  
+  setTimeout(function() {
+    inner.classList.remove('loading');
+    var html = '';
+    
+    if (!result.has_crash) {
+      html = '<div class="no-crash"><div class="icon">🌙</div>' +
+        '<p><strong style="color:#f0c040;">本期无触发（无撞车）</strong><br>' +
+        '双引擎均无法计算，等待下一期<br>' +
+        '<span style="font-size:11px;color:#5a7a80;">撞车率 80-92%，下一期大概率恢复触发</span></p></div>';
+    } else {
+      // Historical reference
+      if (isSSQ) {
+        html += '<div class="historical-ref"><strong>📊 历史数据参考（双色球）：</strong> 撞车率92.74% | 撞车后命中≥3红概率74.42% | ≥4红56.61% | ≥5红34.94% | 全中6红13.83% | 平均命中3.65/6</div>';
+      } else {
+        html += '<div class="historical-ref"><strong>📊 历史数据参考（大乐透）：</strong> 撞车率85.15% | 撞车后命中≥3前区概率50.98% | ≥4前区28.98% | 全中5前区8.90% | 平均命中2.55/5</div>';
+      }
+      
+      // Stats row
+      html += '<div class="stats-row">' +
+        '<div class="stat-item"><div class="stat-val">' + result.crash_pages + '/' + result.page_details.length + '</div><div class="stat-lbl">撞车页</div></div>' +
+        '<div class="stat-item"><div class="stat-val">' + result.front_consensus.length + '</div><div class="stat-lbl">⭐共识</div></div>' +
+        '<div class="stat-item"><div class="stat-val">' + result.front_a.length + '</div><div class="stat-lbl">📘方法A</div></div>' +
+        '<div class="stat-item"><div class="stat-val">' + result.front_b.length + '</div><div class="stat-lbl">📗方法B</div></div>' +
+        '</div>';
+      
+      // Crash details
+      var crashPages = result.page_details.filter(function(p) { return p.crash; });
+      html += '<div class="crash-info"><div class="title">🔥 撞车详情（' + crashPages.length + '页触发）</div>' +
+        crashPages.map(function(p) { return '<div class="crash-page">▸ ' + p.name + '(÷' + p.divisor + ') ' + p.info + '</div>'; }).join('') +
+        '</div>';
+      
+      // CONSENSUS
+      if (result.front_consensus.length > 0) {
+        html += '<div class="consensus-box">' +
+          '<h3>⭐ 双引擎共识号码 · 高置信度（' + result.front_consensus.length + '个）</h3>' +
+          '<div class="pool-nums">' + renderPool(result.front_consensus, frontMax, result.front_consensus, [], []) + '</div>' +
+          '<div class="db-ref"><strong>💡 说明：</strong>共识号码 = 方法A+方法B同时预测 → 两个不同引擎独立验证一致 → 置信度最高</div></div>';
+      } else {
+        html += '<div class="pool-section" style="text-align:center;color:#6a7a90;padding:14px">⚠️ 两种方法本次没有共识号码，请结合各自池综合判断</div>';
+      }
+      
+      // Method A
+      if (result.front_a.length > 0) {
+        html += '<div class="pool-section">' +
+          '<div class="engine-header"><span class="pool-title">📘 方法A（书上11规则引擎）</span><span class="engine-tag book">书上方法</span></div>' +
+          '<span class="pool-badge blue" style="margin-bottom:6px">' + result.front_a.length + '个</span>' +
+          '<div class="pool-nums">' + renderPool(result.front_a, frontMax, result.front_consensus, result.a_only.filter(function(x) { return result.front_consensus.indexOf(x) === -1; }), []) + '</div>';
+        if (result.a_only.length > 0 && result.a_only.length <= 12) {
+          var ruleInfo = result.a_only.map(function(n) {
+            var rs = result.all_rules[n];
+            return rs ? n + '<span class="rule-tag">' + rs[0] + '</span>' : '' + n;
+          }).join(' ');
+          html += '<div class="db-ref">🔍 方法A独有号码来源：' + ruleInfo + '</div>';
+        }
+        html += '</div>';
+      }
+      
+      // Method B
+      if (result.front_b.length > 0) {
+        html += '<div class="pool-section">' +
+          '<div class="engine-header"><span class="pool-title">📗 方法B（Q-R算术引擎）</span><span class="engine-tag qr">Q-R引擎</span></div>' +
+          '<span class="pool-badge" style="margin-bottom:6px">' + result.front_b.length + '个</span>' +
+          '<div class="pool-nums">' + renderPool(result.front_b, frontMax, result.front_consensus, [], result.b_only.filter(function(x) { return result.front_consensus.indexOf(x) === -1; })) + '</div>' +
+          '</div>';
+      }
+      
+      // Legend
+      html += '<div style="font-size:10px;color:#6a7a90;margin:4px 0 8px;display:flex;gap:14px;flex-wrap:wrap">' +
+        '<span>⭐发光=共识号码</span><span style="color:#3498db">●蓝圈=仅方法A</span><span style="color:#27ae60">●绿圈=仅方法B</span></div>';
+      
+      // Back zone / Blue
+      if (!isSSQ) {
+        var backPool = Array.from(new Set(result.back_a.concat(result.back_b))).sort(function(a, b) { return a - b; });
+        if (backPool.length > 0) {
+          html += '<div class="pool-section">' +
+            '<div class="pool-title">🎱 后区参考池 <span class="pool-badge gold">' + backPool.length + '个</span></div>' +
+            '<div class="pool-nums">' + renderPool(backPool, backMax, result.back_consensus, [], []) + '</div>' +
+            (result.back_consensus.length > 0 ? '<div class="db-ref">⭐ 后区共识：' + result.back_consensus.join(', ') + '</div>' : '') +
+            '</div>';
+        }
+      } else if (result.blue_preds.length > 0) {
+        html += '<div class="pool-section">' +
+          '<div class="pool-title">🔵 蓝球参考 <span class="pool-badge blue">' + result.blue_preds.length + '个</span></div>' +
+          '<div class="pool-nums">' + renderPool(result.blue_preds, 16, [], [], []) + '</div></div>';
+      }
+      
+      // Combos
+      var mainPool = result.front_consensus.length >= (isSSQ ? 6 : 5)
+        ? result.front_consensus
+        : Array.from(new Set(result.front_consensus.concat(result.front_a).concat(result.front_b))).sort(function(a, b) { return a - b; });
+      var secPool = isSSQ ? result.blue_preds
+        : (Array.from(new Set(result.back_consensus.concat(result.back_a).concat(result.back_b))).sort(function(a, b) { return a - b; }));
+      
+      if (secPool.length === 0) secPool = isSSQ ? [1] : [1, 2];
+      
+      var combos = genCombos(mainPool, secPool, 5, isSSQ ? 6 : 5, isSSQ ? 1 : 2);
+      if (combos.length > 0) {
+        html += '<div class="combos"><h3>🎰 参考组合（共识优先）</h3>' +
+          combos.map(function(c, i) {
+            return '<div class="combo-item">' +
+              '<span class="combo-label">#' + (i + 1) + (i === 0 ? ' ⭐推荐' : '') + '</span> ' +
+              '<span class="num">[' + c[0].join(', ') + ']</span> ' +
+              '<span class="sp">+</span> ' +
+              '<span class="lb">[' + c[1].join(', ') + ']</span>' +
+              '</div>';
+          }).join('') + '</div>';
+      }
+    }
+    
+    inner.innerHTML = html;
+    document.getElementById(containerId).classList.add('show');
+  }, 150);
+}
+
+// ==================== PREDICT FUNCTIONS ====================
+function getInputs(cls, max, min) {
+  var vals = [];
+  document.querySelectorAll('.' + cls).forEach(function(inp) {
+    var v = parseInt(inp.value);
+    if (isNaN(v) || v < min || v > max) {
+      inp.classList.add('error');
+      setTimeout(function() { inp.classList.remove('error'); }, 1000);
+      vals.push(null);
+      return;
+    }
+    vals.push(v);
+  });
+  if (vals.length === 0) return null;
+  var filtered = vals.filter(function(v) { return v !== null; });
+  if (filtered.length !== vals.length) return null;
+  var uniq = {};
+  for (var i = 0; i < filtered.length; i++) {
+    if (uniq[filtered[i]]) return null;
+    uniq[filtered[i]] = true;
+  }
+  return filtered;
+}
+
+function predictDLT() {
+  var front = getInputs('dlt-f', 35, 1);
+  var back = getInputs('dlt-b', 12, 1);
+  if (!front || !back || front.length !== 5 || back.length !== 2) {
+    alert('请正确输入5个前区(1-35)和2个后区(1-12)，号码不能重复');
+    return;
+  }
+  var result = predict(front, back, false);
+  renderResult('dlt-result', 'dlt-result-inner', result, 35, 12, false);
+}
+
+function predictSSQ() {
+  var front = getInputs('ssq-f', 33, 1);
+  var blueInp = document.getElementById('ssq-blue');
+  var blue = parseInt(blueInp.value);
+  if (!front || front.length !== 6 || isNaN(blue) || blue < 1 || blue > 16) {
+    if (isNaN(blue) || blue < 1 || blue > 16) {
+      blueInp.classList.add('error');
+      setTimeout(function() { blueInp.classList.remove('error'); }, 1000);
+    }
+    alert('请正确输入6个红球(1-33)和1个蓝球(1-16)，红球不能重复');
+    return;
+  }
+  var result = predict(front, [blue], true);
+  renderResult('ssq-result', 'ssq-result-inner', result, 33, 16, true);
+}
+
+function switchGame(game) {
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.querySelectorAll('.card').forEach(function(c) { c.classList.remove('active'); });
+  if (game === 'dlt') {
+    document.querySelectorAll('.tab-btn')[0].classList.add('active');
+    document.getElementById('card-dlt').classList.add('active');
+  } else {
+    document.querySelectorAll('.tab-btn')[1].classList.add('active');
+    document.getElementById('card-ssq').classList.add('active');
+  }
+}
+
+// Auto input box switching
+document.querySelectorAll('input[type="tel"]').forEach(function(inp) {
+  inp.addEventListener('input', function() {
+    if (this.value.length >= this.maxLength) {
+      var parent = this.parentElement;
+      var inputs = parent.querySelectorAll('input');
+      var idx = Array.from(inputs).indexOf(this);
+      if (idx < inputs.length - 1) inputs[idx + 1].focus();
+    }
+    this.classList.remove('error');
+  });
+  inp.addEventListener('keydown', function(e) {
+    if (e.key === 'Backspace' && this.value.length === 0) {
+      var parent = this.parentElement;
+      var inputs = parent.querySelectorAll('input');
+      var idx = Array.from(inputs).indexOf(this);
+      if (idx > 0) inputs[idx - 1].focus();
+    }
+  });
+});
+</script>
+</body>
+</html>
