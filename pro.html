@@ -83,7 +83,7 @@ label:first-child{margin-top:0}
 <body>
 <div class="container">
 <h1>🎯 彩票分析工具 <small>Pro版 · 双引擎融合</small></h1>
-<div class="subtitle">方法A(书上11规则)+ 方法B(Q-R算术引擎)→ 共识验证</div>
+<div class="subtitle">方法A(书上11规则)+ 方法B(Q-R算术引擎)→ 共识验证 · AC值/连号过滤 · 一键预测 · 偏态参考</div>
 
 <div class="tab-bar">
   <div class="tab-btn active" onclick="switchGame('dlt')">🎱 A款 · 大乐透</div>
@@ -106,7 +106,10 @@ label:first-child{margin-top:0}
     <input type="tel" maxlength="2" class="dlt-b" placeholder="?">
     <input type="tel" maxlength="2" class="dlt-b" placeholder="?">
   </div>
-  <button class="btn" onclick="predictDLT()">🔬 双引擎分析</button>
+  <div style="display:flex;gap:8px;margin-top:14px">
+    <button class="btn" style="flex:1;margin:0" onclick="predictDLT()">🔬 双引擎分析</button>
+    <button id="dlt-auto-btn" class="btn" style="flex:1;margin:0;background:#1a3050;color:#3498db;font-size:12px" onclick="autoPredictDLT()">🤖 自动获取最新期号</button>
+  </div>
   <div class="hint">输入上期开奖号码 → 方法A+方法B同时计算 → 共识号码=高置信度</div>
 
   <div class="result-box" id="dlt-result">
@@ -131,19 +134,82 @@ label:first-child{margin-top:0}
     <input type="tel" maxlength="2" id="ssq-blue" class="ssq-b" placeholder="?">
   </div>
   <details style="margin-top:10px;cursor:pointer">
-    <summary style="font-size:11px;color:#f0c040;padding:6px 0">🔵 蓝球过滤设置(展开设置)</summary>
+    <summary style="font-size:11px;color:#f0c040;padding:6px 0">🔧 高级设置(参数可调+数据自动获取)</summary>
     <div style="background:#0e1525;border-radius:8px;padding:12px;margin-top:6px">
       <label style="margin-top:0;font-size:11px">上上期蓝号(用于复隔中/重斜跳分类)</label>
       <input type="tel" maxlength="2" id="ssq-blue-prev2" style="width:56px;height:36px;text-align:center;background:#1a2540;border:1px solid #2a3a58;border-radius:8px;color:#e0e6f0;font-size:16px;font-weight:bold;outline:none" placeholder="?">
-      <label style="font-size:11px">近11期蓝号历史(逗号分隔,用于冷温热分类。留空则全部视为冷码)</label>
+      <label style="font-size:11px">近N期蓝号历史(逗号分隔,用于冷温热分类)</label>
       <input type="text" id="ssq-blue-history" style="width:100%;height:36px;background:#1a2540;border:1px solid #2a3a58;border-radius:8px;color:#e0e6f0;font-size:13px;padding:0 10px;outline:none" placeholder="例: 3,7,12,5,9,1,8,14,6,2,11">
-      <div class="hint" style="text-align:left;margin-top:4px">过滤策略:孤码+中码+跳码+冷码 = 排除传/邻/复/隔/重/斜/热/温</div>
-      <div style="display:flex;gap:8px;margin-top:8px">
-        <div id="blue-preset-btn" onclick="loadBluePreset()" style="flex:1;text-align:center;padding:8px;background:#1a3050;border-radius:6px;color:#3498db;font-size:11px;cursor:pointer">📋 加载预设历史数据</div>
+      <div class="hint" style="text-align:left;margin-top:4px">默认过滤策略:孤码+中码+跳码+冷码</div>
+      <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+        <div onclick="loadBluePreset()" style="flex:1;text-align:center;padding:8px;background:#1a3050;border-radius:6px;color:#3498db;font-size:11px;cursor:pointer">📋 手动预设数据</div>
+        <div id="blue-preset-btn" onclick="updateBlueHistoryFromData()" style="flex:1;text-align:center;padding:8px;background:#1a3050;border-radius:6px;color:#27ae60;font-size:11px;cursor:pointer">🌐 从数据源自动获取</div>
       </div>
+
+      <hr style="border:0;border-top:1px solid #1e2a40;margin:12px 0">
+      <div style="font-size:12px;color:#f0c040;margin-bottom:8px">⚙️ 参数设置（实时调整，重新分析生效）</div>
+
+      <label style="font-size:11px">冷温热统计窗口(期数)</label>
+      <div style="display:flex;align-items:center;gap:10px">
+        <input type="range" id="setting-window" min="5" max="30" value="11" oninput="document.getElementById('window-val').textContent=this.value" style="flex:1;accent-color:#f0c040">
+        <span id="window-val" style="font-size:14px;color:#f0c040;min-width:30px">11</span>
+      </div>
+
+      <label style="font-size:11px">热码阈值(出现≥此次数)</label>
+      <div style="display:flex;align-items:center;gap:10px">
+        <input type="range" id="setting-hot" min="2" max="6" value="3" oninput="document.getElementById('hot-val').textContent=this.value" style="flex:1;accent-color:#e74c3c">
+        <span id="hot-val" style="font-size:14px;color:#e74c3c;min-width:30px">3</span>
+      </div>
+
+      <label style="font-size:11px">温码判定(出现次数=此值)</label>
+      <div style="display:flex;align-items:center;gap:10px">
+        <input type="range" id="setting-warm" min="1" max="5" value="2" oninput="document.getElementById('warm-val').textContent=this.value" style="flex:1;accent-color:#f39c12">
+        <span id="warm-val" style="font-size:14px;color:#f39c12;min-width:30px">2</span>
+      </div>
+
+      <label style="font-size:11px">过滤策略(勾选=需同时满足)</label>
+      <div style="display:flex;gap:10px;margin-top:4px;flex-wrap:wrap">
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#8899b0;cursor:pointer;margin:0">
+          <input type="checkbox" id="setting-lonely" checked> 孤码
+        </label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#8899b0;cursor:pointer;margin:0">
+          <input type="checkbox" id="setting-mid" checked> 中码
+        </label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#8899b0;cursor:pointer;margin:0">
+          <input type="checkbox" id="setting-jump" checked> 跳码
+        </label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#8899b0;cursor:pointer;margin:0">
+          <input type="checkbox" id="setting-cold" checked> 冷码
+        </label>
+      </div>
+
+      <hr style="border:0;border-top:1px solid #1e2a40;margin:10px 0">
+      <div style="font-size:12px;color:#f0c040;margin-bottom:6px">🎯 号码范围过滤(淘汰极罕见组合)</div>
+
+      <label style="font-size:11px">AC值过滤(淘汰极低AC组合)</label>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#8899b0;cursor:pointer;margin:0">
+          <input type="checkbox" id="setting-ac-kill"> 淘汰AC≤
+        </label>
+        <span id="ac-kill-label" style="font-size:13px;color:#f0c040;min-width:40px">(SSQ≤3,DLT≤2)</span>
+      </div>
+
+      <label style="font-size:11px">连号限制</label>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:4px;flex-wrap:wrap">
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#8899b0;cursor:pointer;margin:0">
+          <input type="checkbox" id="setting-consec-kill"> 淘汰最长连号≥
+        </label>
+        <input type="range" id="setting-consec-max" min="4" max="7" value="5" oninput="document.getElementById('consec-max-val').textContent=this.value" style="flex:0.5;accent-color:#e74c3c">
+        <span id="consec-max-val" style="font-size:14px;color:#e74c3c;min-width:20px">5</span>
+      </div>
+
+      <div id="save-settings" onclick="applySettings()" style="text-align:center;padding:8px;margin-top:8px;background:#1a3050;border-radius:6px;color:#3498db;font-size:11px;cursor:pointer">设置</div>
     </div>
   </details>
-  <button class="btn" onclick="predictSSQ()">🔬 双引擎分析</button>
+  <div style="display:flex;gap:8px;margin-top:14px">
+    <button class="btn" style="flex:1;margin:0" onclick="predictSSQ()">🔬 双引擎分析</button>
+    <button id="ssq-auto-btn" class="btn" style="flex:1;margin:0;background:#1a3050;color:#3498db;font-size:12px" onclick="autoPredictSSQ()">🤖 自动获取最新期号</button>
+  </div>
   <div class="hint">输入上期开奖号码 → 方法A+方法B同时计算 → 共识号码=高置信度</div>
 
   <div class="result-box" id="ssq-result">
@@ -498,6 +564,13 @@ function predict(front, back, isSSQ, bluePrev2, blueHistory) {
     blue_preds: bluePreds,
     blue_filter: blueFilter,
     pivot_kill: pivotKill,
+    // 附加统计
+    ac_value: acValue(front),
+    consecutive: getConsecutive(front),
+    consec_odd: getConsecutiveOdd(front),
+    consec_even: getConsecutiveEven(front),
+    consec_groups: getConsecutiveGroupCount(front),
+    consec_max_run: getMaxConsecutiveRun(front),
     crash_pages: crashCount,
     has_crash: crashCount > 0,
     page_details: pageDetails,
@@ -530,17 +603,25 @@ function classifyBlue(n, prevBlue, prev2Blue, freq) {
   else if (prev2Blue !== null && isBlueAdjacent(n, prev2Blue)) zxt = '斜';
   else zxt = '跳';
 
-  // 冷温热: >2=热, =2=温, <2=冷
+  // 冷温热: 用户可调阈值(BLUE_SETTINGS)
   var cnt = freq[n] || 0;
-  var lwr = cnt > 2 ? '热' : (cnt === 2 ? '温' : '冷');
+  var hotThresh = (typeof BLUE_SETTINGS !== 'undefined' ? BLUE_SETTINGS.hotThreshold : 3);
+  var warmThresh = (typeof BLUE_SETTINGS !== 'undefined' ? BLUE_SETTINGS.warmThreshold : 2);
+  var lwr = cnt >= hotThresh ? '热' : (cnt >= warmThresh ? '温' : '冷');
 
   return { lgc: lgc, fgz: fgz, zxt: zxt, lwr: lwr };
 }
 
 function filterBlues(bluePool, prevBlue, prev2Blue, historyBlues) {
+  var settings = (typeof BLUE_SETTINGS !== 'undefined') ? BLUE_SETTINGS : {
+    coldHotWindow: 11, hotThreshold: 3, warmThreshold: 2,
+    filterLonely: true, filterMid: true, filterJump: true, filterCold: true
+  };
+
   var freq = {};
   if (historyBlues && historyBlues.length > 0) {
-    historyBlues.forEach(function(b) { freq[b] = (freq[b] || 0) + 1; });
+    var windowed = historyBlues.slice(-settings.coldHotWindow);
+    windowed.forEach(function(b) { freq[b] = (freq[b] || 0) + 1; });
   } else {
     for (var i = 1; i <= 16; i++) freq[i] = 0;
   }
@@ -552,9 +633,19 @@ function filterBlues(bluePool, prevBlue, prev2Blue, historyBlues) {
   bluePool.forEach(function(b) {
     var c = classifyBlue(b, prevBlue, prev2Blue, freq);
     classified.push({ num: b, cls: c });
-    if (c.lgc === '孤' && c.fgz === '中' && c.zxt === '跳' && c.lwr === '冷') {
+    var passFilters = true;
+    if (settings.filterLonely && c.lgc !== '孤') passFilters = false;
+    if (settings.filterMid && c.fgz !== '中') passFilters = false;
+    if (settings.filterJump && c.zxt !== '跳') passFilters = false;
+    if (settings.filterCold && c.lwr !== '冷') passFilters = false;
+    if (passFilters) {
       filtered.push(b);
-      tags[b] = c.lgc + ' ' + c.fgz + ' ' + c.zxt + ' ' + c.lwr;
+      var tagParts = [];
+      if (c.lgc === '孤') tagParts.push('孤');
+      if (c.fgz === '中') tagParts.push('中');
+      if (c.zxt === '跳') tagParts.push('跳');
+      if (c.lwr === '冷') tagParts.push('冷');
+      tags[b] = tagParts.join('+');
     }
   });
 
@@ -567,25 +658,228 @@ function filterBlues(bluePool, prevBlue, prev2Blue, historyBlues) {
   };
 }
 
+// ==================== AC VALUE & CONSECUTIVE ====================
+function acValue(nums) {
+  var sorted = nums.slice().sort(function(a,b){return a-b});
+  var diffs = new Set();
+  for (var i = 0; i < sorted.length; i++) {
+    for (var j = i + 1; j < sorted.length; j++) {
+      diffs.add(sorted[j] - sorted[i]);
+    }
+  }
+  return diffs.size - (sorted.length - 1);
+}
+
+function getConsecutive(nums) {
+  var sorted = nums.slice().sort(function(a,b){return a-b});
+  var pairs = [];
+  for (var i = 0; i < sorted.length - 1; i++) {
+    if (sorted[i+1] - sorted[i] === 1) {
+      pairs.push([sorted[i], sorted[i+1]]);
+    }
+  }
+  return pairs;
+}
+
+// 奇连：依次相邻的奇数组合（如01,03,05）
+function getConsecutiveOdd(nums) {
+  var sorted = nums.slice().sort(function(a,b){return a-b});
+  var odds = sorted.filter(function(n){return n%2===1;});
+  var pairs = [];
+  for (var i = 0; i < odds.length - 1; i++) {
+    if (odds[i+1] - odds[i] === 2) {
+      pairs.push([odds[i], odds[i+1]]);
+    }
+  }
+  return pairs;
+}
+
+// 偶连：依次相邻的偶数组合（如02,04,06）
+function getConsecutiveEven(nums) {
+  var sorted = nums.slice().sort(function(a,b){return a-b});
+  var evens = sorted.filter(function(n){return n%2===0;});
+  var pairs = [];
+  for (var i = 0; i < evens.length - 1; i++) {
+    if (evens[i+1] - evens[i] === 2) {
+      pairs.push([evens[i], evens[i+1]]);
+    }
+  }
+  return pairs;
+}
+
+// 连号组数：独立的连号段落数量（如1,2,3,8,9 => 2组）
+function getConsecutiveGroupCount(nums) {
+  var sorted = nums.slice().sort(function(a,b){return a-b});
+  if (sorted.length === 0) return 0;
+  var groups = 1;
+  for (var i = 0; i < sorted.length - 1; i++) {
+    if (sorted[i+1] - sorted[i] !== 1) groups++;
+  }
+  return groups;
+}
+
+// 最大连号长度：一组连号中最多的数字个数（用于过滤）
+function getMaxConsecutiveRun(nums) {
+  var sorted = nums.slice().sort(function(a,b){return a-b});
+  if (sorted.length === 0) return 0;
+  var maxRun = 1, curRun = 1;
+  for (var i = 0; i < sorted.length - 1; i++) {
+    if (sorted[i+1] - sorted[i] === 1) {
+      curRun++;
+      if (curRun > maxRun) maxRun = curRun;
+    } else {
+      curRun = 1;
+    }
+  }
+  return maxRun;
+}
+
+// ==================== DATA LOADER ====================
+var CACHED_SSQ = null;
+var CACHED_DLT = null;
+var DATA_VERSION = null;
+
+function loadLotteryData(type) {
+  return new Promise(function(resolve) {
+    if ((type === 'ssq' && CACHED_SSQ) || (type === 'dlt' && CACHED_DLT)) {
+      return resolve(type === 'ssq' ? CACHED_SSQ : CACHED_DLT);
+    }
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', 'data/' + type + '.json', true);
+    xhr.onload = function() {
+      if (xhr.status >= 200 && xhr.status < 400) {
+        var json = JSON.parse(xhr.responseText);
+        DATA_VERSION = json.updated_at;
+        if (type === 'ssq') { CACHED_SSQ = json.data; resolve(json.data); }
+        else { CACHED_DLT = json.data; resolve(json.data); }
+      } else { resolve(null); }
+    };
+    xhr.onerror = function() { resolve(null); };
+    xhr.send();
+  });
+}
+
+function updateBlueHistoryFromData() {
+  var histInp = document.getElementById('ssq-blue-history');
+  var pv2Inp = document.getElementById('ssq-blue-prev2');
+  var blueInp = document.getElementById('ssq-blue');
+  var blue = parseInt(blueInp.value);
+
+  loadLotteryData('ssq').then(function(data) {
+    if (!data) { alert('数据文件data/ssq.json不存在。请先在repo中部署data/目录。'); return; }
+
+    var idx = -1;
+    for (var i = data.length - 1; i >= 0; i--) {
+      if (data[i].blue === blue) { idx = i; break; }
+    }
+
+    if (idx === -1) {
+      var lastBlues = data.slice(-11).map(function(d) { return d.blue; });
+      histInp.value = lastBlues.join(', ');
+      if (data.length >= 2) pv2Inp.value = data[data.length - 2].blue;
+      alert('未找到匹配蓝球,使用最近11期数据');
+      return;
+    }
+
+    var recentBlues = [];
+    for (var j = Math.max(0, idx - 11); j < idx; j++) {
+      recentBlues.push(data[j].blue);
+    }
+    histInp.value = recentBlues.join(', ');
+
+    if (idx - 1 >= 0) pv2Inp.value = data[idx - 1].blue;
+
+    var btn = document.getElementById('blue-preset-btn');
+    btn.textContent = '✅ 已从' + data.length + '期数据自动匹配';
+    btn.style.background = '#1a3a20';
+    btn.style.color = '#27ae60';
+  }).catch(function() { loadBluePreset(); });
+}
+
+// ==================== SETTINGS ====================
+var BLUE_SETTINGS = {
+  coldHotWindow: 11, hotThreshold: 3, warmThreshold: 2,
+  filterLonely: true, filterMid: true, filterJump: true, filterCold: true,
+  filterAcKill: false,  // 淘汰极低AC值（默认关闭）
+  filterConsecKill: false,  // 淘汰超长连号（默认关闭）
+  consecMaxRun: 5  // 最长连号上限
+};
+
+function applySettings() {
+  BLUE_SETTINGS.coldHotWindow = parseInt(document.getElementById('setting-window').value) || 11;
+  BLUE_SETTINGS.hotThreshold = parseInt(document.getElementById('setting-hot').value) || 3;
+  BLUE_SETTINGS.warmThreshold = parseInt(document.getElementById('setting-warm').value) || 2;
+  BLUE_SETTINGS.filterLonely = document.getElementById('setting-lonely').checked;
+  BLUE_SETTINGS.filterMid = document.getElementById('setting-mid').checked;
+  BLUE_SETTINGS.filterJump = document.getElementById('setting-jump').checked;
+  BLUE_SETTINGS.filterCold = document.getElementById('setting-cold').checked;
+  BLUE_SETTINGS.filterAcKill = document.getElementById('setting-ac-kill').checked;
+  BLUE_SETTINGS.filterConsecKill = document.getElementById('setting-consec-kill').checked;
+  BLUE_SETTINGS.consecMaxRun = parseInt(document.getElementById('setting-consec-max').value) || 5;
+
+  var btn = document.getElementById('save-settings');
+  btn.textContent = '✅ 已保存';
+  btn.style.background = '#1a3a20';
+  btn.style.color = '#27ae60';
+  setTimeout(function() {
+    btn.textContent = '设置';
+    btn.style.background = '#1a3050';
+    btn.style.color = '#3498db';
+  }, 1500);
+}
+
 // ==================== GEN COMBOS ====================
-function genCombos(pool, pool2, cnt, size1, size2) {
+function genCombos(pool, pool2, cnt, size1, size2, isSSQ) {
   if (pool.length < size1) return [];
+  var settings = (typeof BLUE_SETTINGS !== 'undefined') ? BLUE_SETTINGS : { filterAcKill:true, filterConsecKill:true, consecMaxRun:5 };
+  var acKill = isSSQ ? 3 : 2;
+
   var combos = [];
   var seeds = [42, 123, 777, 999, 555];
+
+  // Shuffle once and take sequential chunks to get more variety
+  var shuffled = pool.slice();
+  for (var i = shuffled.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = shuffled[i]; shuffled[i] = shuffled[j]; shuffled[j] = tmp;
+  }
+
   for (var si = 0; si < Math.min(cnt, seeds.length); si++) {
-    var s = pool.slice();
-    for (var i = s.length - 1; i > 0; i--) {
-      var j = Math.floor((seeds[si] * (i + 1) + si * 13) % (i + 1));
-      var tmp = s[i]; s[i] = s[j]; s[j] = tmp;
+    // Try multiple offsets until we find a valid combo or exhaust
+    var maxTries = 100;
+    var found = false;
+    for (var attempt = 0; attempt < maxTries && !found; attempt++) {
+      var offset = (si * 7 + attempt * 17) % Math.max(1, shuffled.length - size1);
+      var f = shuffled.slice(offset, offset + size1).sort(function(a, b) { return a - b; });
+
+      // AC value filter
+      if (settings.filterAcKill && acValue(f) <= acKill) continue;
+
+      // Consecutive run filter
+      if (settings.filterConsecKill && getMaxConsecutiveRun(f) >= settings.consecMaxRun) continue;
+
+      // Found a valid front combo
+      var sc = pool2.slice();
+      for (var k = sc.length - 1; k > 0; k--) {
+        var j2 = Math.floor((seeds[si] * (k + 1) + si * 37) % (k + 1));
+        var tmp2 = sc[k]; sc[k] = sc[j2]; sc[j2] = tmp2;
+      }
+      var bk = sc.slice(0, size2).sort(function(a, b) { return a - b; });
+      combos.push([f, bk]);
+      found = true;
     }
-    var f = s.slice(0, size1).sort(function(a, b) { return a - b; });
-    var sc = pool2.slice();
-    for (var k = sc.length - 1; k > 0; k--) {
-      var j2 = Math.floor((seeds[si] * (k + 1) + si * 37) % (k + 1));
-      var tmp2 = sc[k]; sc[k] = sc[j2]; sc[j2] = tmp2;
+    // If all attempts failed, push a plain combo without filtering
+    if (!found) {
+      var offset = si * 5 % Math.max(1, shuffled.length - size1);
+      var f = shuffled.slice(offset, offset + size1).sort(function(a, b) { return a - b; });
+      var sc = pool2.slice();
+      for (var k = sc.length - 1; k > 0; k--) {
+        var j2 = Math.floor((seeds[si] * (k + 1) + si * 37) % (k + 1));
+        var tmp2 = sc[k]; sc[k] = sc[j2]; sc[j2] = tmp2;
+      }
+      var bk = sc.slice(0, size2).sort(function(a, b) { return a - b; });
+      combos.push([f, bk]);
     }
-    var bk = sc.slice(0, size2).sort(function(a, b) { return a - b; });
-    combos.push([f, bk]);
   }
   return combos;
 }
@@ -632,12 +926,32 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
         html += '<div class="historical-ref"><strong>📊 历史数据参考(大乐透):</strong> 撞车率85.15% | 撞车后命中≥3前区概率50.98% | ≥4前区28.98% | 全中5前区8.90% | 平均命中2.55/5</div>';
       }
 
-      // Stats row
+      // Stats row - with enhanced consecutive + AC value
+      var ac = typeof result.ac_value !== 'undefined' ? result.ac_value : '-';
+      var cons = result.consecutive && result.consecutive.length > 0 ? result.consecutive.map(function(p) { return p[0] + '-' + p[1]; }) : [];
+      var consOdd = result.consec_odd && result.consec_odd.length > 0 ? result.consec_odd.map(function(p) { return p[0] + '-' + p[1]; }) : [];
+      var consEven = result.consec_even && result.consec_even.length > 0 ? result.consec_even.map(function(p) { return p[0] + '-' + p[1]; }) : [];
+      var acKill = isSSQ ? 3 : 2;
+
       html += '<div class="stats-row">' +
         '<div class="stat-item"><div class="stat-val">' + result.crash_pages + '/' + result.page_details.length + '</div><div class="stat-lbl">撞车页</div></div>' +
         '<div class="stat-item"><div class="stat-val">' + result.front_consensus.length + '</div><div class="stat-lbl">⭐共识</div></div>' +
         '<div class="stat-item"><div class="stat-val">' + result.front_a.length + '</div><div class="stat-lbl">📘方法A</div></div>' +
         '<div class="stat-item"><div class="stat-val">' + result.front_b.length + '</div><div class="stat-lbl">📗方法B</div></div>' +
+        '</div>' +
+        '<div class="stats-row">' +
+        '<div class="stat-item"><div class="stat-val">' + ac + '</div><div class="stat-lbl" ' + (ac <= acKill ? 'style="color:#e74c3c"' : '') + '>🧮 AC值' + (ac <= acKill ? ' ⚠️极低' : '') + '</div></div>' +
+        '<div class="stat-item"><div class="stat-val">' + (cons.length > 0 ? cons.length : 0) + '</div><div class="stat-lbl">🔗 连号数</div></div>' +
+        '<div class="stat-item"><div class="stat-val">' + (consOdd.length > 0 ? consOdd.length : 0) + '</div><div class="stat-lbl">🔷 奇连</div></div>' +
+        '<div class="stat-item"><div class="stat-val">' + (consEven.length > 0 ? consEven.length : 0) + '</div><div class="stat-lbl">🔶 偶连</div></div>' +
+        '</div>' +
+        '<div class="stats-row">' +
+        '<div class="stat-item"><div class="stat-val">' + (typeof result.consec_groups !== 'undefined' ? result.consec_groups : '-') + '</div><div class="stat-lbl">📑 连号组数</div></div>' +
+        '<div class="stat-item"><div class="stat-val">' + (typeof result.consec_max_run !== 'undefined' ? result.consec_max_run : '-') + '</div><div class="stat-lbl" ' + ((typeof result.consec_max_run !== 'undefined' && result.consec_max_run >= 5) ? 'style="color:#e74c3c"' : '') + '>📏 最长连号</div></div>' +
+        '<div class="stat-item" style="flex:2"><div class="stat-val" style="font-size:12px;word-break:break-all">' + (cons.length > 0 ? cons.join(', ') : (consOdd.length > 0 || consEven.length > 0 ? '' : '无')) + ' ' +
+          (consOdd.length > 0 ? '<span style="color:#5aa0d0">奇:' + consOdd.join(',') + '</span>' : '') + ' ' +
+          (consEven.length > 0 ? '<span style="color:#e0a040">偶:' + consEven.join(',') + '</span>' : '') +
+        '</div><div class="stat-lbl">📊 连号详情(普·奇·偶)</div></div>' +
         '</div>';
 
       // Crash details
@@ -766,6 +1080,22 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
         mainPool = mainPool.filter(function(n) { return n !== result.pivot_kill; });
       }
 
+      // 偏态参考信息 (仅在大乐透显示，基于1850维遗漏分析)
+      if (!isSSQ && mainPool.length > 0) {
+        var biasWarns = getBiasWarnings(mainPool, 'dlt');
+        if (biasWarns.length > 0) {
+          html += '<div class="crash-info" style="border-left:3px solid #e67e22">' +
+            '<div class="pool-title">⚠️ 偏态参考 <span style="font-size:11px;color:#8899b0">（1850维遗漏分析，历史概率<0.5%）</span></div>' +
+            '<div class="pool-nums">' +
+            biasWarns.map(function(w) {
+              return '<div class="pool-num" style="background:#2a1520;border:1px solid #e67e22;color:#e67e22" title="历史极低概率' + w.prob + '%">' + w.num + '</div>';
+            }).join('') +
+            '</div>' +
+            '<div class="db-ref"><strong>📌 说明:</strong> 以下号码在1850维遗漏分析中出现概率<0.5%，属于极端低概率事件。<br>' +
+            '此数据为快照，当前遗漏已变化，<strong>仅供决策参考，不作硬杀号</strong>。可手动排除。</div></div>';
+        }
+      }
+
       var secPool = isSSQ ? result.blue_preds
         : (Array.from(new Set(result.back_consensus.concat(result.back_a).concat(result.back_b))).sort(function(a, b) { return a - b; }));
 
@@ -854,6 +1184,95 @@ function predictSSQ() {
   renderResult('ssq-result', 'ssq-result-inner', result, 33, 16, true);
 }
 
+// ==================== AUTO PREDICT (从数据源自动获取最新期号) ====================
+function getLastPeriodNumbers(type) {
+  return loadLotteryData(type).then(function(data) {
+    if (!data || data.length === 0) return null;
+    var last = data[data.length - 1];
+    return last;
+  });
+}
+
+function autoPredictDLT() {
+  var btn = document.getElementById('dlt-auto-btn');
+  btn.textContent = '⏳ 加载中...';
+  btn.disabled = true;
+
+  getLastPeriodNumbers('dlt').then(function(last) {
+    if (!last) {
+      alert('数据文件不存在或为空。请确认 data/dlt.json 已部署。');
+      btn.textContent = '🤖 自动获取最新期号并分析';
+      btn.disabled = false;
+      return;
+    }
+
+    // Fill front area inputs
+    var fInputs = document.querySelectorAll('#dlt-front input');
+    for (var i = 0; i < fInputs.length; i++) {
+      fInputs[i].value = last.fronts[i];
+    }
+
+    // Fill back area inputs
+    var bInputs = document.querySelectorAll('#dlt-back input');
+    for (var i = 0; i < bInputs.length; i++) {
+      bInputs[i].value = last.backs[i];
+    }
+
+    btn.textContent = '✅ ' + last.period + '期(' + last.date + ') 已加载,分析中...';
+
+    // Auto trigger prediction
+    setTimeout(function() {
+      predictDLT();
+      btn.textContent = '🤖 自动获取最新期号并分析';
+      btn.disabled = false;
+    }, 200);
+  }).catch(function() {
+    alert('数据加载失败');
+    btn.textContent = '🤖 自动获取最新期号并分析';
+    btn.disabled = false;
+  });
+}
+
+function autoPredictSSQ() {
+  var btn = document.getElementById('ssq-auto-btn');
+  btn.textContent = '⏳ 加载中...';
+  btn.disabled = true;
+
+  getLastPeriodNumbers('ssq').then(function(last) {
+    if (!last) {
+      alert('数据文件不存在或为空。请确认 data/ssq.json 已部署。');
+      btn.textContent = '🤖 自动获取最新期号并分析';
+      btn.disabled = false;
+      return;
+    }
+
+    // Fill reds
+    var fInputs = document.querySelectorAll('#ssq-front input');
+    for (var i = 0; i < fInputs.length; i++) {
+      fInputs[i].value = last.reds[i];
+    }
+
+    // Fill blue
+    document.getElementById('ssq-blue').value = last.blue;
+
+    // Auto match blue history from data
+    updateBlueHistoryFromData();
+
+    btn.textContent = '✅ ' + last.period + '期(' + last.date + ') 已加载,蓝历史同步...';
+
+    // Auto trigger prediction after a short delay for blue history to load
+    setTimeout(function() {
+      predictSSQ();
+      btn.textContent = '🤖 自动获取最新期号并分析';
+      btn.disabled = false;
+    }, 300);
+  }).catch(function() {
+    alert('数据加载失败');
+    btn.textContent = '🤖 自动获取最新期号并分析';
+    btn.disabled = false;
+  });
+}
+
 function switchGame(game) {
   document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
   document.querySelectorAll('.card').forEach(function(c) { c.classList.remove('active'); });
@@ -888,6 +1307,34 @@ document.querySelectorAll('input[type="tel"]').forEach(function(inp) {
 });
 
 // Blue ball history preset (recent SSQ data)
+// ==================== BIAS REFERENCE DATA (快照数据，基于1850维度分析) ====================
+// 来源：dlt_rules.txt | 概率<0.5%的号码极端偏态
+// 注：此数据为2024005期的快照，当前遗漏已变化，仅作参考，不作硬杀号
+var BIAS_WARNINGS = {
+  "dlt": {
+    "03": 0.157, "04": 0.274, "08": 0.039, "10": 0.039, "11": 0.039,
+    "12": 0.039, "13": 0.039, "14": 0.039, "15": 0.392, "16": 0.353,
+    "20": 0.470, "21": 0.196, "22": 0.274, "23": 0.118, "24": 0.078,
+    "25": 0.039, "26": 0.039, "27": 0.039, "28": 0.039, "29": 0.039,
+    "30": 0.039, "31": 0.078, "32": 0.039, "33": 0.274
+  },
+  "ssq": {}
+};
+
+// 检查号码池中是否有偏态警告
+function getBiasWarnings(pool, gameType) {
+  var ref = BIAS_WARNINGS[gameType] || {};
+  var warns = [];
+  for (var i = 0; i < pool.length; i++) {
+    var key = (pool[i] < 10 ? '0' : '') + pool[i];
+    if (ref[key] !== undefined) {
+      warns.push({ num: pool[i], prob: ref[key] });
+    }
+  }
+  warns.sort(function(a, b) { return a.prob - b.prob; });
+  return warns;
+}
+
 var BLUE_HISTORY_PRESET = [
   11, 12, 16, 3, 16, 6, 7, 8, 9, 13, 15, 12, 12, 2, 13, 6, 6, 13, 9, 4, 1, 8, 2, 14, 12, 16, 15, 7, 10, 7, 1, 13, 10, 14, 8, 15, 7, 16, 3, 16, 11, 7, 13, 15, 3, 11, 16, 7, 13, 2
 ];
