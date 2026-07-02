@@ -203,6 +203,14 @@ label:first-child{margin-top:0}
         <span id="consec-max-val" style="font-size:14px;color:#e74c3c;min-width:20px">5</span>
       </div>
 
+      <label style="font-size:11px">🚫 全质号过滤(SSQ独有)</label>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#8899b0;cursor:pointer;margin:0">
+          <input type="checkbox" id="setting-allprime-kill"> 淘汰全红质号组合
+        </label>
+        <span style="font-size:10px;color:#5a7a9a">(质数:2,3,5,7,11,13,17,19,23,29,31,共924注)</span>
+      </div>
+
       <div id="save-settings" onclick="applySettings()" style="text-align:center;padding:8px;margin-top:8px;background:#1a3050;border-radius:6px;color:#3498db;font-size:11px;cursor:pointer">设置</div>
     </div>
   </details>
@@ -796,13 +804,43 @@ function updateBlueHistoryFromData() {
   }).catch(function() { loadBluePreset(); });
 }
 
+// 全局：存储最近一次生成的推荐组合（供展开用）
+var _lastAllCombos = [];
+function expandCombos() {
+  var list = document.getElementById('combo-list');
+  var btn = document.getElementById('combo-expand-btn');
+  if (!list || !btn || _lastAllCombos.length === 0) return;
+  // 如果已经展开，则收起
+  var isExpanded = btn.textContent.indexOf('收起') >= 0;
+  if (isExpanded) {
+    list.innerHTML = _lastAllCombos.slice(0, Math.min(5, _lastAllCombos.length)).map(function(c, i) {
+      return '<div class="combo-item">' +
+        '<span class="combo-label">#' + (i + 1) + (i === 0 ? ' ⭐推荐' : '') + '</span> ' +
+        '<span class="num">[' + c[0].join(', ') + ']</span> ' +
+        '<span class="sp">+</span> ' +
+        '<span class="lb">[' + c[1].join(', ') + ']</span></div>';
+    }).join('');
+    btn.innerHTML = '📂 展开全部' + _lastAllCombos.length + '注';
+  } else {
+    list.innerHTML = _lastAllCombos.map(function(c, i) {
+      return '<div class="combo-item">' +
+        '<span class="combo-label">#' + (i + 1) + (i === 0 ? ' ⭐推荐' : '') + '</span> ' +
+        '<span class="num">[' + c[0].join(', ') + ']</span> ' +
+        '<span class="sp">+</span> ' +
+        '<span class="lb">[' + c[1].join(', ') + ']</span></div>';
+    }).join('');
+    btn.innerHTML = '📂 收起';
+  }
+}
+
 // ==================== SETTINGS ====================
 var BLUE_SETTINGS = {
   coldHotWindow: 11, hotThreshold: 3, warmThreshold: 2,
   filterLonely: true, filterMid: true, filterJump: true, filterCold: true,
   filterAcKill: false,  // 淘汰极低AC值（默认关闭）
   filterConsecKill: false,  // 淘汰超长连号（默认关闭）
-  consecMaxRun: 5  // 最长连号上限
+  consecMaxRun: 5,  // 最长连号上限
+  filterAllPrimeKill: false  // 淘汰全质号组合（默认关闭）
 };
 
 function applySettings() {
@@ -816,6 +854,7 @@ function applySettings() {
   BLUE_SETTINGS.filterAcKill = document.getElementById('setting-ac-kill').checked;
   BLUE_SETTINGS.filterConsecKill = document.getElementById('setting-consec-kill').checked;
   BLUE_SETTINGS.consecMaxRun = parseInt(document.getElementById('setting-consec-max').value) || 5;
+  BLUE_SETTINGS.filterAllPrimeKill = document.getElementById('setting-allprime-kill').checked;
 
   var btn = document.getElementById('save-settings');
   btn.textContent = '✅ 已保存';
@@ -828,59 +867,83 @@ function applySettings() {
   }, 1500);
 }
 
-// ==================== GEN COMBOS ====================
+// ==================== GEN COMBOS (确定性 + 全部展开) ====================
+// 质数判断（SSQ全质号过滤用）
+var PRIMES_SET = {2:1,3:1,5:1,7:1,11:1,13:1,17:1,19:1,23:1,29:1,31:1};
+function isAllPrime(nums) {
+  for (var i = 0; i < nums.length; i++) {
+    if (!PRIMES_SET[nums[i]]) return false;
+  }
+  return true;
+}
+
+// 确定性伪随机（基于种子）
+function seededRandom(seed) {
+  var x = Math.sin(seed + 1) * 10000;
+  return x - Math.floor(x);
+}
+
+// 生成所有Combo（固定顺序），数量太多时取前N注
 function genCombos(pool, pool2, cnt, size1, size2, isSSQ) {
   if (pool.length < size1) return [];
-  var settings = (typeof BLUE_SETTINGS !== 'undefined') ? BLUE_SETTINGS : { filterAcKill:true, filterConsecKill:true, consecMaxRun:5 };
+  var settings = (typeof BLUE_SETTINGS !== 'undefined') ? BLUE_SETTINGS : { filterAcKill:true, filterConsecKill:true, consecMaxRun:5, filterAllPrimeKill:false };
   var acKill = isSSQ ? 3 : 2;
 
   var combos = [];
-  var seeds = [42, 123, 777, 999, 555];
 
-  // Shuffle once and take sequential chunks to get more variety
-  var shuffled = pool.slice();
-  for (var i = shuffled.length - 1; i > 0; i--) {
-    var j = Math.floor(Math.random() * (i + 1));
-    var tmp = shuffled[i]; shuffled[i] = shuffled[j]; shuffled[j] = tmp;
+  // 先把共识池排序（固定顺序）
+  var sorted = pool.slice().sort(function(a, b) { return a - b; });
+
+  // 生成全部C(n,size1)组合（按固定字典序）
+  function comboIdx(arr, k) {
+    var result = [];
+    var n = arr.length;
+    function dfs(start, depth, cur) {
+      if (depth === k) {
+        var f = cur.slice();
+
+        // AC值过滤
+        if (settings.filterAcKill && acValue(f) <= acKill) return;
+
+        // 连号过滤
+        if (settings.filterConsecKill && getMaxConsecutiveRun(f) >= settings.consecMaxRun) return;
+
+        // 全质号过滤（仅SSQ）
+        if (isSSQ && settings.filterAllPrimeKill && isAllPrime(f)) return;
+
+        result.push(f);
+        return;
+      }
+      for (var i = start; i < n; i++) {
+        cur.push(arr[i]);
+        dfs(i + 1, depth + 1, cur);
+        cur.pop();
+        // 提前终止：如果已经收集了需要的数量，不再继续
+        if (result.length >= cnt) return;
+      }
+    }
+    dfs(0, 0, []);
+    return result;
   }
 
-  for (var si = 0; si < Math.min(cnt, seeds.length); si++) {
-    // Try multiple offsets until we find a valid combo or exhaust
-    var maxTries = 100;
-    var found = false;
-    for (var attempt = 0; attempt < maxTries && !found; attempt++) {
-      var offset = (si * 7 + attempt * 17) % Math.max(1, shuffled.length - size1);
-      var f = shuffled.slice(offset, offset + size1).sort(function(a, b) { return a - b; });
+  var frontCombos = comboIdx(sorted, size1);
 
-      // AC value filter
-      if (settings.filterAcKill && acValue(f) <= acKill) continue;
+  if (frontCombos.length === 0) return [];
 
-      // Consecutive run filter
-      if (settings.filterConsecKill && getMaxConsecutiveRun(f) >= settings.consecMaxRun) continue;
-
-      // Found a valid front combo
-      var sc = pool2.slice();
-      for (var k = sc.length - 1; k > 0; k--) {
-        var j2 = Math.floor((seeds[si] * (k + 1) + si * 37) % (k + 1));
-        var tmp2 = sc[k]; sc[k] = sc[j2]; sc[j2] = tmp2;
-      }
-      var bk = sc.slice(0, size2).sort(function(a, b) { return a - b; });
-      combos.push([f, bk]);
-      found = true;
+  // 为每个前区组合搭配后区
+  for (var ci = 0; ci < Math.min(frontCombos.length, cnt); ci++) {
+    var f = frontCombos[ci];
+    // 后区确定性选择：用索引作为种子
+    var sc = pool2.slice();
+    var seed = (ci + 1) * 12345;
+    for (var k = sc.length - 1; k > 0; k--) {
+      var r = Math.floor(seededRandom(seed + k) * (k + 1));
+      var tmp2 = sc[k]; sc[k] = sc[r]; sc[r] = tmp2;
     }
-    // If all attempts failed, push a plain combo without filtering
-    if (!found) {
-      var offset = si * 5 % Math.max(1, shuffled.length - size1);
-      var f = shuffled.slice(offset, offset + size1).sort(function(a, b) { return a - b; });
-      var sc = pool2.slice();
-      for (var k = sc.length - 1; k > 0; k--) {
-        var j2 = Math.floor((seeds[si] * (k + 1) + si * 37) % (k + 1));
-        var tmp2 = sc[k]; sc[k] = sc[j2]; sc[j2] = tmp2;
-      }
-      var bk = sc.slice(0, size2).sort(function(a, b) { return a - b; });
-      combos.push([f, bk]);
-    }
+    var bk = sc.slice(0, size2).sort(function(a, b) { return a - b; });
+    combos.push([f, bk]);
   }
+
   return combos;
 }
 
@@ -1101,10 +1164,13 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
 
       if (secPool.length === 0) secPool = isSSQ ? [1] : [1, 2];
 
-      var combos = genCombos(mainPool, secPool, 5, isSSQ ? 6 : 5, isSSQ ? 1 : 2);
-      if (combos.length > 0) {
-        html += '<div class="combos"><h3>🎰 参考组合(共识优先)</h3>' +
-          combos.map(function(c, i) {
+      // 生成全部组合 + 折叠显示
+      var allCombos = genCombos(mainPool, secPool, 999, isSSQ ? 6 : 5, isSSQ ? 1 : 2);
+      if (allCombos.length > 0) {
+        _lastAllCombos = allCombos;
+        var showCount = Math.min(5, allCombos.length);
+        html += '<div class="combos"><h3>🎰 参考组合（共识优先，共' + allCombos.length + '注）</h3><div id="combo-list">' +
+          allCombos.slice(0, showCount).map(function(c, i) {
             return '<div class="combo-item">' +
               '<span class="combo-label">#' + (i + 1) + (i === 0 ? ' ⭐推荐' : '') + '</span> ' +
               '<span class="num">[' + c[0].join(', ') + ']</span> ' +
@@ -1112,6 +1178,10 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
               '<span class="lb">[' + c[1].join(', ') + ']</span>' +
               '</div>';
           }).join('') + '</div>';
+        if (allCombos.length > showCount) {
+          html += '<div id="combo-expand-btn" onclick="expandCombos()" style="text-align:center;padding:8px;margin-top:6px;background:#1a3050;border-radius:6px;color:#3498db;font-size:11px;cursor:pointer">📂 展开全部' + allCombos.length + '注</div>';
+        }
+        html += '</div>';
       }
     }
 
