@@ -1048,10 +1048,25 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
     var html = '';
 
     if (!result.has_crash) {
-      html = '<div class="no-crash"><div class="icon">🌙</div>' +
-        '<p><strong style="color:#f0c040;">本期无触发(无撞车)</strong><br>' +
-        '双引擎均无法计算,等待下一期<br>' +
-        '<span style="font-size:11px;color:#5a7a80;">撞车率 80-92%,下一期大概率恢复触发</span></p></div>';
+      // 兜底：密码集萃引擎开启时，降级展示密码池
+      if (BLUE_SETTINGS && BLUE_SETTINGS.cipherEnabled && result.front_cipher && result.front_cipher.length > 0) {
+        html = '<div class="pool-section" style="border:1px solid #e67e22;background:linear-gradient(135deg,#1a2020,#1e2820)">' +
+          '<div class="engine-header"><span class="pool-title">🔐 密码集萃 · 兜底引擎 ⚡ A/B未触发</span>' +
+            '<span style="font-size:10px;padding:3px 8px;border-radius:12px;background:rgba(230,126,34,.2);color:#e67e22;border:1px solid #e67e22">兜底</span></div>' +
+          '<span class="pool-badge gold" style="margin-bottom:6px">' + result.front_cipher.length + '个(确定性衍生池,不受撞车影响)</span>' +
+          '<div class="pool-nums">' + result.front_cipher.map(function(cn) {
+            return '<div class="pool-num" style="background:#2a2020;border:1px solid #e67e22;color:#e6a040">' + cn + '</div>';
+          }).join('') + '</div>' +
+          '<div class="db-ref"><strong>📊 回测(' + (isSSQ ? 'SSQ 3471期):平均命中3.45/6球 | 脱靶率0.58% | 池均' + result.front_cipher.length + '码' : 'DLT 2891期):平均命中1.97/5球 | 脱靶率8.09% | 池均' + result.front_cipher.length + '码') + '</strong></div></div>';
+      } else {
+        html = '<div class="no-crash"><div class="icon">🌙</div>' +
+          '<p><strong style="color:#f0c040;">本期无触发(无撞车)</strong><br>' +
+          '双引擎均无法计算,等待下一期<br>' +
+          '<span style="font-size:11px;color:#5a7a80;">撞车率 80-92%,下一期大概率恢复触发</span></p></div>';
+        // 提示用户可开启密码集萃兜底
+        html += '<div style="margin-top:12px;text-align:center;font-size:11px;color:#5a7a80">' +
+          '💡 高级设置中开启 <strong style="color:#e67e22">🔐 密码集萃引擎</strong> 可在无触发时自动兜底</div>';
+      }
     } else {
       // Historical reference
       if (isSSQ) {
