@@ -448,9 +448,12 @@ function cipherEngine(front, maxVal, isSSQ, blueBall) {
       pool.add(blueBall + blueBall);
     }
   } else {
-    // 大乐透: 原始号码保留
+    // 大乐透: 原始号码保留（x01除01配对保留，01自配对不保留）
     for (var k = 0; k < front.length; k++) {
-      pool.add(front[k]);
+      var v = front[k];
+      if (v !== 1) {  // 01不保留
+        pool.add(v);
+      }
     }
   }
 
