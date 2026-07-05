@@ -1155,8 +1155,8 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
       if (BLUE_SETTINGS.cipherEnabled && result.front_cipher && result.front_cipher.length > 0) {
         html += '<div class="pool-section" style="border:1px solid #e67e22;background:linear-gradient(135deg,#1a2020,#1e2820)">' +
           '<div class="engine-header"><span class="pool-title">🔐 密码集萃引擎</span>' +
-            '<span style="font-size:10px;padding:3px 8px;border-radius:12px;background:rgba(230,126,34,.2);color:#e67e22;border:1px solid #e67e22">确定性地步</span></div>' +
-          '<span class="pool-badge gold" style="margin-bottom:6px">' + result.front_cipher.length + '个(和≤'+maxVal+'+差+整除乘→并集)</span>' +
+            '<span style="font-size:10px;padding:3px 8px;border-radius:12px;background:rgba(230,126,34,.2);color:#e67e22;border:1px solid #e67e22">确定性运算</span></div>' +
+          '<span class="pool-badge gold" style="margin-bottom:6px">' + result.front_cipher.length + '个(确定性衍生池)</span>' +
           '<div class="pool-nums">';
         // Render cipher numbers with orange style
         for (var ci = 0; ci < result.front_cipher.length; ci++) {
