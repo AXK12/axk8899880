@@ -428,23 +428,29 @@ function methodBQREngine(entries, maxVal) {
 // 三步运算: 和≤MAX ∪ 差 ∪ 整除商
 // SSQ: 6红, MAX=33, C(6,2)=15对
 // DLT: 5前区, MAX=35, C(5,2)=10对
-function cipherEngine(front, maxVal) {
+function cipherEngine(front, maxVal, isSSQ, blueBall) {
   var pool = new Set();
 
-  // Generate all C(n,2) pairs
+  // Step 1: 所有两两加法 (a+b)
+  // Step 2: 所有两两绝对值减法 (b-a)
   for (var i = 0; i < front.length; i++) {
     for (var j = i + 1; j < front.length; j++) {
       var a = front[i], b = front[j];
+      pool.add(a + b);    // 加法
+      pool.add(b - a);    // 绝对值减法
+    }
+  }
 
-      // Step 1: Sum (a + b <= maxVal)
-      var s = a + b;
-      if (s <= maxVal) pool.add(s);
-
-      // Step 2: Difference (b - a)
-      pool.add(b - a);
-
-      // Step 3: Integer division (b % a == 0)
-      if (b % a === 0) pool.add(Math.floor(b / a));
+  // Step 3: 品种专属
+  if (isSSQ) {
+    // 双色球: 蓝球自加 c+c
+    if (typeof blueBall !== 'undefined' && blueBall !== null) {
+      pool.add(blueBall + blueBall);
+    }
+  } else {
+    // 大乐透: 原始号码保留
+    for (var k = 0; k < front.length; k++) {
+      pool.add(front[k]);
     }
   }
 
@@ -613,7 +619,7 @@ function predict(front, back, isSSQ, bluePrev2, blueHistory) {
   var frontBP = Array.from(frontPredsB).sort(function(a, b) { return a - b; });
 
   // 密码集萃引擎计算（受全局开关控制）
-  var frontCipher = cipherEngine(front.slice(0, isSSQ ? 6 : 5), maxVal);
+  var frontCipher = cipherEngine(front.slice(0, isSSQ ? 6 : 5), maxVal, isSSQ, isSSQ ? (back.length > 0 ? back[0] : null) : null);
 
   return {
     front_a: frontAP,
@@ -1156,7 +1162,7 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
         html += '<div class="pool-section" style="border:1px solid #e67e22;background:linear-gradient(135deg,#1a2020,#1e2820)">' +
           '<div class="engine-header"><span class="pool-title">🔐 密码集萃引擎</span>' +
             '<span style="font-size:10px;padding:3px 8px;border-radius:12px;background:rgba(230,126,34,.2);color:#e67e22;border:1px solid #e67e22">确定性运算</span></div>' +
-          '<span class="pool-badge gold" style="margin-bottom:6px">' + result.front_cipher.length + '个(确定性衍生池)</span>' +
+          '<span class="pool-badge gold" style="margin-bottom:6px">' + result.front_cipher.length + '个(和+差+蓝球自加/原号)</span>' +
           '<div class="pool-nums">';
         // Render cipher numbers with orange style
         for (var ci = 0; ci < result.front_cipher.length; ci++) {
