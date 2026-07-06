@@ -49,6 +49,8 @@ label:first-child{margin-top:0}
 .rule-tag{font-size:10px;padding:1px 6px;border-radius:4px;background:#1e3050;color:#5aa0d0;margin:0 2px;white-space:nowrap}
 .consensus-box{background:linear-gradient(135deg,#1a2020,#1e2820);border:2px solid #f0c040;border-radius:12px;padding:14px;margin-bottom:10px}
 .consensus-box h3{font-size:14px;color:#f0c040;margin-bottom:8px;text-align:center}
+.consensus-3-box{background:linear-gradient(135deg,#1a2020,#1e2820);border:3px solid #ff6600;border-radius:12px;padding:14px;margin-bottom:10px;box-shadow:0 0 20px rgba(255,102,0,.3),inset 0 0 30px rgba(255,102,0,.05)}
+.consensus-3-box h3{font-size:15px;color:#ff6600;margin-bottom:8px;text-align:center}
 .consensus-empty{text-align:center;color:#6a7a90;padding:12px;font-size:13px}
 .combos{background:#1a2530;border-radius:10px;padding:12px;margin-top:10px}
 .combos h3{font-size:13px;color:#f0c040;margin-bottom:8px}
@@ -624,12 +626,18 @@ function predict(front, back, isSSQ, bluePrev2, blueHistory) {
   // 密码集萃引擎计算（受全局开关控制）
   var frontCipher = cipherEngine(front.slice(0, isSSQ ? 6 : 5), maxVal, isSSQ, isSSQ ? (back.length > 0 ? back[0] : null) : null);
 
+  var frontConsensus2 = frontAP.filter(function(x) { return frontPredsB.has(x); });
+  var frontCipherSet = new Set(frontCipher);
+  // 三引擎共识: 方法A ∩ 方法B ∩ 密码集萃
+  var frontConsensus3 = frontConsensus2.filter(function(x) { return frontCipherSet.has(x); });
+
   return {
     front_a: frontAP,
     front_b: frontBP,
     back_a: Array.from(backPredsA).sort(function(a, b) { return a - b; }),
     back_b: Array.from(backPredsB).sort(function(a, b) { return a - b; }),
-    front_consensus: frontAP.filter(function(x) { return frontPredsB.has(x); }),
+    front_consensus: frontConsensus2,
+    front_consensus_3: frontConsensus3,
     back_consensus: Array.from(backPredsA).filter(function(x) { return backPredsB.has(x); }).sort(function(a, b) { return a - b; }),
     a_only: frontAP.filter(function(x) { return !frontPredsB.has(x); }),
     b_only: frontBP.filter(function(x) { return !frontPredsA.has(x); }),
@@ -1093,9 +1101,11 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
 
       html += '<div class="stats-row">' +
         '<div class="stat-item"><div class="stat-val">' + result.crash_pages + '/' + result.page_details.length + '</div><div class="stat-lbl">撞车页</div></div>' +
+        '<div class="stat-item"><div class="stat-val">' + (result.front_consensus_3 ? result.front_consensus_3.length : 0) + '</div><div class="stat-lbl" style="color:#ff6600">🔥三引擎共识</div></div>' +
         '<div class="stat-item"><div class="stat-val">' + result.front_consensus.length + '</div><div class="stat-lbl">⭐共识</div></div>' +
         '<div class="stat-item"><div class="stat-val">' + result.front_a.length + '</div><div class="stat-lbl">📘方法A</div></div>' +
         '<div class="stat-item"><div class="stat-val">' + result.front_b.length + '</div><div class="stat-lbl">📗方法B</div></div>' +
+        '<div class="stat-item"><div class="stat-val">' + (result.front_cipher ? result.front_cipher.length : 0) + '</div><div class="stat-lbl">🔐密码</div></div>' +
         '</div>' +
         '<div class="stats-row">' +
         '<div class="stat-item"><div class="stat-val">' + ac + '</div><div class="stat-lbl" ' + (ac <= acKill ? 'style="color:#e74c3c"' : '') + '>🧮 AC值' + (ac <= acKill ? ' ⚠️极低' : '') + '</div></div>' +
@@ -1126,6 +1136,16 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
           '<div class="db-ref"><strong>💡 说明:</strong>共识号码 = 方法A+方法B同时预测 → 两个不同引擎独立验证一致 → 置信度最高</div></div>';
       } else {
         html += '<div class="pool-section" style="text-align:center;color:#6a7a90;padding:14px">⚠️ 两种方法本次没有共识号码,请结合各自池综合判断</div>';
+      }
+
+      // TRI-ENGINE CONSENSUS (A ∩ B ∩ 密码集萃)
+      if (BLUE_SETTINGS && BLUE_SETTINGS.cipherEnabled && result.front_consensus_3 && result.front_consensus_3.length > 0) {
+        html += '<div class="consensus-3-box">' +
+          '<h3>🔥 三引擎共识号码 · 最高置信度(' + result.front_consensus_3.length + '个)</h3>' +
+          '<div class="pool-nums">' + result.front_consensus_3.map(function(n) {
+            return '<div class="pool-num" style="background:#2a2010;border:3px solid #ff6600;color:#ffa040;font-size:14px;font-weight:bold;box-shadow:0 0 15px rgba(255,102,0,.4)">'+n+'</div>';
+          }).join('') + '</div>' +
+          '<div class="db-ref"><strong>🔥 三引擎验证:</strong>方法A + 方法B + 密码集萃 三个独立算法同时命中 → 置信度最高级别,建议优先参考</div></div>';
       }
 
       // Method A
@@ -1257,9 +1277,15 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
       }
 
       // Combos
-      var mainPool = result.front_consensus.length >= (isSSQ ? 6 : 5)
-        ? result.front_consensus
-        : Array.from(new Set(result.front_consensus.concat(result.front_a).concat(result.front_b))).sort(function(a, b) { return a - b; });
+      // 优先级: 三引擎共识 > 双引擎共识 > 全量池
+      var mainPool;
+      if (BLUE_SETTINGS && BLUE_SETTINGS.cipherEnabled && result.front_consensus_3 && result.front_consensus_3.length >= (isSSQ ? 4 : 3)) {
+        mainPool = result.front_consensus_3;
+      } else if (result.front_consensus.length >= (isSSQ ? 6 : 5)) {
+        mainPool = result.front_consensus;
+      } else {
+        mainPool = Array.from(new Set(result.front_consensus.concat(result.front_a).concat(result.front_b))).sort(function(a, b) { return a - b; });
+      }
 
       // 天平支点杀红：从推荐池中排除
       if (isSSQ && result.pivot_kill !== null) {
