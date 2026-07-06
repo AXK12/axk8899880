@@ -427,33 +427,37 @@ function methodBQREngine(entries, maxVal) {
 
 
 // ==================== 密码集萃引擎 (CIPHER ENGINE) ====================
-// 三步运算: 和≤MAX ∪ 差 ∪ 整除商
-// SSQ: 6红, MAX=33, C(6,2)=15对
-// DLT: 5前区, MAX=35, C(5,2)=10对
+// V0+modMul: 原始两两和/差 + 原始号对模积 + 输入保留
 function cipherEngine(front, maxVal, isSSQ, blueBall) {
   var pool = new Set();
 
-  // Step 1: 所有两两加法 (a+b)
-  // Step 2: 所有两两绝对值减法 (b-a)
+  // 两两和、差（原始号对）
   for (var i = 0; i < front.length; i++) {
     for (var j = i + 1; j < front.length; j++) {
       var a = front[i], b = front[j];
-      pool.add(a + b);    // 加法
-      pool.add(b - a);    // 绝对值减法
+      pool.add(a + b);
+      pool.add(b - a);
     }
   }
 
-  // Step 3: 品种专属
+  // 原始号对模积: (a×b) mod maxVal, 0→maxVal
+  for (var i = 0; i < front.length; i++) {
+    for (var j = i + 1; j < front.length; j++) {
+      var r = (front[i] * front[j]) % maxVal;
+      pool.add(r === 0 ? maxVal : r);
+    }
+  }
+
+  // 品种专属处理
   if (isSSQ) {
-    // 双色球: 蓝球自加 c+c
     if (typeof blueBall !== 'undefined' && blueBall !== null) {
       pool.add(blueBall + blueBall);
     }
   } else {
-    // 大乐透: 原始号码保留（x01除01配对保留，01自配对不保留）
+    // 大乐透: 原始号码保留（exclude 01）
     for (var k = 0; k < front.length; k++) {
       var v = front[k];
-      if (v !== 1) {  // 01不保留
+      if (v !== 1) {
         pool.add(v);
       }
     }
