@@ -1121,8 +1121,9 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
     var html = '';
 
     if (!result.has_crash) {
-      // 兜底：密码集萃引擎开启时，降级展示密码池
+      // 兜底：密码集萃引擎开启时，降级生成组合（带全量过滤：历史杀号+AC+连号+全质号+天平杀红+蓝球）
       if (BLUE_SETTINGS && BLUE_SETTINGS.cipherEnabled && result.front_cipher && result.front_cipher.length > 0) {
+        // 1) 展示密码池
         html = '<div class="pool-section" style="border:1px solid #e67e22;background:linear-gradient(135deg,#1a2020,#1e2820)">' +
           '<div class="engine-header"><span class="pool-title">🔐 密码集萃 · 兜底引擎 ⚡ A/B未触发</span>' +
             '<span style="font-size:10px;padding:3px 8px;border-radius:12px;background:rgba(230,126,34,.2);color:#e67e22;border:1px solid #e67e22">兜底</span></div>' +
@@ -1131,6 +1132,45 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
             return '<div class="pool-num" style="background:#2a2020;border:1px solid #e67e22;color:#e6a040">' + cn + '</div>';
           }).join('') + '</div>' +
           '<div class="db-ref"><strong>📊 回测(' + (isSSQ ? 'SSQ 3471期):平均命中3.45/6球 | 脱靶率0.58% | 池均' + result.front_cipher.length + '码' : 'DLT 2891期):平均命中1.97/5球 | 脱靶率8.09% | 池均' + result.front_cipher.length + '码') + '</strong></div></div>';
+
+        // 2) 从密码池生成组合（应用所有过滤：历史杀号+AC+连号+全质号+天平支点）
+        var cipherMainPool = result.front_cipher.slice().sort(function(a,b){return a-b;});
+
+        // 天平支点杀红（仅双色球）
+        if (isSSQ && result.pivot_kill !== null) {
+          cipherMainPool = cipherMainPool.filter(function(n) { return n !== result.pivot_kill; });
+        }
+
+        // 后区/蓝球池
+        var cipherSecPool = isSSQ ? result.blue_preds
+          : (Array.from(new Set(result.back_consensus.concat(result.back_a).concat(result.back_b))).sort(function(a, b) { return a - b; }));
+        if (cipherSecPool.length === 0) cipherSecPool = isSSQ ? [1] : [1, 2];
+
+        // 生成全部组合 + 折叠显示
+        var cipherAllCombos = genCombos(cipherMainPool, cipherSecPool, 999, isSSQ ? 6 : 5, isSSQ ? 1 : 2, isSSQ);
+        if (cipherAllCombos.length > 0) {
+          _lastAllCombos = cipherAllCombos;
+          var showCount = Math.min(5, cipherAllCombos.length);
+          var histFilterNote = '';
+          if (BLUE_SETTINGS.filterHistoricalKill && _filteredHistoricalCount > 0) {
+            histFilterNote = ' <span style="font-size:11px;color:#e67e22">（已排除' + _filteredHistoricalCount + '注历史一等奖）</span>';
+          }
+          html += '<div class="combos"><h3>🎰 兜底参考组合（密码池，共' + cipherAllCombos.length + '注）' + histFilterNote + '</h3><div id="combo-list">' +
+            cipherAllCombos.slice(0, showCount).map(function(c, i) {
+              return '<div class="combo-item">' +
+                '<span class="combo-label">#' + (i + 1) + (i === 0 ? ' ⭐推荐' : '') + '</span> ' +
+                '<span class="num">[' + c[0].join(', ') + ']</span> ' +
+                '<span class="sp">+</span> ' +
+                '<span class="lb">[' + c[1].join(', ') + ']</span>' +
+                '</div>';
+            }).join('') + '</div>';
+          if (cipherAllCombos.length > showCount) {
+            html += '<div id="combo-expand-btn" onclick="expandCombos()" style="text-align:center;padding:8px;margin-top:6px;background:#1a3050;border-radius:6px;color:#3498db;font-size:11px;cursor:pointer">📂 展开全部' + cipherAllCombos.length + '注</div>';
+          }
+          html += '</div>';
+        } else {
+          html += '<div style="text-align:center;padding:14px;color:#6a7a90">密码池过滤后无可用组合（所有组合被AC/连号/历史一等奖等规则过滤）</div>';
+        }
       } else {
         html = '<div class="no-crash"><div class="icon">🌙</div>' +
           '<p><strong style="color:#f0c040;">本期无触发(无撞车)</strong><br>' +
@@ -1370,7 +1410,7 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
       if (secPool.length === 0) secPool = isSSQ ? [1] : [1, 2];
 
       // 生成全部组合 + 折叠显示
-      var allCombos = genCombos(mainPool, secPool, 999, isSSQ ? 6 : 5, isSSQ ? 1 : 2);
+      var allCombos = genCombos(mainPool, secPool, 999, isSSQ ? 6 : 5, isSSQ ? 1 : 2, isSSQ);
       if (allCombos.length > 0) {
         _lastAllCombos = allCombos;
         var showCount = Math.min(5, allCombos.length);
