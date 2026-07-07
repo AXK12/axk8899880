@@ -132,7 +132,7 @@ label:first-child{margin-top:0}
     <span onclick="document.getElementById('setting-historical-kill').clicked=true; document.getElementById('setting-historical-kill').checked = !document.getElementById('setting-historical-kill').checked; applySettings()" style="font-size:10px;color:#e67e22;cursor:pointer;text-decoration:underline">🔧 在B款高级设置中调节</span>
   </div>
   <div style="display:flex;align-items:center;gap:8px;margin-top:4px;justify-content:center">
-    <span style="font-size:10px;color:#5a7a9a">🎯 前区最大号下限: </span>
+    <span style="font-size:10px;color:#5a7a9a">🎯 前区最大值下限: </span>
     <span id="maxmin-dlt-status" style="font-size:10px;color:#e67e22">见B款高级设置</span>
   </div>
   <div class="result-box" id="dlt-result">
@@ -234,14 +234,24 @@ label:first-child{margin-top:0}
         <span style="font-size:10px;color:#5a7a9a">(质数:2,3,5,7,11,13,17,19,23,29,31,共924注)</span>
       </div>
 
-      <label style="font-size:11px">🎯 前区最大号下限(大乐透独有)</label>
+      <label style="font-size:11px">🎯 前区最大值下限过滤 <span style="font-size:9px;color:#5a7a9a">(淘汰最大号过小的极罕见组合)</span></label>
       <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#8899b0;cursor:pointer;margin:0">
-          <input type="checkbox" id="setting-maxmin-kill"> 淘汰前区第5位(最大号)≤
+        <span style="font-size:11px;color:#f0c040;min-width:50px">SSQ</span>
+        <label style="display:flex;align-items:center;gap:4px;font-size:10px;color:#8899b0;cursor:pointer;margin:0">
+          <input type="checkbox" id="setting-maxkill-ssq" checked> 淘汰最大值&lt;
         </label>
-        <input type="range" id="setting-maxmin-val" min="15" max="25" value="15" oninput="document.getElementById('maxmin-val').textContent=this.value" style="flex:0.4;accent-color:#e67e22">
-        <span id="maxmin-val" style="font-size:14px;color:#e67e22;min-width:20px">15</span>
-        <span style="font-size:10px;color:#5a7a9a">历史概率: <span id="maxmin-prob" style="color:#e67e22">0.86%</span> (2893期≤15)</span>
+        <input type="range" id="setting-maxkill-ssq-val" min="17" max="28" value="19" oninput="document.getElementById('maxkill-ssq-val').textContent=this.value" style="flex:0.3;accent-color:#e67e22">
+        <span id="maxkill-ssq-val" style="font-size:14px;color:#e67e22;min-width:20px">19</span>
+        <span style="font-size:9px;color:#5a7a9a">历史≤18:1.79%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:2px">
+        <span style="font-size:11px;color:#f0c040;min-width:50px">DLT</span>
+        <label style="display:flex;align-items:center;gap:4px;font-size:10px;color:#8899b0;cursor:pointer;margin:0">
+          <input type="checkbox" id="setting-maxkill-dlt" checked> 淘汰最大值&lt;
+        </label>
+        <input type="range" id="setting-maxkill-dlt-val" min="15" max="27" value="16" oninput="document.getElementById('maxkill-dlt-val').textContent=this.value" style="flex:0.3;accent-color:#e67e22">
+        <span id="maxkill-dlt-val" style="font-size:14px;color:#e67e22;min-width:20px">16</span>
+        <span style="font-size:9px;color:#5a7a9a">历史≤15:0.86%</span>
       </div>
 
       <label style="font-size:11px">🚫 历史一等奖杀号</label>
@@ -974,6 +984,11 @@ var BLUE_SETTINGS = {
   consecMaxRun: 5,  // 最长连号上限
   filterAllPrimeKill: false,  // 淘汰全质号组合（默认关闭）
   filterHistoricalKill: true,  // 淘汰历史一等奖（默认开启）
+  filterMaxKill: true,  // 前区最大值下限过滤
+  maxKillSSQ: true,
+  maxKillSSQVal: 19,
+  maxKillDLT: true,
+  maxKillDLTVal: 16,
   cipherEnabled: false  // 密码集萃引擎（默认关闭）
 };
 
@@ -990,8 +1005,11 @@ function applySettings() {
   BLUE_SETTINGS.consecMaxRun = parseInt(document.getElementById('setting-consec-max').value) || 5;
   BLUE_SETTINGS.filterAllPrimeKill = document.getElementById('setting-allprime-kill').checked;
   BLUE_SETTINGS.filterHistoricalKill = document.getElementById('setting-historical-kill').checked;
-  BLUE_SETTINGS.filterMaxMin = document.getElementById('setting-maxmin-kill').checked;
-  BLUE_SETTINGS.maxMinVal = parseInt(document.getElementById('setting-maxmin-val').value) || 15;
+  BLUE_SETTINGS.filterMaxKill = document.getElementById('setting-maxkill-ssq').checked || document.getElementById('setting-maxkill-dlt').checked;
+  BLUE_SETTINGS.maxKillSSQ = document.getElementById('setting-maxkill-ssq').checked;
+  BLUE_SETTINGS.maxKillSSQVal = parseInt(document.getElementById('setting-maxkill-ssq-val').value) || 19;
+  BLUE_SETTINGS.maxKillDLT = document.getElementById('setting-maxkill-dlt').checked;
+  BLUE_SETTINGS.maxKillDLTVal = parseInt(document.getElementById('setting-maxkill-dlt-val').value) || 16;
   BLUE_SETTINGS.cipherEnabled = document.getElementById('setting-cipher-enabled').checked;
   
   // Update cipher toggle indicator
@@ -1019,11 +1037,11 @@ function applySettings() {
   // Update DLT max-min filter status
   var maxminStatus = document.getElementById('maxmin-dlt-status');
   if (maxminStatus) {
-    if (BLUE_SETTINGS.filterMaxMin) {
-      maxminStatus.textContent = '已开启(第5位>=' + BLUE_SETTINGS.maxMinVal + ')';
+    if (BLUE_SETTINGS.maxKillDLT) {
+      maxminStatus.textContent = '已开启(最大值>=' + BLUE_SETTINGS.maxKillDLTVal + ')';
       maxminStatus.style.color = '#27ae60';
     } else {
-      maxminStatus.textContent = '关闭(默认)';
+      maxminStatus.textContent = '关闭';
       maxminStatus.style.color = '#5a7a9a';
     }
   }
@@ -1083,8 +1101,12 @@ function genCombos(pool, pool2, cnt, size1, size2, isSSQ) {
           if (histSet.indexOf(key) >= 0) { _filteredHistoricalCount++; return; }
         }
 
-        // 前区最大号下限过滤（大乐透独有：淘汰第5位≤阈值的小概率组合）
-        if (!isSSQ && settings.filterMaxMin && f[4] < settings.maxMinVal) { return; }
+        // 前区最大值下限过滤（分别按SSQ/DLT历史分布设定阈值）
+        if (settings.filterMaxKill) {
+          var kill = isSSQ ? settings.maxKillSSQVal : settings.maxKillDLTVal;
+          var enabled = isSSQ ? settings.maxKillSSQ : settings.maxKillDLT;
+          if (enabled && f[f.length-1] < kill) { return; }
+        }
 
         result.push(f);
         return;
