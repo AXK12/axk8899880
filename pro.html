@@ -132,7 +132,7 @@ label:first-child{margin-top:0}
     <span onclick="document.getElementById('setting-historical-kill').clicked=true; document.getElementById('setting-historical-kill').checked = !document.getElementById('setting-historical-kill').checked; applySettings()" style="font-size:10px;color:#e67e22;cursor:pointer;text-decoration:underline">🔧 在B款高级设置中调节</span>
   </div>
   <div style="display:flex;align-items:center;gap:8px;margin-top:4px;justify-content:center">
-    <span style="font-size:10px;color:#5a7a9a">🎯 前区最大值下限: </span>
+    <span style="font-size:10px;color:#5a7a9a">🎯 位置范围: </span>
     <span id="maxmin-dlt-status" style="font-size:10px;color:#e67e22">见B款高级设置</span>
   </div>
   <div class="result-box" id="dlt-result">
@@ -234,24 +234,45 @@ label:first-child{margin-top:0}
         <span style="font-size:10px;color:#5a7a9a">(质数:2,3,5,7,11,13,17,19,23,29,31,共924注)</span>
       </div>
 
-      <label style="font-size:11px">🎯 前区最大值下限过滤 <span style="font-size:9px;color:#5a7a9a">(淘汰最大号过小的极罕见组合)</span></label>
-      <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
+      <label style="font-size:11px">🎯 位置范围过滤 <span style="font-size:9px;color:#5a7a9a">(老二罕见≤2%，老三老四极罕见≤1%)</span></label>
+
+      <div style="display:flex;align-items:center;gap:6px;margin-top:4px;flex-wrap:wrap">
         <span style="font-size:11px;color:#f0c040;min-width:50px">SSQ</span>
-        <label style="display:flex;align-items:center;gap:4px;font-size:10px;color:#8899b0;cursor:pointer;margin:0">
-          <input type="checkbox" id="setting-maxkill-ssq" checked> 淘汰最大值&lt;
+        <label style="display:flex;align-items:center;gap:2px;font-size:9px;color:#8899b0;cursor:pointer;margin:0" title="全开/关SSQ位置过滤">
+          <input type="checkbox" id="setting-pkill-ssq" checked>
         </label>
-        <input type="range" id="setting-maxkill-ssq-val" min="17" max="28" value="19" oninput="document.getElementById('maxkill-ssq-val').textContent=this.value" style="flex:0.3;accent-color:#e67e22">
-        <span id="maxkill-ssq-val" style="font-size:14px;color:#e67e22;min-width:20px">19</span>
-        <span style="font-size:9px;color:#5a7a9a">历史≤18:1.79%</span>
+        <span style="font-size:9px;color:#3a4a5a">|</span>
+        <span style="font-size:10px;color:#f0c040">➊老大</span>
+        <input type="range" id="setting-pkill-ssq-max" min="17" max="28" value="19" style="width:44px;accent-color:#e67e22" oninput="pk_ssq_max_label.textContent=this.value">
+        <span id="pk_ssq_max_label" style="font-size:11px;color:#e67e22;min-width:16px">19</span>
+        <label style="display:flex;align-items:center;gap:1px;font-size:9px;color:#5a7a9a;cursor:pointer;margin:0;padding:1px 4px;border-radius:3px" title="老二极端小≤1%(0.37%历史概率)">
+          <input type="checkbox" id="setting-pkill-ssq-v2" checked>②≥13
+        </label>
+        <label style="display:flex;align-items:center;gap:1px;font-size:9px;color:#4a5a6a;cursor:pointer;margin:0;padding:1px 4px;border-radius:3px" title="老三<4=极罕见(历史0.37%)">
+          <input type="checkbox" id="setting-pkill-ssq-v3" checked>③≥4
+        </label>
+        <label style="display:flex;align-items:center;gap:1px;font-size:9px;color:#3a4a5a;cursor:pointer;margin:0;padding:1px 4px;border-radius:3px" title="老四<7=极罕见(历史0.72%)">
+          <input type="checkbox" id="setting-pkill-ssq-v4" checked>④≥7
+        </label>
+        <span style="font-size:8px;color:#2a3a4a">⑤⑥自动通过</span>
       </div>
-      <div style="display:flex;align-items:center;gap:10px;margin-top:2px">
+
+      <div style="display:flex;align-items:center;gap:6px;margin-top:2px;flex-wrap:wrap">
         <span style="font-size:11px;color:#f0c040;min-width:50px">DLT</span>
-        <label style="display:flex;align-items:center;gap:4px;font-size:10px;color:#8899b0;cursor:pointer;margin:0">
-          <input type="checkbox" id="setting-maxkill-dlt" checked> 淘汰最大值&lt;
+        <label style="display:flex;align-items:center;gap:2px;font-size:9px;color:#8899b0;cursor:pointer;margin:0" title="全开/关DLT位置过滤">
+          <input type="checkbox" id="setting-pkill-dlt" checked>
         </label>
-        <input type="range" id="setting-maxkill-dlt-val" min="15" max="27" value="16" oninput="document.getElementById('maxkill-dlt-val').textContent=this.value" style="flex:0.3;accent-color:#e67e22">
-        <span id="maxkill-dlt-val" style="font-size:14px;color:#e67e22;min-width:20px">16</span>
-        <span style="font-size:9px;color:#5a7a9a">历史≤15:0.86%</span>
+        <span style="font-size:9px;color:#3a4a5a">|</span>
+        <span style="font-size:10px;color:#f0c040">①老大</span>
+        <input type="range" id="setting-pkill-dlt-max" min="15" max="27" value="16" style="width:44px;accent-color:#e67e22" oninput="pk_dlt_max_label.textContent=this.value">
+        <span id="pk_dlt_max_label" style="font-size:11px;color:#e67e22;min-width:16px">16</span>
+        <label style="display:flex;align-items:center;gap:1px;font-size:9px;color:#5a7a9a;cursor:pointer;margin:0;padding:1px 4px;border-radius:3px" title="老二<10=罕见(历史1.07%)">
+          <input type="checkbox" id="setting-pkill-dlt-v2" checked>②≥10
+        </label>
+        <label style="display:flex;align-items:center;gap:1px;font-size:9px;color:#4a5a6a;cursor:pointer;margin:0;padding:1px 4px;border-radius:3px" title="老三<6=极罕见(历史0.93%)">
+          <input type="checkbox" id="setting-pkill-dlt-v3" checked>③≥6
+        </label>
+        <span style="font-size:8px;color:#2a3a4a">④⑤自动通过</span>
       </div>
 
       <label style="font-size:11px">🚫 历史一等奖杀号</label>
@@ -984,11 +1005,15 @@ var BLUE_SETTINGS = {
   consecMaxRun: 5,  // 最长连号上限
   filterAllPrimeKill: false,  // 淘汰全质号组合（默认关闭）
   filterHistoricalKill: true,  // 淘汰历史一等奖（默认开启）
-  filterMaxKill: true,  // 前区最大值下限过滤
-  maxKillSSQ: true,
-  maxKillSSQVal: 19,
-  maxKillDLT: true,
-  maxKillDLTVal: 16,
+  filterPosKillSSQ: true,  // SSQ位置范围过滤
+  posKillSSQMax: 19,  // 老大最大值阈值
+  posKillSSQV2: true,  // 老二≥13
+  posKillSSQV3: true,  // 老三≥4
+  posKillSSQV4: true,  // 老四≥7
+  filterPosKillDLT: true,  // DLT位置范围过滤
+  posKillDLTMax: 16,  // 老大最大值阈值
+  posKillDLTV2: true,  // 老二≥10
+  posKillDLTV3: true,  // 老三≥6
   cipherEnabled: false  // 密码集萃引擎（默认关闭）
 };
 
@@ -1005,11 +1030,15 @@ function applySettings() {
   BLUE_SETTINGS.consecMaxRun = parseInt(document.getElementById('setting-consec-max').value) || 5;
   BLUE_SETTINGS.filterAllPrimeKill = document.getElementById('setting-allprime-kill').checked;
   BLUE_SETTINGS.filterHistoricalKill = document.getElementById('setting-historical-kill').checked;
-  BLUE_SETTINGS.filterMaxKill = document.getElementById('setting-maxkill-ssq').checked || document.getElementById('setting-maxkill-dlt').checked;
-  BLUE_SETTINGS.maxKillSSQ = document.getElementById('setting-maxkill-ssq').checked;
-  BLUE_SETTINGS.maxKillSSQVal = parseInt(document.getElementById('setting-maxkill-ssq-val').value) || 19;
-  BLUE_SETTINGS.maxKillDLT = document.getElementById('setting-maxkill-dlt').checked;
-  BLUE_SETTINGS.maxKillDLTVal = parseInt(document.getElementById('setting-maxkill-dlt-val').value) || 16;
+  BLUE_SETTINGS.filterPosKillSSQ = document.getElementById('setting-pkill-ssq').checked;
+  BLUE_SETTINGS.posKillSSQMax = parseInt(document.getElementById('setting-pkill-ssq-max').value) || 19;
+  BLUE_SETTINGS.posKillSSQV2 = document.getElementById('setting-pkill-ssq-v2').checked;
+  BLUE_SETTINGS.posKillSSQV3 = document.getElementById('setting-pkill-ssq-v3').checked;
+  BLUE_SETTINGS.posKillSSQV4 = document.getElementById('setting-pkill-ssq-v4').checked;
+  BLUE_SETTINGS.filterPosKillDLT = document.getElementById('setting-pkill-dlt').checked;
+  BLUE_SETTINGS.posKillDLTMax = parseInt(document.getElementById('setting-pkill-dlt-max').value) || 16;
+  BLUE_SETTINGS.posKillDLTV2 = document.getElementById('setting-pkill-dlt-v2').checked;
+  BLUE_SETTINGS.posKillDLTV3 = document.getElementById('setting-pkill-dlt-v3').checked;
   BLUE_SETTINGS.cipherEnabled = document.getElementById('setting-cipher-enabled').checked;
   
   // Update cipher toggle indicator
@@ -1034,11 +1063,11 @@ function applySettings() {
     btn.style.color = '#3498db';
   }, 1500);
 
-  // Update DLT max-min filter status
+  // Update DLT position filter status
   var maxminStatus = document.getElementById('maxmin-dlt-status');
   if (maxminStatus) {
-    if (BLUE_SETTINGS.maxKillDLT) {
-      maxminStatus.textContent = '已开启(最大值>=' + BLUE_SETTINGS.maxKillDLTVal + ')';
+    if (BLUE_SETTINGS.filterPosKillDLT) {
+      maxminStatus.textContent = '已开启(①≥' + BLUE_SETTINGS.posKillDLTMax + ' ②≥10 ③≥6)';
       maxminStatus.style.color = '#27ae60';
     } else {
       maxminStatus.textContent = '关闭';
@@ -1101,11 +1130,27 @@ function genCombos(pool, pool2, cnt, size1, size2, isSSQ) {
           if (histSet.indexOf(key) >= 0) { _filteredHistoricalCount++; return; }
         }
 
-        // 前区最大值下限过滤（分别按SSQ/DLT历史分布设定阈值）
-        if (settings.filterMaxKill) {
-          var kill = isSSQ ? settings.maxKillSSQVal : settings.maxKillDLTVal;
-          var enabled = isSSQ ? settings.maxKillSSQ : settings.maxKillDLT;
-          if (enabled && f[f.length-1] < kill) { return; }
+        // 位置范围过滤（SSQ:老大/老二/老三/老四, DLT:老大/老二/老三）
+        if (isSSQ) {
+          if (settings.filterPosKillSSQ) {
+            // 老大(最大值): f[5]
+            if (f[5] < settings.posKillSSQMax) { return; }
+            // 老二(f[4]) ≥ 13
+            if (settings.posKillSSQV2 && f[4] < 13) { return; }
+            // 老三(f[3]) ≥ 4
+            if (settings.posKillSSQV3 && f[3] < 4) { return; }
+            // 老四(f[2]) ≥ 7
+            if (settings.posKillSSQV4 && f[2] < 7) { return; }
+          }
+        } else {
+          if (settings.filterPosKillDLT) {
+            // 老大(最大值): f[4]
+            if (f[4] < settings.posKillDLTMax) { return; }
+            // 老二(f[3]) ≥ 10
+            if (settings.posKillDLTV2 && f[3] < 10) { return; }
+            // 老三(f[2]) ≥ 6
+            if (settings.posKillDLTV3 && f[2] < 6) { return; }
+          }
         }
 
         result.push(f);
