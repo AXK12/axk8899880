@@ -126,10 +126,14 @@ label:first-child{margin-top:0}
     <span id="cipher-dlt-status" style="font-size:11px;padding:2px 10px;border-radius:10px;background:#3a3a4a;color:#666">关闭</span>
     <span style="font-size:10px;color:#5a7a9a">(在B款高级设置中调节)</span>
   </div>
-  <div style="display:flex;align-items:center;gap:8px;margin-top:10px;justify-content:center">
+  <div style="display:flex;align-items:center;gap:8px;margin-top:10px;justify-content:center;flex-wrap:wrap">
     <span style="font-size:10px;color:#5a7a9a">🚫 历史一等奖杀号: </span>
     <span id="historical-count-dlt" style="font-size:10px;color:#5a7a9a">加载中...</span>
     <span onclick="document.getElementById('setting-historical-kill').clicked=true; document.getElementById('setting-historical-kill').checked = !document.getElementById('setting-historical-kill').checked; applySettings()" style="font-size:10px;color:#e67e22;cursor:pointer;text-decoration:underline">🔧 在B款高级设置中调节</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;margin-top:4px;justify-content:center">
+    <span style="font-size:10px;color:#5a7a9a">🎯 前区最大号下限: </span>
+    <span id="maxmin-dlt-status" style="font-size:10px;color:#e67e22">见B款高级设置</span>
   </div>
   <div class="result-box" id="dlt-result">
     <div id="dlt-result-inner"></div>
@@ -228,6 +232,16 @@ label:first-child{margin-top:0}
           <input type="checkbox" id="setting-allprime-kill"> 淘汰全红质号组合
         </label>
         <span style="font-size:10px;color:#5a7a9a">(质数:2,3,5,7,11,13,17,19,23,29,31,共924注)</span>
+      </div>
+
+      <label style="font-size:11px">🎯 前区最大号下限(大乐透独有)</label>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#8899b0;cursor:pointer;margin:0">
+          <input type="checkbox" id="setting-maxmin-kill"> 淘汰前区第5位(最大号)≤
+        </label>
+        <input type="range" id="setting-maxmin-val" min="15" max="25" value="15" oninput="document.getElementById('maxmin-val').textContent=this.value" style="flex:0.4;accent-color:#e67e22">
+        <span id="maxmin-val" style="font-size:14px;color:#e67e22;min-width:20px">15</span>
+        <span style="font-size:10px;color:#5a7a9a">历史概率: <span id="maxmin-prob" style="color:#e67e22">0.86%</span> (2893期≤15)</span>
       </div>
 
       <label style="font-size:11px">🚫 历史一等奖杀号</label>
@@ -976,6 +990,8 @@ function applySettings() {
   BLUE_SETTINGS.consecMaxRun = parseInt(document.getElementById('setting-consec-max').value) || 5;
   BLUE_SETTINGS.filterAllPrimeKill = document.getElementById('setting-allprime-kill').checked;
   BLUE_SETTINGS.filterHistoricalKill = document.getElementById('setting-historical-kill').checked;
+  BLUE_SETTINGS.filterMaxMin = document.getElementById('setting-maxmin-kill').checked;
+  BLUE_SETTINGS.maxMinVal = parseInt(document.getElementById('setting-maxmin-val').value) || 15;
   BLUE_SETTINGS.cipherEnabled = document.getElementById('setting-cipher-enabled').checked;
   
   // Update cipher toggle indicator
@@ -999,6 +1015,18 @@ function applySettings() {
     btn.style.background = '#1a3050';
     btn.style.color = '#3498db';
   }, 1500);
+
+  // Update DLT max-min filter status
+  var maxminStatus = document.getElementById('maxmin-dlt-status');
+  if (maxminStatus) {
+    if (BLUE_SETTINGS.filterMaxMin) {
+      maxminStatus.textContent = '已开启(第5位>=' + BLUE_SETTINGS.maxMinVal + ')';
+      maxminStatus.style.color = '#27ae60';
+    } else {
+      maxminStatus.textContent = '关闭(默认)';
+      maxminStatus.style.color = '#5a7a9a';
+    }
+  }
   updateCipherStatusDisplay();
 }
 
@@ -1054,6 +1082,9 @@ function genCombos(pool, pool2, cnt, size1, size2, isSSQ) {
           var key = f.join(',');
           if (histSet.indexOf(key) >= 0) { _filteredHistoricalCount++; return; }
         }
+
+        // 前区最大号下限过滤（大乐透独有：淘汰第5位≤阈值的小概率组合）
+        if (!isSSQ && settings.filterMaxMin && f[4] < settings.maxMinVal) { return; }
 
         result.push(f);
         return;
