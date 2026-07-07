@@ -119,7 +119,7 @@ label:first-child{margin-top:0}
       <span style="font-size:11px">🔐 密码集萃引擎</span>
       <span id="cipher-toggle-indicator-dlt" style="font-size:10px;padding:2px 10px;border-radius:10px;background:#3a3a4a;color:#666">关闭</span>
     </label>
-    <span onclick="document.getElementById('setting-cipher-enabled').clicked=true; document.getElementById('setting-cipher-enabled').checked = !document.getElementById('setting-cipher-enabled').checked; applySettings()" style="font-size:10px;color:#e67e22;cursor:pointer;text-decoration:underline">🔧 在SSQ高级设置中开启/关闭</span>
+    <span onclick="document.getElementById('setting-cipher-enabled').clicked=true; document.getElementById('setting-cipher-enabled').checked = !document.getElementById('setting-cipher-enabled').checked; applySettings()" style="font-size:10px;color:#e67e22;cursor:pointer;text-decoration:underline">🔧 在B款·全局设置中调节</span>
   </div>
   <div style="display:flex;align-items:center;gap:8px;margin-top:10px;justify-content:center">
     <span style="font-size:10px;color:#5a7a9a">🔐 密码集萃引擎状态: </span>
@@ -131,10 +131,32 @@ label:first-child{margin-top:0}
     <span id="historical-count-dlt" style="font-size:10px;color:#5a7a9a">加载中...</span>
     <span onclick="document.getElementById('setting-historical-kill').clicked=true; document.getElementById('setting-historical-kill').checked = !document.getElementById('setting-historical-kill').checked; applySettings()" style="font-size:10px;color:#e67e22;cursor:pointer;text-decoration:underline">🔧 在B款高级设置中调节</span>
   </div>
-  <div style="display:flex;align-items:center;gap:8px;margin-top:4px;justify-content:center">
-    <span style="font-size:10px;color:#5a7a9a">🎯 位置范围: </span>
-    <span id="maxmin-dlt-status" style="font-size:10px;color:#e67e22">见B款高级设置</span>
-  </div>
+  <details style="margin-top:10px;cursor:pointer">
+    <summary style="font-size:11px;color:#f0c040;padding:6px 0">🔧 A款高级设置(过滤+数据获取)</summary>
+    <div style="background:#0e1525;border-radius:8px;padding:12px;margin-top:6px">
+
+      <div style="font-size:12px;color:#f0c040;margin-bottom:6px">🎯 位置范围过滤<span style="font-size:9px;color:#8899b0">(老二罕见≤2%，老三极罕见≤1%)</span></div>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:2px;flex-wrap:wrap">
+        <span style="font-size:11px;color:#f0c040;min-width:50px">DLT</span>
+        <label style="display:flex;align-items:center;gap:2px;font-size:9px;color:#8899b0;cursor:pointer;margin:0" title="全开/关">
+          <input type="checkbox" id="setting-pkill-dlt" checked>
+        </label>
+        <span style="font-size:9px;color:#3a4a5a">|</span>
+        <span style="font-size:10px;color:#f0c040">①老大</span>
+        <input type="range" id="setting-pkill-dlt-max" min="15" max="27" value="16" style="width:44px;accent-color:#e67e22" oninput="pk_dlt_max_label.textContent=this.value">
+        <span id="pk_dlt_max_label" style="font-size:11px;color:#e67e22;min-width:16px">16</span>
+        <label style="display:flex;align-items:center;gap:1px;font-size:9px;color:#5a7a9a;cursor:pointer;margin:0;padding:1px 4px;border-radius:3px" title="老二<10=罕见(1.07%)">
+          <input type="checkbox" id="setting-pkill-dlt-v2" checked>②≥10
+        </label>
+        <label style="display:flex;align-items:center;gap:1px;font-size:9px;color:#4a5a6a;cursor:pointer;margin:0;padding:1px 4px;border-radius:3px" title="老三<6=极罕见(0.93%)">
+          <input type="checkbox" id="setting-pkill-dlt-v3" checked>③≥6
+        </label>
+        <span style="font-size:8px;color:#2a3a4a">④⑤自动通过</span>
+      </div>
+
+      <div id="save-settings-dlt" onclick="applySettings()" style="text-align:center;padding:8px;margin-top:8px;background:#1a3050;border-radius:6px;color:#3498db;font-size:11px;cursor:pointer">设置</div>
+    </div>
+  </details>
   <div class="result-box" id="dlt-result">
     <div id="dlt-result-inner"></div>
   </div>
@@ -212,7 +234,7 @@ label:first-child{margin-top:0}
       <label style="font-size:11px">AC值过滤(淘汰极低AC组合)</label>
       <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
         <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#8899b0;cursor:pointer;margin:0">
-          <input type="checkbox" id="setting-ac-kill"> 淘汰AC≤
+          <input type="checkbox" id="setting-ac-kill" checked> 淘汰AC≤
         </label>
         <span id="ac-kill-label" style="font-size:13px;color:#f0c040;min-width:40px">(SSQ≤3,DLT≤2)</span>
       </div>
@@ -220,7 +242,7 @@ label:first-child{margin-top:0}
       <label style="font-size:11px">连号限制</label>
       <div style="display:flex;align-items:center;gap:10px;margin-top:4px;flex-wrap:wrap">
         <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#8899b0;cursor:pointer;margin:0">
-          <input type="checkbox" id="setting-consec-kill"> 淘汰最长连号≥
+          <input type="checkbox" id="setting-consec-kill" checked> 淘汰最长连号≥
         </label>
         <input type="range" id="setting-consec-max" min="4" max="7" value="5" oninput="document.getElementById('consec-max-val').textContent=this.value" style="flex:0.5;accent-color:#e74c3c">
         <span id="consec-max-val" style="font-size:14px;color:#e74c3c;min-width:20px">5</span>
@@ -229,9 +251,9 @@ label:first-child{margin-top:0}
       <label style="font-size:11px">🚫 全质号过滤(SSQ独有)</label>
       <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
         <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#8899b0;cursor:pointer;margin:0">
-          <input type="checkbox" id="setting-allprime-kill"> 淘汰全红质号组合
+          <input type="checkbox" id="setting-allprime-kill" checked> 淘汰全红质号组合
         </label>
-        <span style="font-size:10px;color:#5a7a9a">(质数:2,3,5,7,11,13,17,19,23,29,31,共924注)</span>
+        <span style="font-size:10px;color:#5a7a9a">(质数:2,3,5,7,11,13,17,19,23,29,31; 历史仅0.03% SSQ/0.10% DLT，安全)</span>
       </div>
 
       <label style="font-size:11px">🎯 位置范围过滤 <span style="font-size:9px;color:#5a7a9a">(老二罕见≤2%，老三老四极罕见≤1%)</span></label>
@@ -242,37 +264,19 @@ label:first-child{margin-top:0}
           <input type="checkbox" id="setting-pkill-ssq" checked>
         </label>
         <span style="font-size:9px;color:#3a4a5a">|</span>
-        <span style="font-size:10px;color:#f0c040">➊老大</span>
+        <span style="font-size:10px;color:#f0c040">①老大</span>
         <input type="range" id="setting-pkill-ssq-max" min="17" max="28" value="19" style="width:44px;accent-color:#e67e22" oninput="pk_ssq_max_label.textContent=this.value">
         <span id="pk_ssq_max_label" style="font-size:11px;color:#e67e22;min-width:16px">19</span>
-        <label style="display:flex;align-items:center;gap:1px;font-size:9px;color:#5a7a9a;cursor:pointer;margin:0;padding:1px 4px;border-radius:3px" title="老二极端小≤1%(0.37%历史概率)">
+        <label style="display:flex;align-items:center;gap:1px;font-size:9px;color:#5a7a9a;cursor:pointer;margin:0;padding:1px 4px;border-radius:3px" title="老二<13=罕见(1.64%)">
           <input type="checkbox" id="setting-pkill-ssq-v2" checked>②≥13
         </label>
-        <label style="display:flex;align-items:center;gap:1px;font-size:9px;color:#4a5a6a;cursor:pointer;margin:0;padding:1px 4px;border-radius:3px" title="老三<4=极罕见(历史0.37%)">
+        <label style="display:flex;align-items:center;gap:1px;font-size:9px;color:#4a5a6a;cursor:pointer;margin:0;padding:1px 4px;border-radius:3px" title="老三<4=极罕见(0.37%)">
           <input type="checkbox" id="setting-pkill-ssq-v3" checked>③≥4
         </label>
-        <label style="display:flex;align-items:center;gap:1px;font-size:9px;color:#3a4a5a;cursor:pointer;margin:0;padding:1px 4px;border-radius:3px" title="老四<7=极罕见(历史0.72%)">
+        <label style="display:flex;align-items:center;gap:1px;font-size:9px;color:#3a4a5a;cursor:pointer;margin:0;padding:1px 4px;border-radius:3px" title="老四<7=极罕见(0.72%)">
           <input type="checkbox" id="setting-pkill-ssq-v4" checked>④≥7
         </label>
         <span style="font-size:8px;color:#2a3a4a">⑤⑥自动通过</span>
-      </div>
-
-      <div style="display:flex;align-items:center;gap:6px;margin-top:2px;flex-wrap:wrap">
-        <span style="font-size:11px;color:#f0c040;min-width:50px">DLT</span>
-        <label style="display:flex;align-items:center;gap:2px;font-size:9px;color:#8899b0;cursor:pointer;margin:0" title="全开/关DLT位置过滤">
-          <input type="checkbox" id="setting-pkill-dlt" checked>
-        </label>
-        <span style="font-size:9px;color:#3a4a5a">|</span>
-        <span style="font-size:10px;color:#f0c040">①老大</span>
-        <input type="range" id="setting-pkill-dlt-max" min="15" max="27" value="16" style="width:44px;accent-color:#e67e22" oninput="pk_dlt_max_label.textContent=this.value">
-        <span id="pk_dlt_max_label" style="font-size:11px;color:#e67e22;min-width:16px">16</span>
-        <label style="display:flex;align-items:center;gap:1px;font-size:9px;color:#5a7a9a;cursor:pointer;margin:0;padding:1px 4px;border-radius:3px" title="老二<10=罕见(历史1.07%)">
-          <input type="checkbox" id="setting-pkill-dlt-v2" checked>②≥10
-        </label>
-        <label style="display:flex;align-items:center;gap:1px;font-size:9px;color:#4a5a6a;cursor:pointer;margin:0;padding:1px 4px;border-radius:3px" title="老三<6=极罕见(历史0.93%)">
-          <input type="checkbox" id="setting-pkill-dlt-v3" checked>③≥6
-        </label>
-        <span style="font-size:8px;color:#2a3a4a">④⑤自动通过</span>
       </div>
 
       <label style="font-size:11px">🚫 历史一等奖杀号</label>
@@ -290,7 +294,7 @@ label:first-child{margin-top:0}
           <span style="font-size:11px;color:#8899b0">⚡ 启用密码集萃</span>
           <span id="cipher-toggle-indicator" style="font-size:11px;padding:2px 10px;border-radius:10px;background:#3a3a4a;color:#666">关闭</span>
         </label>
-        <input type="checkbox" id="setting-cipher-enabled" style="display:none">
+        <input type="checkbox" id="setting-cipher-enabled" checked style="display:none">
         <span style="font-size:10px;color:#5a7a9a">回测平均命中3.45/6球，脱靶率0.58%</span>
       </div>
 
@@ -968,31 +972,31 @@ function updateBlueHistoryFromData() {
 }
 
 // 全局：存储最近一次生成的推荐组合（供展开用）
-var _lastAllCombos = [];
-function expandCombos() {
-  var list = document.getElementById('combo-list');
-  var btn = document.getElementById('combo-expand-btn');
-  if (!list || !btn || _lastAllCombos.length === 0) return;
-  // 如果已经展开，则收起
+function expandCombos(isSSQ, suffix) {
+  var prefix = (isSSQ !== undefined ? (isSSQ ? 'ssq' : 'dlt') : '') + (suffix || '');
+  var list = document.getElementById(prefix + '-combo-list');
+  var btn = document.getElementById(prefix + '-combo-expand-btn');
+  if (!list || !btn) return;
+  // per-game + per-section storage
+  var key = prefix + '_combo_store';
+  var combos = window[key] || [];
+  if (combos.length === 0) { list.innerHTML = ''; btn.innerHTML = '无数据'; return; }
   var isExpanded = btn.textContent.indexOf('收起') >= 0;
+  function comboHtml(c, i) {
+    return '<div class="combo-item">' +
+      '<span class="combo-label">#' + (i + 1) + (i === 0 ? ' ⭐推荐' : '') + '</span> ' +
+      '<span class="num">[' + c[0].join(', ') + ']</span> ' +
+      '<span class="sp">+</span> ' +
+      '<span class="lb">[' + c[1].join(', ') + ']</span></div>';
+  }
   if (isExpanded) {
-    list.innerHTML = _lastAllCombos.slice(0, Math.min(5, _lastAllCombos.length)).map(function(c, i) {
-      return '<div class="combo-item">' +
-        '<span class="combo-label">#' + (i + 1) + (i === 0 ? ' ⭐推荐' : '') + '</span> ' +
-        '<span class="num">[' + c[0].join(', ') + ']</span> ' +
-        '<span class="sp">+</span> ' +
-        '<span class="lb">[' + c[1].join(', ') + ']</span></div>';
-    }).join('');
-    btn.innerHTML = '📂 展开全部' + _lastAllCombos.length + '注';
+    list.innerHTML = combos.slice(0, Math.min(5, combos.length)).map(comboHtml).join('');
+    btn.innerHTML = '📂 展开全部' + combos.length + '注';
   } else {
-    list.innerHTML = _lastAllCombos.map(function(c, i) {
-      return '<div class="combo-item">' +
-        '<span class="combo-label">#' + (i + 1) + (i === 0 ? ' ⭐推荐' : '') + '</span> ' +
-        '<span class="num">[' + c[0].join(', ') + ']</span> ' +
-        '<span class="sp">+</span> ' +
-        '<span class="lb">[' + c[1].join(', ') + ']</span></div>';
-    }).join('');
-    btn.innerHTML = '📂 收起';
+    list.innerHTML = combos.map(comboHtml).join('');
+    btn.innerHTML = '👆 收起全部' + combos.length + '注';
+  }
+}
   }
 }
 
@@ -1000,10 +1004,10 @@ function expandCombos() {
 var BLUE_SETTINGS = {
   coldHotWindow: 11, hotThreshold: 3, warmThreshold: 2,
   filterLonely: true, filterMid: true, filterJump: true, filterCold: true,
-  filterAcKill: false,  // 淘汰极低AC值（默认关闭）
-  filterConsecKill: false,  // 淘汰超长连号（默认关闭）
+  filterAcKill: true,  // 淘汰极低AC值
+  filterConsecKill: true,  // 淘汰超长连号
   consecMaxRun: 5,  // 最长连号上限
-  filterAllPrimeKill: false,  // 淘汰全质号组合（默认关闭）
+  filterAllPrimeKill: true,  // 淘汰全质号组合（历史SSQ 0.03%/DLT 0.10%，安全）
   filterHistoricalKill: true,  // 淘汰历史一等奖（默认开启）
   filterPosKillSSQ: true,  // SSQ位置范围过滤
   posKillSSQMax: 19,  // 老大最大值阈值
@@ -1014,7 +1018,7 @@ var BLUE_SETTINGS = {
   posKillDLTMax: 16,  // 老大最大值阈值
   posKillDLTV2: true,  // 老二≥10
   posKillDLTV3: true,  // 老三≥6
-  cipherEnabled: false  // 密码集萃引擎（默认关闭）
+  cipherEnabled: true  // 密码集萃引擎
 };
 
 function applySettings() {
@@ -1093,7 +1097,7 @@ function seededRandom(seed) {
   return x - Math.floor(x);
 }
 
-// 生成所有Combo（固定顺序），数量太多时取前N注
+// 生成所有Combo（固定顺序），生成全部后返回；外部截断显示
 var _filteredHistoricalCount = 0;
 function genCombos(pool, pool2, cnt, size1, size2, isSSQ) {
   if (pool.length < size1) return [];
@@ -1107,7 +1111,7 @@ function genCombos(pool, pool2, cnt, size1, size2, isSSQ) {
   // 先把共识池排序（固定顺序）
   var sorted = pool.slice().sort(function(a, b) { return a - b; });
 
-  // 生成全部C(n,size1)组合（按固定字典序）
+  // 生成全部C(n,size1)组合（按固定字典序），不提前截断以获知真实总数
   function comboIdx(arr, k) {
     var result = [];
     var n = arr.length;
@@ -1160,8 +1164,6 @@ function genCombos(pool, pool2, cnt, size1, size2, isSSQ) {
         cur.push(arr[i]);
         dfs(i + 1, depth + 1, cur);
         cur.pop();
-        // 提前终止：如果已经收集了需要的数量，不再继续
-        if (result.length >= cnt) return;
       }
     }
     dfs(0, 0, []);
@@ -1247,13 +1249,14 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
         // 生成全部组合 + 折叠显示
         var cipherAllCombos = genCombos(cipherMainPool, cipherSecPool, 999, isSSQ ? 6 : 5, isSSQ ? 1 : 2, isSSQ);
         if (cipherAllCombos.length > 0) {
-          _lastAllCombos = cipherAllCombos;
+          var prefix = (isSSQ ? 'ssq' : 'dlt') + '_cipher';
+          window[prefix + '_combo_store'] = cipherAllCombos;
           var showCount = Math.min(5, cipherAllCombos.length);
           var histFilterNote = '';
           if (BLUE_SETTINGS.filterHistoricalKill && _filteredHistoricalCount > 0) {
             histFilterNote = ' <span style="font-size:11px;color:#e67e22">（已排除' + _filteredHistoricalCount + '注历史一等奖）</span>';
           }
-          html += '<div class="combos"><h3>🎰 兜底参考组合（密码池，共' + cipherAllCombos.length + '注）' + histFilterNote + '</h3><div id="combo-list">' +
+          html += '<div class="combos"><h3>🎰 兜底参考组合（密码池，共' + cipherAllCombos.length + '注）' + histFilterNote + '</h3><div id="' + prefix + '-combo-list">' +
             cipherAllCombos.slice(0, showCount).map(function(c, i) {
               return '<div class="combo-item">' +
                 '<span class="combo-label">#' + (i + 1) + (i === 0 ? ' ⭐推荐' : '') + '</span> ' +
@@ -1263,7 +1266,7 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
                 '</div>';
             }).join('') + '</div>';
           if (cipherAllCombos.length > showCount) {
-            html += '<div id="combo-expand-btn" onclick="expandCombos()" style="text-align:center;padding:8px;margin-top:6px;background:#1a3050;border-radius:6px;color:#3498db;font-size:11px;cursor:pointer">📂 展开全部' + cipherAllCombos.length + '注</div>';
+            html += '<div id="' + prefix + '-combo-expand-btn" onclick="expandCombos(' + (isSSQ ? 'true' : 'false') + ',\'_cipher\')" style="text-align:center;padding:8px;margin-top:6px;background:#1a3050;border-radius:6px;color:#3498db;font-size:11px;cursor:pointer">📂 展开全部' + cipherAllCombos.length + '注</div>';
           }
           html += '</div>';
         } else {
@@ -1510,13 +1513,14 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
       // 生成全部组合 + 折叠显示
       var allCombos = genCombos(mainPool, secPool, 999, isSSQ ? 6 : 5, isSSQ ? 1 : 2, isSSQ);
       if (allCombos.length > 0) {
-        _lastAllCombos = allCombos;
+        var prefix = isSSQ ? 'ssq' : 'dlt';
+        window[prefix + '_combo_store'] = allCombos;
         var showCount = Math.min(5, allCombos.length);
         var histFilterNote = '';
         if (BLUE_SETTINGS.filterHistoricalKill && _filteredHistoricalCount > 0) {
           histFilterNote = ' <span style="font-size:11px;color:#e67e22">（已排除' + _filteredHistoricalCount + '注历史一等奖）</span>';
         }
-        html += '<div class="combos"><h3>🎰 参考组合（共识优先，共' + allCombos.length + '注）' + histFilterNote + '</h3><div id="combo-list">' +
+        html += '<div class="combos"><h3>🎰 参考组合（共识优先，共' + allCombos.length + '注）' + histFilterNote + '</h3><div id="' + prefix + '-combo-list">' +
           allCombos.slice(0, showCount).map(function(c, i) {
             return '<div class="combo-item">' +
               '<span class="combo-label">#' + (i + 1) + (i === 0 ? ' ⭐推荐' : '') + '</span> ' +
@@ -1526,7 +1530,7 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
               '</div>';
           }).join('') + '</div>';
         if (allCombos.length > showCount) {
-          html += '<div id="combo-expand-btn" onclick="expandCombos()" style="text-align:center;padding:8px;margin-top:6px;background:#1a3050;border-radius:6px;color:#3498db;font-size:11px;cursor:pointer">📂 展开全部' + allCombos.length + '注</div>';
+          html += '<div id="' + prefix + '-combo-expand-btn" onclick="expandCombos(' + (isSSQ ? 'true' : 'false') + ',\'\')" style="text-align:center;padding:8px;margin-top:6px;background:#1a3050;border-radius:6px;color:#3498db;font-size:11px;cursor:pointer">📂 展开全部' + allCombos.length + '注</div>';
         }
         html += '</div>';
       }
