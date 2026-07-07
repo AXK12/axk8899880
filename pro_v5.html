@@ -49,8 +49,6 @@ label:first-child{margin-top:0}
 .rule-tag{font-size:10px;padding:1px 6px;border-radius:4px;background:#1e3050;color:#5aa0d0;margin:0 2px;white-space:nowrap}
 .consensus-box{background:linear-gradient(135deg,#1a2020,#1e2820);border:2px solid #f0c040;border-radius:12px;padding:14px;margin-bottom:10px}
 .consensus-box h3{font-size:14px;color:#f0c040;margin-bottom:8px;text-align:center}
-.consensus-3-box{background:linear-gradient(135deg,#1a2020,#1e2820);border:3px solid #ff6600;border-radius:12px;padding:14px;margin-bottom:10px;box-shadow:0 0 20px rgba(255,102,0,.3),inset 0 0 30px rgba(255,102,0,.05)}
-.consensus-3-box h3{font-size:15px;color:#ff6600;margin-bottom:8px;text-align:center}
 .consensus-empty{text-align:center;color:#6a7a90;padding:12px;font-size:13px}
 .combos{background:#1a2530;border-radius:10px;padding:12px;margin-top:10px}
 .combos h3{font-size:13px;color:#f0c040;margin-bottom:8px}
@@ -125,11 +123,6 @@ label:first-child{margin-top:0}
     <span style="font-size:10px;color:#5a7a9a">🔐 密码集萃引擎状态: </span>
     <span id="cipher-dlt-status" style="font-size:11px;padding:2px 10px;border-radius:10px;background:#3a3a4a;color:#666">关闭</span>
     <span style="font-size:10px;color:#5a7a9a">(在B款高级设置中调节)</span>
-  </div>
-  <div style="display:flex;align-items:center;gap:8px;margin-top:10px;justify-content:center">
-    <span style="font-size:10px;color:#5a7a9a">🚫 历史一等奖杀号: </span>
-    <span id="historical-count-dlt" style="font-size:10px;color:#5a7a9a">加载中...</span>
-    <span onclick="document.getElementById('setting-historical-kill').clicked=true; document.getElementById('setting-historical-kill').checked = !document.getElementById('setting-historical-kill').checked; applySettings()" style="font-size:10px;color:#e67e22;cursor:pointer;text-decoration:underline">🔧 在B款高级设置中调节</span>
   </div>
   <div class="result-box" id="dlt-result">
     <div id="dlt-result-inner"></div>
@@ -228,14 +221,6 @@ label:first-child{margin-top:0}
           <input type="checkbox" id="setting-allprime-kill"> 淘汰全红质号组合
         </label>
         <span style="font-size:10px;color:#5a7a9a">(质数:2,3,5,7,11,13,17,19,23,29,31,共924注)</span>
-      </div>
-
-      <label style="font-size:11px">🚫 历史一等奖杀号</label>
-      <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#8899b0;cursor:pointer;margin:0">
-          <input type="checkbox" id="setting-historical-kill" checked> 排除历史已开一等奖前区组合
-        </label>
-        <span id="historical-count" style="font-size:10px;color:#5a7a9a">加载中...</span>
       </div>
 
       <hr style="border:0;border-top:1px solid #1e2a40;margin:10px 0">
@@ -440,37 +425,33 @@ function methodBQREngine(entries, maxVal) {
 
 
 // ==================== 密码集萃引擎 (CIPHER ENGINE) ====================
-// V0+modMul: 原始两两和/差 + 原始号对模积 + 输入保留
+// 三步运算: 和≤MAX ∪ 差 ∪ 整除商
+// SSQ: 6红, MAX=33, C(6,2)=15对
+// DLT: 5前区, MAX=35, C(5,2)=10对
 function cipherEngine(front, maxVal, isSSQ, blueBall) {
   var pool = new Set();
 
-  // 两两和、差（原始号对）
+  // Step 1: 所有两两加法 (a+b)
+  // Step 2: 所有两两绝对值减法 (b-a)
   for (var i = 0; i < front.length; i++) {
     for (var j = i + 1; j < front.length; j++) {
       var a = front[i], b = front[j];
-      pool.add(a + b);
-      pool.add(b - a);
+      pool.add(a + b);    // 加法
+      pool.add(b - a);    // 绝对值减法
     }
   }
 
-  // 原始号对模积: (a×b) mod maxVal, 0→maxVal
-  for (var i = 0; i < front.length; i++) {
-    for (var j = i + 1; j < front.length; j++) {
-      var r = (front[i] * front[j]) % maxVal;
-      pool.add(r === 0 ? maxVal : r);
-    }
-  }
-
-  // 品种专属处理
+  // Step 3: 品种专属
   if (isSSQ) {
+    // 双色球: 蓝球自加 c+c
     if (typeof blueBall !== 'undefined' && blueBall !== null) {
       pool.add(blueBall + blueBall);
     }
   } else {
-    // 大乐透: 原始号码保留（exclude 01）
+    // 大乐透: 原始号码保留（x01除01配对保留，01自配对不保留）
     for (var k = 0; k < front.length; k++) {
       var v = front[k];
-      if (v !== 1) {
+      if (v !== 1) {  // 01不保留
         pool.add(v);
       }
     }
@@ -643,18 +624,12 @@ function predict(front, back, isSSQ, bluePrev2, blueHistory) {
   // 密码集萃引擎计算（受全局开关控制）
   var frontCipher = cipherEngine(front.slice(0, isSSQ ? 6 : 5), maxVal, isSSQ, isSSQ ? (back.length > 0 ? back[0] : null) : null);
 
-  var frontConsensus2 = frontAP.filter(function(x) { return frontPredsB.has(x); });
-  var frontCipherSet = new Set(frontCipher);
-  // 三引擎共识: 方法A ∩ 方法B ∩ 密码集萃
-  var frontConsensus3 = frontConsensus2.filter(function(x) { return frontCipherSet.has(x); });
-
   return {
     front_a: frontAP,
     front_b: frontBP,
     back_a: Array.from(backPredsA).sort(function(a, b) { return a - b; }),
     back_b: Array.from(backPredsB).sort(function(a, b) { return a - b; }),
-    front_consensus: frontConsensus2,
-    front_consensus_3: frontConsensus3,
+    front_consensus: frontAP.filter(function(x) { return frontPredsB.has(x); }),
     back_consensus: Array.from(backPredsA).filter(function(x) { return backPredsB.has(x); }).sort(function(a, b) { return a - b; }),
     a_only: frontAP.filter(function(x) { return !frontPredsB.has(x); }),
     b_only: frontBP.filter(function(x) { return !frontPredsA.has(x); }),
@@ -837,25 +812,6 @@ var CACHED_SSQ = null;
 var CACHED_DLT = null;
 var DATA_VERSION = null;
 
-// 历史一等奖前区集合 [SSQ: 6红, DLT: 5前]
-var HISTORICAL_SSQ_FRONTS = [];
-var HISTORICAL_DLT_FRONTS = [];
-
-// 从原始数据构建可比较的键值集合
-function buildHistoricalFrontSets() {
-  if (CACHED_SSQ) {
-    HISTORICAL_SSQ_FRONTS = CACHED_SSQ.map(function(d) { return d.reds.slice().sort(function(a,b){return a-b}).join(','); });
-  }
-  if (CACHED_DLT) {
-    HISTORICAL_DLT_FRONTS = CACHED_DLT.map(function(d) { return d.fronts.slice().sort(function(a,b){return a-b}).join(','); });
-  }
-  var txt = '已载入 SSQ ' + HISTORICAL_SSQ_FRONTS.length + '期 + DLT ' + HISTORICAL_DLT_FRONTS.length + '期历史数据';
-  var cntEl = document.getElementById('historical-count');
-  if (cntEl) cntEl.textContent = txt;
-  var cntDlt = document.getElementById('historical-count-dlt');
-  if (cntDlt) cntDlt.textContent = txt;
-}
-
 function loadLotteryData(type) {
   return new Promise(function(resolve) {
     if ((type === 'ssq' && CACHED_SSQ) || (type === 'dlt' && CACHED_DLT)) {
@@ -867,23 +823,14 @@ function loadLotteryData(type) {
       if (xhr.status >= 200 && xhr.status < 400) {
         var json = JSON.parse(xhr.responseText);
         DATA_VERSION = json.updated_at;
-        if (type === 'ssq') { CACHED_SSQ = json.data; }
-        else { CACHED_DLT = json.data; }
-        buildHistoricalFrontSets();
-        resolve(type === 'ssq' ? CACHED_SSQ : CACHED_DLT);
+        if (type === 'ssq') { CACHED_SSQ = json.data; resolve(json.data); }
+        else { CACHED_DLT = json.data; resolve(json.data); }
       } else { resolve(null); }
     };
     xhr.onerror = function() { resolve(null); };
     xhr.send();
   });
 }
-
-// 预加载历史数据
-function preloadHistoricalData() {
-  loadLotteryData('ssq');
-  loadLotteryData('dlt');
-}
-setTimeout(preloadHistoricalData, 500);
 
 function updateBlueHistoryFromData() {
   var histInp = document.getElementById('ssq-blue-history');
@@ -959,7 +906,6 @@ var BLUE_SETTINGS = {
   filterConsecKill: false,  // 淘汰超长连号（默认关闭）
   consecMaxRun: 5,  // 最长连号上限
   filterAllPrimeKill: false,  // 淘汰全质号组合（默认关闭）
-  filterHistoricalKill: true,  // 淘汰历史一等奖（默认开启）
   cipherEnabled: false  // 密码集萃引擎（默认关闭）
 };
 
@@ -975,7 +921,6 @@ function applySettings() {
   BLUE_SETTINGS.filterConsecKill = document.getElementById('setting-consec-kill').checked;
   BLUE_SETTINGS.consecMaxRun = parseInt(document.getElementById('setting-consec-max').value) || 5;
   BLUE_SETTINGS.filterAllPrimeKill = document.getElementById('setting-allprime-kill').checked;
-  BLUE_SETTINGS.filterHistoricalKill = document.getElementById('setting-historical-kill').checked;
   BLUE_SETTINGS.cipherEnabled = document.getElementById('setting-cipher-enabled').checked;
   
   // Update cipher toggle indicator
@@ -1019,13 +964,10 @@ function seededRandom(seed) {
 }
 
 // 生成所有Combo（固定顺序），数量太多时取前N注
-var _filteredHistoricalCount = 0;
 function genCombos(pool, pool2, cnt, size1, size2, isSSQ) {
   if (pool.length < size1) return [];
-  _filteredHistoricalCount = 0;
   var settings = (typeof BLUE_SETTINGS !== 'undefined') ? BLUE_SETTINGS : { filterAcKill:true, filterConsecKill:true, consecMaxRun:5, filterAllPrimeKill:false };
   var acKill = isSSQ ? 3 : 2;
-  var histSet = isSSQ ? HISTORICAL_SSQ_FRONTS : HISTORICAL_DLT_FRONTS;
 
   var combos = [];
 
@@ -1048,12 +990,6 @@ function genCombos(pool, pool2, cnt, size1, size2, isSSQ) {
 
         // 全质号过滤（仅SSQ）
         if (isSSQ && settings.filterAllPrimeKill && isAllPrime(f)) return;
-
-        // 历史一等奖过滤
-        if (settings.filterHistoricalKill && histSet.length > 0) {
-          var key = f.join(',');
-          if (histSet.indexOf(key) >= 0) { _filteredHistoricalCount++; return; }
-        }
 
         result.push(f);
         return;
@@ -1157,11 +1093,9 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
 
       html += '<div class="stats-row">' +
         '<div class="stat-item"><div class="stat-val">' + result.crash_pages + '/' + result.page_details.length + '</div><div class="stat-lbl">撞车页</div></div>' +
-        '<div class="stat-item"><div class="stat-val">' + (result.front_consensus_3 ? result.front_consensus_3.length : 0) + '</div><div class="stat-lbl" style="color:#ff6600">🔥三引擎共识</div></div>' +
         '<div class="stat-item"><div class="stat-val">' + result.front_consensus.length + '</div><div class="stat-lbl">⭐共识</div></div>' +
         '<div class="stat-item"><div class="stat-val">' + result.front_a.length + '</div><div class="stat-lbl">📘方法A</div></div>' +
         '<div class="stat-item"><div class="stat-val">' + result.front_b.length + '</div><div class="stat-lbl">📗方法B</div></div>' +
-        '<div class="stat-item"><div class="stat-val">' + (result.front_cipher ? result.front_cipher.length : 0) + '</div><div class="stat-lbl">🔐密码</div></div>' +
         '</div>' +
         '<div class="stats-row">' +
         '<div class="stat-item"><div class="stat-val">' + ac + '</div><div class="stat-lbl" ' + (ac <= acKill ? 'style="color:#e74c3c"' : '') + '>🧮 AC值' + (ac <= acKill ? ' ⚠️极低' : '') + '</div></div>' +
@@ -1192,16 +1126,6 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
           '<div class="db-ref"><strong>💡 说明:</strong>共识号码 = 方法A+方法B同时预测 → 两个不同引擎独立验证一致 → 置信度最高</div></div>';
       } else {
         html += '<div class="pool-section" style="text-align:center;color:#6a7a90;padding:14px">⚠️ 两种方法本次没有共识号码,请结合各自池综合判断</div>';
-      }
-
-      // TRI-ENGINE CONSENSUS (A ∩ B ∩ 密码集萃)
-      if (BLUE_SETTINGS && BLUE_SETTINGS.cipherEnabled && result.front_consensus_3 && result.front_consensus_3.length > 0) {
-        html += '<div class="consensus-3-box">' +
-          '<h3>🔥 三引擎共识号码 · 最高置信度(' + result.front_consensus_3.length + '个)</h3>' +
-          '<div class="pool-nums">' + result.front_consensus_3.map(function(n) {
-            return '<div class="pool-num" style="background:#2a2010;border:3px solid #ff6600;color:#ffa040;font-size:14px;font-weight:bold;box-shadow:0 0 15px rgba(255,102,0,.4)">'+n+'</div>';
-          }).join('') + '</div>' +
-          '<div class="db-ref"><strong>🔥 三引擎验证:</strong>方法A + 方法B + 密码集萃 三个独立算法同时命中 → 置信度最高级别,建议优先参考</div></div>';
       }
 
       // Method A
@@ -1333,15 +1257,9 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
       }
 
       // Combos
-      // 优先级: 三引擎共识 > 双引擎共识 > 全量池
-      var mainPool;
-      if (BLUE_SETTINGS && BLUE_SETTINGS.cipherEnabled && result.front_consensus_3 && result.front_consensus_3.length >= (isSSQ ? 4 : 3)) {
-        mainPool = result.front_consensus_3;
-      } else if (result.front_consensus.length >= (isSSQ ? 6 : 5)) {
-        mainPool = result.front_consensus;
-      } else {
-        mainPool = Array.from(new Set(result.front_consensus.concat(result.front_a).concat(result.front_b))).sort(function(a, b) { return a - b; });
-      }
+      var mainPool = result.front_consensus.length >= (isSSQ ? 6 : 5)
+        ? result.front_consensus
+        : Array.from(new Set(result.front_consensus.concat(result.front_a).concat(result.front_b))).sort(function(a, b) { return a - b; });
 
       // 天平支点杀红：从推荐池中排除
       if (isSSQ && result.pivot_kill !== null) {
@@ -1374,11 +1292,7 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
       if (allCombos.length > 0) {
         _lastAllCombos = allCombos;
         var showCount = Math.min(5, allCombos.length);
-        var histFilterNote = '';
-        if (BLUE_SETTINGS.filterHistoricalKill && _filteredHistoricalCount > 0) {
-          histFilterNote = ' <span style="font-size:11px;color:#e67e22">（已排除' + _filteredHistoricalCount + '注历史一等奖）</span>';
-        }
-        html += '<div class="combos"><h3>🎰 参考组合（共识优先，共' + allCombos.length + '注）' + histFilterNote + '</h3><div id="combo-list">' +
+        html += '<div class="combos"><h3>🎰 参考组合（共识优先，共' + allCombos.length + '注）</h3><div id="combo-list">' +
           allCombos.slice(0, showCount).map(function(c, i) {
             return '<div class="combo-item">' +
               '<span class="combo-label">#' + (i + 1) + (i === 0 ? ' ⭐推荐' : '') + '</span> ' +

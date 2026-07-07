@@ -490,21 +490,70 @@ function predict(front, back, isSSQ) {
   };
 }
 
-function genCombos(pool, pool2, cnt, size1, size2) {
+// ========== 历史一等奖杀号 ==========
+var HISTORICAL_SSQ_FRONTS = [];
+var HISTORICAL_DLT_FRONTS = [];
+var _historicalFilteredCount = 0;
+
+function loadHistoricalData(type) {
+  return new Promise(function(resolve) {
+    if ((type === 'ssq' && HISTORICAL_SSQ_FRONTS.length > 0) || (type === 'dlt' && HISTORICAL_DLT_FRONTS.length > 0)) {
+      return resolve();
+    }
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', 'data/' + type + '.json', true);
+    xhr.onload = function() {
+      if (xhr.status >= 200 && xhr.status < 400) {
+        var json = JSON.parse(xhr.responseText);
+        if (type === 'ssq') {
+          HISTORICAL_SSQ_FRONTS = json.data.map(function(d) { return d.reds.slice().sort(function(a,b){return a-b}).join(','); });
+        } else {
+          HISTORICAL_DLT_FRONTS = json.data.map(function(d) { return d.fronts.slice().sort(function(a,b){return a-b}).join(','); });
+        }
+      }
+      resolve();
+    };
+    xhr.onerror = function() { resolve(); };
+    xhr.send();
+  });
+}
+
+function preloadHistorical() {
+  loadHistoricalData('ssq');
+  loadHistoricalData('dlt');
+}
+setTimeout(preloadHistorical, 500);
+
+function genCombos(pool, pool2, cnt, size1, size2, isSSQ) {
   if (pool.length < size1) return [];
+  _historicalFilteredCount = 0;
   const combos = [];
-  const seeds = [42, 123, 777];
-  for (let si = 0; si < Math.min(cnt, seeds.length); si++) {
+  const histSet = isSSQ ? HISTORICAL_SSQ_FRONTS : HISTORICAL_DLT_FRONTS;
+  
+  // 尝试生成 cnt 注（最多尝试 500 次避免死循环）
+  let attempts = 0;
+  while (combos.length < cnt && attempts < 500) {
+    attempts++;
+    var seed = combos.length * 137 + attempts * 42;
     let s = pool.slice();
     for (let i = s.length-1; i > 0; i--) {
-      const j = Math.floor((seeds[si] * (i+1) + si * 13) % (i+1));
-      [s[i], s[j]] = [s[j], s[i]];
+      const j = Math.floor((Math.sin(seed + i) * 10000) % (i + 1));
+      if (j < 0) { const t = -j; [s[i], s[t % (i+1)]] = [s[t % (i+1)], s[i]]; }
+      else { [s[i], s[j]] = [s[j], s[i]]; }
     }
     const f6 = s.slice(0, size1).sort((a,b)=>a-b);
+    
+    // 历史一等奖过滤
+    if (histSet.length > 0) {
+      var key = f6.join(',');
+      if (histSet.indexOf(key) >= 0) { _historicalFilteredCount++; continue; }
+    }
+    
     let sc = pool2.slice();
     for (let i = sc.length-1; i > 0; i--) {
-      const j = Math.floor((seeds[si] * (i+1) + si * 37) % (i+1));
-      [sc[i], sc[j]] = [sc[j], sc[i]];
+      const j = Math.floor((Math.sin(seed + i + 100) * 10000) % (i + 1));
+      if (j < 0) { const t = -j; [sc[i], sc[t % (i+1)]] = [sc[t % (i+1)], sc[i]]; }
+      else { [sc[i], sc[j]] = [sc[j], sc[i]]; }
     }
     const bk = sc.slice(0, size2).sort((a,b)=>a-b);
     combos.push([f6, bk]);
@@ -608,10 +657,11 @@ function predictDLT() {
         <div class="pool-nums">${renderPool(bp, 12)}</div>
       </div>`;
       
-      const combos = genCombos(fp, bp, 3, 5, 2);
+      const combos = genCombos(fp, bp, 3, 5, 2, false);
       if (combos.length > 0) {
+        var histNote = _historicalFilteredCount > 0 ? ' <span style="font-size:11px;color:#e67e22">(已过滤'+_historicalFilteredCount+'注历史一等奖)</span>' : '';
         html += `<div class="combos">
-          <h3>🎲 参考组合</h3>
+          <h3>🎲 参考组合${histNote}</h3>
           ${combos.map((c, i) => `<div class="combo-item">
             <span class="combo-label">#${i+1}</span>
             <span class="num">[${c[0].join(', ')}]</span>
@@ -678,10 +728,11 @@ function predictSSQ() {
         <div class="pool-nums">${renderPool(bp, 16)}</div>
       </div>`;
       
-      const combos = genCombos(fp, bp, 3, 6, 1);
+      const combos = genCombos(fp, bp, 3, 6, 1, true);
       if (combos.length > 0) {
+        var histNote = _historicalFilteredCount > 0 ? ' <span style="font-size:11px;color:#e67e22">(已过滤'+_historicalFilteredCount+'注历史一等奖)</span>' : '';
         html += `<div class="combos">
-          <h3>🎲 参考组合</h3>
+          <h3>🎲 参考组合${histNote}</h3>
           ${combos.map((c, i) => `<div class="combo-item">
             <span class="combo-label">#${i+1}</span>
             <span class="num">[${c[0].join(', ')}]</span>
