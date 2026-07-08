@@ -183,35 +183,7 @@ label:first-child{margin-top:0}
     <div style="background:#0e1525;border-radius:8px;padding:12px;margin-top:6px">
       <label style="margin-top:0;font-size:11px">上上期蓝号(用于复隔中/重斜跳分类)</label>
       <input type="tel" maxlength="2" id="ssq-blue-prev2" style="width:56px;height:36px;text-align:center;background:#1a2540;border:1px solid #2a3a58;border-radius:8px;color:#e0e6f0;font-size:16px;font-weight:bold;outline:none" placeholder="?">
-      <label style="font-size:11px">近N期蓝号历史(逗号分隔,用于冷温热分类)</label>
-      <input type="text" id="ssq-blue-history" style="width:100%;height:36px;background:#1a2540;border:1px solid #2a3a58;border-radius:8px;color:#e0e6f0;font-size:13px;padding:0 10px;outline:none" placeholder="例: 3,7,12,5,9,1,8,14,6,2,11">
-      <div class="hint" style="text-align:left;margin-top:4px">默认过滤策略:孤码+中码+跳码+冷码</div>
-      <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
-        <div onclick="loadBluePreset()" style="flex:1;text-align:center;padding:8px;background:#1a3050;border-radius:6px;color:#3498db;font-size:11px;cursor:pointer">📋 手动预设数据</div>
-        <div id="blue-preset-btn" onclick="updateBlueHistoryFromData()" style="flex:1;text-align:center;padding:8px;background:#1a3050;border-radius:6px;color:#27ae60;font-size:11px;cursor:pointer">🌐 从数据源自动获取</div>
-      </div>
-
-      <hr style="border:0;border-top:1px solid #1e2a40;margin:12px 0">
-      <div style="font-size:12px;color:#f0c040;margin-bottom:8px">⚙️ 参数设置（实时调整，重新分析生效）</div>
-
-      <label style="font-size:11px">冷温热统计窗口(期数)</label>
-      <div style="display:flex;align-items:center;gap:10px">
-        <input type="range" id="setting-window" min="5" max="30" value="11" oninput="document.getElementById('window-val').textContent=this.value" style="flex:1;accent-color:#f0c040">
-        <span id="window-val" style="font-size:14px;color:#f0c040;min-width:30px">11</span>
-      </div>
-
-      <label style="font-size:11px">热码阈值(出现≥此次数)</label>
-      <div style="display:flex;align-items:center;gap:10px">
-        <input type="range" id="setting-hot" min="2" max="6" value="3" oninput="document.getElementById('hot-val').textContent=this.value" style="flex:1;accent-color:#e74c3c">
-        <span id="hot-val" style="font-size:14px;color:#e74c3c;min-width:30px">3</span>
-      </div>
-
-      <label style="font-size:11px">温码判定(出现次数=此值)</label>
-      <div style="display:flex;align-items:center;gap:10px">
-        <input type="range" id="setting-warm" min="1" max="5" value="2" oninput="document.getElementById('warm-val').textContent=this.value" style="flex:1;accent-color:#f39c12">
-        <span id="warm-val" style="font-size:14px;color:#f39c12;min-width:30px">2</span>
-      </div>
-
+      <div class="hint" style="text-align:left;margin-top:4px">过滤策略:孤码(非传非邻) + 中码(非复非隔) + 跳码(非重非斜)</div>
       <label style="font-size:11px">过滤策略(勾选=需同时满足)</label>
       <div style="display:flex;gap:10px;margin-top:4px;flex-wrap:wrap">
         <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#8899b0;cursor:pointer;margin:0">
@@ -223,9 +195,7 @@ label:first-child{margin-top:0}
         <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#8899b0;cursor:pointer;margin:0">
           <input type="checkbox" id="setting-jump" checked> 跳码
         </label>
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#8899b0;cursor:pointer;margin:0">
-          <input type="checkbox" id="setting-cold" checked> 冷码
-        </label>
+
       </div>
 
       <hr style="border:0;border-top:1px solid #1e2a40;margin:10px 0">
@@ -530,7 +500,7 @@ function cipherEngine(front, maxVal, isSSQ, blueBall) {
 
 
 // ==================== MAIN PREDICTOR ====================
-function predict(front, back, isSSQ, bluePrev2, blueHistory) {
+function predict(front, back, isSSQ, bluePrev2) {
   var allNums = front.concat(back);
   var total = allNums.reduce(function(a, b) { return a + b; }, 0);
   var maxVal = isSSQ ? 33 : 35;
@@ -676,8 +646,8 @@ function predict(front, back, isSSQ, bluePrev2, blueHistory) {
   }
 
   var blueFilter = null;
-  if (isSSQ && bluePreds.length > 0 && (bluePrev2 !== null || !!blueHistory)) {
-    blueFilter = filterBlues(bluePreds, back[0], bluePrev2, blueHistory);
+  if (isSSQ && bluePreds.length > 0 && bluePrev2 !== null) {
+    blueFilter = filterBlues(bluePreds, back[0], bluePrev2);
   }
 
   // 天平支点杀红（仅双色球）：上期蓝球 = 天平支点，下期红球排除此号
@@ -731,7 +701,7 @@ function isBlueAdjacent(a, b) {
   return d === 1 || d === 15;
 }
 
-function classifyBlue(n, prevBlue, prev2Blue, freq) {
+function classifyBlue(n, prevBlue, prev2Blue) {
   // 邻孤传: 传=同上期, 邻=上期±1, 孤=其余
   var lgc;
   if (n === prevBlue) lgc = '传';
@@ -750,48 +720,31 @@ function classifyBlue(n, prevBlue, prev2Blue, freq) {
   else if (prev2Blue !== null && isBlueAdjacent(n, prev2Blue)) zxt = '斜';
   else zxt = '跳';
 
-  // 冷温热: 用户可调阈值(BLUE_SETTINGS)
-  var cnt = freq[n] || 0;
-  var hotThresh = (typeof BLUE_SETTINGS !== 'undefined' ? BLUE_SETTINGS.hotThreshold : 3);
-  var warmThresh = (typeof BLUE_SETTINGS !== 'undefined' ? BLUE_SETTINGS.warmThreshold : 2);
-  var lwr = cnt >= hotThresh ? '热' : (cnt >= warmThresh ? '温' : '冷');
-
-  return { lgc: lgc, fgz: fgz, zxt: zxt, lwr: lwr };
+  return { lgc: lgc, fgz: fgz, zxt: zxt };
 }
 
-function filterBlues(bluePool, prevBlue, prev2Blue, historyBlues) {
+function filterBlues(bluePool, prevBlue, prev2Blue) {
   var settings = (typeof BLUE_SETTINGS !== 'undefined') ? BLUE_SETTINGS : {
-    coldHotWindow: 11, hotThreshold: 3, warmThreshold: 2,
-    filterLonely: true, filterMid: true, filterJump: true, filterCold: true
+    filterLonely: true, filterMid: true, filterJump: true
   };
-
-  var freq = {};
-  if (historyBlues && historyBlues.length > 0) {
-    var windowed = historyBlues.slice(-settings.coldHotWindow);
-    windowed.forEach(function(b) { freq[b] = (freq[b] || 0) + 1; });
-  } else {
-    for (var i = 1; i <= 16; i++) freq[i] = 0;
-  }
 
   var filtered = [];
   var classified = [];
   var tags = {};
 
   bluePool.forEach(function(b) {
-    var c = classifyBlue(b, prevBlue, prev2Blue, freq);
+    var c = classifyBlue(b, prevBlue, prev2Blue);
     classified.push({ num: b, cls: c });
     var passFilters = true;
     if (settings.filterLonely && c.lgc !== '孤') passFilters = false;
     if (settings.filterMid && c.fgz !== '中') passFilters = false;
     if (settings.filterJump && c.zxt !== '跳') passFilters = false;
-    if (settings.filterCold && c.lwr !== '冷') passFilters = false;
     if (passFilters) {
       filtered.push(b);
       var tagParts = [];
       if (c.lgc === '孤') tagParts.push('孤');
       if (c.fgz === '中') tagParts.push('中');
       if (c.zxt === '跳') tagParts.push('跳');
-      if (c.lwr === '冷') tagParts.push('冷');
       tags[b] = tagParts.join('+');
     }
   });
@@ -801,7 +754,7 @@ function filterBlues(bluePool, prevBlue, prev2Blue, historyBlues) {
     classified: classified,
     filtered: filtered,
     tags: tags,
-    has_filter: prev2Blue !== null || (historyBlues && historyBlues.length > 0)
+    has_filter: prev2Blue !== null
   };
 }
 
@@ -934,43 +887,6 @@ function preloadHistoricalData() {
 }
 setTimeout(preloadHistoricalData, 500);
 
-function updateBlueHistoryFromData() {
-  var histInp = document.getElementById('ssq-blue-history');
-  var pv2Inp = document.getElementById('ssq-blue-prev2');
-  var blueInp = document.getElementById('ssq-blue');
-  var blue = parseInt(blueInp.value);
-
-  loadLotteryData('ssq').then(function(data) {
-    if (!data) { alert('数据文件data/ssq.json不存在。请先在repo中部署data/目录。'); return; }
-
-    var idx = -1;
-    for (var i = data.length - 1; i >= 0; i--) {
-      if (data[i].blue === blue) { idx = i; break; }
-    }
-
-    if (idx === -1) {
-      var lastBlues = data.slice(-11).map(function(d) { return d.blue; });
-      histInp.value = lastBlues.join(', ');
-      if (data.length >= 2) pv2Inp.value = data[data.length - 2].blue;
-      alert('未找到匹配蓝球,使用最近11期数据');
-      return;
-    }
-
-    var recentBlues = [];
-    for (var j = Math.max(0, idx - 11); j < idx; j++) {
-      recentBlues.push(data[j].blue);
-    }
-    histInp.value = recentBlues.join(', ');
-
-    if (idx - 1 >= 0) pv2Inp.value = data[idx - 1].blue;
-
-    var btn = document.getElementById('blue-preset-btn');
-    btn.textContent = '✅ 已从' + data.length + '期数据自动匹配';
-    btn.style.background = '#1a3a20';
-    btn.style.color = '#27ae60';
-  }).catch(function() { loadBluePreset(); });
-}
-
 // 全局：存储最近一次生成的推荐组合（供展开用）
 function expandCombos(isSSQ, suffix) {
   var prefix = (isSSQ !== undefined ? (isSSQ ? 'ssq' : 'dlt') : '') + (suffix || '');
@@ -998,10 +914,51 @@ function expandCombos(isSSQ, suffix) {
   }
 }
 
+// ==================== COPY COMBOS ====================
+function copyCombos(prefix, isSSQ) {
+  var key = prefix + '_combo_store';
+  var combos = window[key] || [];
+  if (combos.length === 0) { alert('无组合可复制'); return; }
+  
+  var lines = [];
+  combos.forEach(function(c, i) {
+    var reds = c[0].map(function(n) { return ('0' + n).slice(-2); }).join(' ');
+    var blues = c[1].map(function(n) { return ('0' + n).slice(-2); }).join(' ');
+    lines.push('#' + (i + 1) + ': ' + reds + ' + ' + blues);
+    if ((i + 1) % 5 === 0 && i + 1 < combos.length) lines.push('');
+  });
+  
+  var text = lines.join('\n');
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function() {
+      alert('✅ 已复制 ' + combos.length + ' 注组合到剪贴板，每5注空一行');
+    }).catch(function() {
+      fallbackCopy(text);
+    });
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.left = '-9999px';
+  document.body.appendChild(ta);
+  ta.select();
+  try {
+    document.execCommand('copy');
+    alert('✅ 已复制 ' + (text.match(/^#/gm) || []).length + ' 注组合到剪贴板，每5注空一行');
+  } catch(e) {
+    alert('❌ 复制失败，请手动复制');
+  }
+  document.body.removeChild(ta);
+}
+
 // ==================== SETTINGS ====================
 var BLUE_SETTINGS = {
-  coldHotWindow: 11, hotThreshold: 3, warmThreshold: 2,
-  filterLonely: true, filterMid: true, filterJump: true, filterCold: true,
+  filterLonely: true, filterMid: true, filterJump: true,
   filterAcKill: true,  // 淘汰极低AC值
   filterConsecKill: true,  // 淘汰超长连号
   consecMaxRun: 5,  // 最长连号上限
@@ -1020,13 +977,9 @@ var BLUE_SETTINGS = {
 };
 
 function applySettings() {
-  BLUE_SETTINGS.coldHotWindow = parseInt(document.getElementById('setting-window').value) || 11;
-  BLUE_SETTINGS.hotThreshold = parseInt(document.getElementById('setting-hot').value) || 3;
-  BLUE_SETTINGS.warmThreshold = parseInt(document.getElementById('setting-warm').value) || 2;
   BLUE_SETTINGS.filterLonely = document.getElementById('setting-lonely').checked;
   BLUE_SETTINGS.filterMid = document.getElementById('setting-mid').checked;
   BLUE_SETTINGS.filterJump = document.getElementById('setting-jump').checked;
-  BLUE_SETTINGS.filterCold = document.getElementById('setting-cold').checked;
   BLUE_SETTINGS.filterAcKill = document.getElementById('setting-ac-kill').checked;
   BLUE_SETTINGS.filterConsecKill = document.getElementById('setting-consec-kill').checked;
   BLUE_SETTINGS.consecMaxRun = parseInt(document.getElementById('setting-consec-max').value) || 5;
@@ -1266,6 +1219,7 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
           if (cipherAllCombos.length > showCount) {
             html += '<div id="' + prefix + '-combo-expand-btn" onclick="expandCombos(' + (isSSQ ? 'true' : 'false') + ',\'_cipher\')" style="text-align:center;padding:8px;margin-top:6px;background:#1a3050;border-radius:6px;color:#3498db;font-size:11px;cursor:pointer">📂 展开全部' + cipherAllCombos.length + '注</div>';
           }
+          html += '<div onclick="copyCombos(\'' + prefix + '\',' + (isSSQ ? 'true' : 'false') + ')" style="text-align:center;padding:8px;margin-top:4px;background:#1a3a20;border-radius:6px;color:#27ae60;font-size:11px;cursor:pointer;border:1px solid #2a5a30">📋 复制全部' + cipherAllCombos.length + '注（每5注空行）</div>';
           html += '</div>';
         } else {
           html += '<div style="text-align:center;padding:14px;color:#6a7a90">密码池过滤后无可用组合（所有组合被AC/连号/历史一等奖等规则过滤）</div>';
@@ -1433,13 +1387,13 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
           // Show filtered first (孤中跳冷)
           if (filtered.length > 0) {
             html += '<div class="pool-section" style="border:1px solid #f0c040">' +
-              '<div class="pool-title">🔵 蓝球推荐 <span class="pool-badge gold">' + filtered.length + '个（孤+中+跳+冷）</span></div>' +
+              '<div class="pool-title">🔵 蓝球推荐 <span class="pool-badge gold">' + filtered.length + '个（孤+中+跳）</span></div>' +
               '<div class="pool-nums">' + renderPool(filtered, 16, [], [], []) + '</div>' +
-              '<div class="db-ref"><strong>过滤规则：</strong>孤码(非传非邻) + 中码(非复非隔) + 跳码(非重非斜) + 冷码(近11期≤1次)</div></div>';
+              '<div class="db-ref"><strong>过滤规则：</strong>孤码(非传非邻) + 中码(非复非隔) + 跳码(非重非斜)</div></div>';
           } else {
             html += '<div class="pool-section" style="border:1px solid #e74c3c50">' +
-              '<div class="pool-title">🔵 蓝球 <span style="color:#e74c3c;font-size:11px">无满足四重过滤的号码</span></div>' +
-              '<div class="db-ref">方法B预测的蓝球全部被四维过滤排除，请参考下方完整池手动选择</div></div>';
+              '<div class="pool-title">🔵 蓝球 <span style="color:#e74c3c;font-size:11px">无满足三重过滤的号码</span></div>' +
+              '<div class="db-ref">方法B预测的蓝球全部被过滤排除，请参考下方完整池手动选择</div></div>';
           }
           
           // Show excluded numbers
@@ -1452,7 +1406,6 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
               if (cl.lgc !== '孤') reasons.push(cl.lgc);
               if (cl.fgz !== '中') reasons.push(cl.fgz);
               if (cl.zxt !== '跳') reasons.push(cl.zxt);
-              if (cl.lwr !== '冷') reasons.push(cl.lwr);
               return '<span title="被排除原因: ' + reasons.join(' ') + '" style="color:#e74c3c40;text-decoration:line-through;cursor:help">' + c.num + '</span>';
             }).join(' ');
             html += '<div style="font-size:10px;color:#6a7a90;margin:4px 0 8px">⬛ 已排除：' + excludeReasons + '</div>';
@@ -1462,12 +1415,12 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
           html += '<div class="pool-section">' +
             '<div class="pool-title">🔵 方法B全量蓝球池 <span class="pool-badge blue">' + all.length + '个</span></div>' +
             '<div class="pool-nums">' + renderPool(all, 16, filtered, [], []) + '</div>' +
-            '<div class="db-ref">⭐ = 通过孤+中+跳+冷过滤 | 其余 = 被四维过滤排除</div></div>';
+            '<div class="db-ref">⭐ = 通过孤+中+跳过滤 | 其余 = 被过滤排除</div></div>';
         } else {
           html += '<div class="pool-section">' +
             '<div class="pool-title">🔵 蓝球参考（方法B引擎） <span class="pool-badge blue">' + result.blue_preds.length + '个</span></div>' +
             '<div class="pool-nums">' + renderPool(result.blue_preds, 16, [], [], []) + '</div>' +
-            '<div class="db-ref">💡 展开上方蓝球过滤设置，输入上上期蓝号和近11期历史可启用四维过滤</div></div>';
+            '<div class="db-ref">💡 展开上方蓝球过滤设置，输入上上期蓝号可启用三重过滤</div></div>';
         }
       }
 
@@ -1530,6 +1483,7 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
         if (allCombos.length > showCount) {
           html += '<div id="' + prefix + '-combo-expand-btn" onclick="expandCombos(' + (isSSQ ? 'true' : 'false') + ',\'\')" style="text-align:center;padding:8px;margin-top:6px;background:#1a3050;border-radius:6px;color:#3498db;font-size:11px;cursor:pointer">📂 展开全部' + allCombos.length + '注</div>';
         }
+        html += '<div onclick="copyCombos(\'' + prefix + '\',' + (isSSQ ? 'true' : 'false') + ')" style="text-align:center;padding:8px;margin-top:4px;background:#1a3a20;border-radius:6px;color:#27ae60;font-size:11px;cursor:pointer;border:1px solid #2a5a30">📋 复制全部' + allCombos.length + '注（每5注空行）</div>';
         html += '</div>';
       }
     }
@@ -1570,7 +1524,7 @@ function predictDLT() {
     alert('请正确输入5个前区(1-35)和2个后区(1-12)，号码不能重复');
     return;
   }
-  var result = predict(front, back, false, null, null);
+  var result = predict(front, back, false, null);
   renderResult('dlt-result', 'dlt-result-inner', result, 35, 12, false);
 }
 
@@ -1593,13 +1547,7 @@ function predictSSQ() {
   var pv2 = parseInt(bluePrev2Inp.value);
   if (!isNaN(pv2) && pv2 >= 1 && pv2 <= 16) bluePrev2 = pv2;
 
-  var histInp = document.getElementById('ssq-blue-history');
-  var hist = null;
-  if (histInp.value.trim()) {
-    hist = histInp.value.split(/[,,\s]+/).map(function(x) { return parseInt(x); }).filter(function(x) { return x >= 1 && x <= 16; });
-  }
-
-  var result = predict(front, [blue], true, bluePrev2, hist);
+  var result = predict(front, [blue], true, bluePrev2);
   renderResult('ssq-result', 'ssq-result-inner', result, 33, 16, true);
 }
 
@@ -1674,10 +1622,7 @@ function autoPredictSSQ() {
     // Fill blue
     document.getElementById('ssq-blue').value = last.blue;
 
-    // Auto match blue history from data
-    updateBlueHistoryFromData();
-
-    btn.textContent = '✅ ' + last.period + '期(' + last.date + ') 已加载,蓝历史同步...';
+    btn.textContent = '✅ ' + last.period + '期(' + last.date + ') 已加载...';
 
     // Auto trigger prediction after a short delay for blue history to load
     setTimeout(function() {
@@ -1774,28 +1719,6 @@ function getBiasWarnings(pool, gameType) {
   }
   warns.sort(function(a, b) { return a.prob - b.prob; });
   return warns;
-}
-
-var BLUE_HISTORY_PRESET = [
-  11, 12, 16, 3, 16, 6, 7, 8, 9, 13, 15, 12, 12, 2, 13, 6, 6, 13, 9, 4, 1, 8, 2, 14, 12, 16, 15, 7, 10, 7, 1, 13, 10, 14, 8, 15, 7, 16, 3, 16, 11, 7, 13, 15, 3, 11, 16, 7, 13, 2
-];
-function loadBluePreset() {
-  var histInp = document.getElementById('ssq-blue-history');
-  var pv2Inp = document.getElementById('ssq-blue-prev2');
-  
-  // Last 11 periods
-  var recent11 = BLUE_HISTORY_PRESET.slice(-11);
-  histInp.value = recent11.join(', ');
-  
-  // prev2 = 2nd last
-  if (BLUE_HISTORY_PRESET.length >= 2) {
-    pv2Inp.value = BLUE_HISTORY_PRESET[BLUE_HISTORY_PRESET.length - 2];
-  }
-  
-  var btn = document.getElementById('blue-preset-btn');
-  btn.textContent = '✅ 已加载预设 (' + recent11.length + '期)';
-  btn.style.background = '#1a3a20';
-  btn.style.color = '#27ae60';
 }
 
 // Initialize cipher status display on load
