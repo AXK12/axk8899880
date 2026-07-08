@@ -1042,76 +1042,24 @@ function isAllPrime(nums) {
   return true;
 }
 
-// 确定性伪随机（基于种子）
-function seededRandom(seed) {
-  var x = Math.sin(seed + 1) * 10000;
-  return x - Math.floor(x);
-}
-
-// 生成所有Combo（固定顺序），生成全部后返回；外部截断显示
+// 生成所有Combo：前区×后区交叉，显示真实注数；上限5000注
 var _filteredHistoricalCount = 0;
-function genCombos(pool, pool2, cnt, size1, size2, isSSQ) {
+function genCombos(pool, pool2, size1, size2, isSSQ) {
   if (pool.length < size1) return [];
   _filteredHistoricalCount = 0;
   var settings = (typeof BLUE_SETTINGS !== 'undefined') ? BLUE_SETTINGS : { filterAcKill:true, filterConsecKill:true, consecMaxRun:5, filterAllPrimeKill:false };
   var acKill = isSSQ ? 3 : 2;
   var histSet = isSSQ ? HISTORICAL_SSQ_FRONTS : HISTORICAL_DLT_FRONTS;
 
-  var combos = [];
-
-  // 先把共识池排序（固定顺序）
+  var MAX_COMBOS = 5000, combos = [];
   var sorted = pool.slice().sort(function(a, b) { return a - b; });
 
-  // 生成全部C(n,size1)组合（按固定字典序），不提前截断以获知真实总数
-  function comboIdx(arr, k) {
+  // 生成全部后区组合C(pool2, size2)并排序（一次性）
+  function backCombosGen(arr, k) {
     var result = [];
-    var n = arr.length;
     function dfs(start, depth, cur) {
-      if (depth === k) {
-        var f = cur.slice();
-
-        // AC值过滤
-        if (settings.filterAcKill && acValue(f) <= acKill) return;
-
-        // 连号过滤
-        if (settings.filterConsecKill && getMaxConsecutiveRun(f) >= settings.consecMaxRun) return;
-
-        // 全质号过滤（仅SSQ）
-        if (isSSQ && settings.filterAllPrimeKill && isAllPrime(f)) return;
-
-        // 历史一等奖过滤
-        if (settings.filterHistoricalKill && histSet.length > 0) {
-          var key = f.join(',');
-          if (histSet.indexOf(key) >= 0) { _filteredHistoricalCount++; return; }
-        }
-
-        // 位置范围过滤（SSQ:老大/老二/老三/老四, DLT:老大/老二/老三）
-        if (isSSQ) {
-          if (settings.filterPosKillSSQ) {
-            // 老大(最大值): f[5]
-            if (f[5] < settings.posKillSSQMax) { return; }
-            // 老二(f[4]) ≥ 13
-            if (settings.posKillSSQV2 && f[4] < 13) { return; }
-            // 老三(f[3]) ≥ 4
-            if (settings.posKillSSQV3 && f[3] < 4) { return; }
-            // 老四(f[2]) ≥ 7
-            if (settings.posKillSSQV4 && f[2] < 7) { return; }
-          }
-        } else {
-          if (settings.filterPosKillDLT) {
-            // 老大(最大值): f[4]
-            if (f[4] < settings.posKillDLTMax) { return; }
-            // 老二(f[3]) ≥ 10
-            if (settings.posKillDLTV2 && f[3] < 10) { return; }
-            // 老三(f[2]) ≥ 6
-            if (settings.posKillDLTV3 && f[2] < 6) { return; }
-          }
-        }
-
-        result.push(f);
-        return;
-      }
-      for (var i = start; i < n; i++) {
+      if (depth === k) { result.push(cur.slice()); return; }
+      for (var i = start; i < arr.length; i++) {
         cur.push(arr[i]);
         dfs(i + 1, depth + 1, cur);
         cur.pop();
@@ -1120,25 +1068,61 @@ function genCombos(pool, pool2, cnt, size1, size2, isSSQ) {
     dfs(0, 0, []);
     return result;
   }
+  var allBacks = backCombosGen(pool2, size2);
 
-  var frontCombos = comboIdx(sorted, size1);
+  // 前区DFS：每个通过过滤的前区组合，立即乘以所有后区组合
+  function frontDFS(start, depth, cur) {
+    if (combos.length >= MAX_COMBOS) return;
+    if (depth === size1) {
+      var f = cur.slice();
 
-  if (frontCombos.length === 0) return [];
+      // AC值过滤
+      if (settings.filterAcKill && acValue(f) <= acKill) return;
 
-  // 为每个前区组合搭配后区
-  for (var ci = 0; ci < Math.min(frontCombos.length, cnt); ci++) {
-    var f = frontCombos[ci];
-    // 后区确定性选择：用索引作为种子
-    var sc = pool2.slice();
-    var seed = (ci + 1) * 12345;
-    for (var k = sc.length - 1; k > 0; k--) {
-      var r = Math.floor(seededRandom(seed + k) * (k + 1));
-      var tmp2 = sc[k]; sc[k] = sc[r]; sc[r] = tmp2;
+      // 连号过滤
+      if (settings.filterConsecKill && getMaxConsecutiveRun(f) >= settings.consecMaxRun) return;
+
+      // 全质号过滤（仅SSQ）
+      if (isSSQ && settings.filterAllPrimeKill && isAllPrime(f)) return;
+
+      // 历史一等奖过滤
+      if (settings.filterHistoricalKill && histSet.length > 0) {
+        var key = f.join(',');
+        if (histSet.indexOf(key) >= 0) { _filteredHistoricalCount++; return; }
+      }
+
+      // 位置范围过滤
+      if (isSSQ) {
+        if (settings.filterPosKillSSQ) {
+          if (f[5] < settings.posKillSSQMax) return;
+          if (settings.posKillSSQV2 && f[4] < 13) return;
+          if (settings.posKillSSQV3 && f[3] < 4) return;
+          if (settings.posKillSSQV4 && f[2] < 7) return;
+        }
+      } else {
+        if (settings.filterPosKillDLT) {
+          if (f[4] < settings.posKillDLTMax) return;
+          if (settings.posKillDLTV2 && f[3] < 10) return;
+          if (settings.posKillDLTV3 && f[2] < 6) return;
+        }
+      }
+
+      // 通过过滤 → 乘以全部后区组合
+      for (var bj = 0; bj < allBacks.length; bj++) {
+        combos.push([f, allBacks[bj]]);
+        if (combos.length >= MAX_COMBOS) return;
+      }
+      return;
     }
-    var bk = sc.slice(0, size2).sort(function(a, b) { return a - b; });
-    combos.push([f, bk]);
+    for (var i = start; i < sorted.length; i++) {
+      cur.push(sorted[i]);
+      frontDFS(i + 1, depth + 1, cur);
+      cur.pop();
+      if (combos.length >= MAX_COMBOS) return;
+    }
   }
 
+  frontDFS(0, 0, []);
   return combos;
 }
 
@@ -1198,7 +1182,7 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
         if (cipherSecPool.length === 0) cipherSecPool = isSSQ ? [1] : [1, 2];
 
         // 生成全部组合 + 折叠显示
-        var cipherAllCombos = genCombos(cipherMainPool, cipherSecPool, 999, isSSQ ? 6 : 5, isSSQ ? 1 : 2, isSSQ);
+        var cipherAllCombos = genCombos(cipherMainPool, cipherSecPool, isSSQ ? 6 : 5, isSSQ ? 1 : 2, isSSQ);
         if (cipherAllCombos.length > 0) {
           var prefix = (isSSQ ? 'ssq' : 'dlt') + '_cipher';
           window[prefix + '_combo_store'] = cipherAllCombos;
@@ -1207,7 +1191,8 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
           if (BLUE_SETTINGS.filterHistoricalKill && _filteredHistoricalCount > 0) {
             histFilterNote = ' <span style="font-size:11px;color:#e67e22">（已排除' + _filteredHistoricalCount + '注历史一等奖）</span>';
           }
-          html += '<div class="combos"><h3>🎰 兜底参考组合（密码池，共' + cipherAllCombos.length + '注）' + histFilterNote + '</h3><div id="' + prefix + '-combo-list">' +
+          var capNote = cipherAllCombos.length >= 5000 ? ' <span style="font-size:11px;color:#e67e22">（上限5000注）</span>' : '';
+          html += '<div class="combos"><h3>🎰 兜底参考组合（密码池，共' + cipherAllCombos.length + '注' + capNote + '）' + histFilterNote + '</h3><div id="' + prefix + '-combo-list">' +
             cipherAllCombos.slice(0, showCount).map(function(c, i) {
               return '<div class="combo-item">' +
                 '<span class="combo-label">#' + (i + 1) + (i === 0 ? ' ⭐推荐' : '') + '</span> ' +
@@ -1462,7 +1447,7 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
       if (secPool.length === 0) secPool = isSSQ ? [1] : [1, 2];
 
       // 生成全部组合 + 折叠显示
-      var allCombos = genCombos(mainPool, secPool, 999, isSSQ ? 6 : 5, isSSQ ? 1 : 2, isSSQ);
+      var allCombos = genCombos(mainPool, secPool, isSSQ ? 6 : 5, isSSQ ? 1 : 2, isSSQ);
       if (allCombos.length > 0) {
         var prefix = isSSQ ? 'ssq' : 'dlt';
         window[prefix + '_combo_store'] = allCombos;
@@ -1471,7 +1456,8 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
         if (BLUE_SETTINGS.filterHistoricalKill && _filteredHistoricalCount > 0) {
           histFilterNote = ' <span style="font-size:11px;color:#e67e22">（已排除' + _filteredHistoricalCount + '注历史一等奖）</span>';
         }
-        html += '<div class="combos"><h3>🎰 参考组合（共识优先，共' + allCombos.length + '注）' + histFilterNote + '</h3><div id="' + prefix + '-combo-list">' +
+        var capNote = (allCombos.length >= 5000) ? ' <span style="font-size:11px;color:#e67e22">（上限5000注）</span>' : '';
+        html += '<div class="combos"><h3>🎰 参考组合（共识优先，共' + allCombos.length + '注' + capNote + '）' + histFilterNote + '</h3><div id="' + prefix + '-combo-list">' +
           allCombos.slice(0, showCount).map(function(c, i) {
             return '<div class="combo-item">' +
               '<span class="combo-label">#' + (i + 1) + (i === 0 ? ' ⭐推荐' : '') + '</span> ' +
