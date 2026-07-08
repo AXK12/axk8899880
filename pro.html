@@ -202,11 +202,16 @@ label:first-child{margin-top:0}
       <div style="font-size:12px;color:#f0c040;margin-bottom:6px">🎯 号码范围过滤(淘汰极罕见组合)</div>
 
       <label style="font-size:11px">AC值过滤(淘汰极低AC组合)</label>
-      <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
+      <div style="display:flex;align-items:center;gap:10px;margin-top:4px;flex-wrap:wrap">
         <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#8899b0;cursor:pointer;margin:0">
           <input type="checkbox" id="setting-ac-kill" checked> 淘汰AC≤
         </label>
-        <span id="ac-kill-label" style="font-size:13px;color:#f0c040;min-width:40px">(SSQ≤3,DLT≤2)</span>
+        <span style="font-size:10px;color:#5a7a9a">SSQ:</span>
+        <input type="range" id="setting-ac-kill-ssq" min="1" max="6" value="3" style="width:50px;accent-color:#e74c3c" oninput="ac_ssq_lbl.textContent=this.value">
+        <span id="ac_ssq_lbl" style="font-size:13px;color:#e74c3c;min-width:16px">3</span>
+        <span style="font-size:10px;color:#5a7a9a">DLT:</span>
+        <input type="range" id="setting-ac-kill-dlt" min="1" max="5" value="2" style="width:50px;accent-color:#e67e22" oninput="ac_dlt_lbl.textContent=this.value">
+        <span id="ac_dlt_lbl" style="font-size:13px;color:#e67e22;min-width:16px">2</span>
       </div>
 
       <label style="font-size:11px">连号限制</label>
@@ -258,14 +263,20 @@ label:first-child{margin-top:0}
       </div>
 
       <hr style="border:0;border-top:1px solid #1e2a40;margin:10px 0">
-      <div style="font-size:12px;color:#f0c040;margin-bottom:6px">🔐 密码集萃引擎 <span style="font-size:10px;color:#8899b0">(和+差+商 → 确定性候选池)</span></div>
-      <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
+      <div style="font-size:12px;color:#f0c040;margin-bottom:6px">🔐 密码集萃引擎 <span style="font-size:10px;color:#8899b0">(和+差+模积 → 确定性候选池)</span></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:4px;flex-wrap:wrap">
         <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:#e0e6f0;cursor:pointer;margin:0;padding:6px 12px;background:#1a2530;border-radius:8px;border:1px solid #2a3a58">
           <span style="font-size:11px;color:#8899b0">⚡ 启用密码集萃</span>
           <span id="cipher-toggle-indicator" style="font-size:11px;padding:2px 10px;border-radius:10px;background:#3a3a4a;color:#666">关闭</span>
         </label>
         <input type="checkbox" id="setting-cipher-enabled" checked style="display:none">
         <span style="font-size:10px;color:#5a7a9a">回测平均命中3.45/6球，脱靶率0.58%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:4px;flex-wrap:wrap">
+        <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:#8899b0;cursor:pointer;margin:0;padding:4px 10px;background:#1a2530;border-radius:6px;border:1px solid #2a3a58">
+          <input type="checkbox" id="setting-cipher-blue-self" checked> SSQ含蓝球自加
+        </label>
+        <span style="font-size:9px;color:#5a7a9a">关闭=仅和差模积(保守版) | 开启=含蓝球自加(2026077全中用此版)</span>
       </div>
 
       <div id="save-settings" onclick="applySettings()" style="text-align:center;padding:8px;margin-top:8px;background:#1a3050;border-radius:6px;color:#3498db;font-size:11px;cursor:pointer">设置</div>
@@ -460,7 +471,7 @@ function methodBQREngine(entries, maxVal) {
 
 // ==================== 密码集萃引擎 (CIPHER ENGINE) ====================
 // V0+modMul: 原始两两和/差 + 原始号对模积 + 输入保留
-function cipherEngine(front, maxVal, isSSQ, blueBall) {
+function cipherEngine(front, maxVal, isSSQ, blueBall, allowBlueSelf) {
   var pool = new Set();
 
   // 两两和、差（原始号对）
@@ -482,7 +493,7 @@ function cipherEngine(front, maxVal, isSSQ, blueBall) {
 
   // 品种专属处理
   if (isSSQ) {
-    if (typeof blueBall !== 'undefined' && blueBall !== null) {
+    if (allowBlueSelf !== false && typeof blueBall !== 'undefined' && blueBall !== null) {
       pool.add(blueBall + blueBall);
     }
   } else {
@@ -660,7 +671,9 @@ function predict(front, back, isSSQ, bluePrev2) {
   var frontBP = Array.from(frontPredsB).sort(function(a, b) { return a - b; });
 
   // 密码集萃引擎计算（受全局开关控制）
-  var frontCipher = cipherEngine(front.slice(0, isSSQ ? 6 : 5), maxVal, isSSQ, isSSQ ? (back.length > 0 ? back[0] : null) : null);
+  var settings = (typeof BLUE_SETTINGS !== 'undefined') ? BLUE_SETTINGS : {};
+  var allowBlueSelf = settings.cipherBlueSelf !== false; // 兼容无此设置项的旧版
+  var frontCipher = cipherEngine(front.slice(0, isSSQ ? 6 : 5), maxVal, isSSQ, isSSQ ? (back.length > 0 ? back[0] : null) : null, allowBlueSelf);
 
   var frontConsensus2 = frontAP.filter(function(x) { return frontPredsB.has(x); });
   var frontCipherSet = new Set(frontCipher);
@@ -973,7 +986,10 @@ var BLUE_SETTINGS = {
   posKillDLTMax: 16,  // 老大最大值阈值
   posKillDLTV2: true,  // 老二≥10
   posKillDLTV3: true,  // 老三≥6
-  cipherEnabled: true  // 密码集萃引擎
+  cipherEnabled: true,  // 密码集萃引擎
+  acKillSSQ: 3,  // SSQ AC阈值
+  acKillDLT: 2,  // DLT AC阈值
+  cipherBlueSelf: true  // SSQ密码集萃含蓝球自加
 };
 
 function applySettings() {
@@ -995,7 +1011,13 @@ function applySettings() {
   BLUE_SETTINGS.posKillDLTV2 = document.getElementById('setting-pkill-dlt-v2').checked;
   BLUE_SETTINGS.posKillDLTV3 = document.getElementById('setting-pkill-dlt-v3').checked;
   BLUE_SETTINGS.cipherEnabled = document.getElementById('setting-cipher-enabled').checked;
-  
+  BLUE_SETTINGS.acKillSSQ = parseInt(document.getElementById('setting-ac-kill-ssq').value) || 3;
+  BLUE_SETTINGS.acKillDLT = parseInt(document.getElementById('setting-ac-kill-dlt').value) || 2;
+  BLUE_SETTINGS.cipherBlueSelf = document.getElementById('setting-cipher-blue-self').checked;
+
+  // 持久化设置到localStorage
+  try { localStorage.setItem('proSettings', JSON.stringify(BLUE_SETTINGS)); } catch(e) {}
+
   // Update cipher toggle indicator
   var indicator = document.getElementById('cipher-toggle-indicator');
   if (BLUE_SETTINGS.cipherEnabled) {
@@ -1570,6 +1592,7 @@ function autoPredictDLT() {
     for (var i = 0; i < bInputs.length; i++) {
       bInputs[i].value = last.backs[i];
     }
+    saveInputs();
 
     btn.textContent = '✅ ' + last.period + '期(' + last.date + ') 已加载,分析中...';
 
@@ -1607,6 +1630,7 @@ function autoPredictSSQ() {
 
     // Fill blue
     document.getElementById('ssq-blue').value = last.blue;
+    saveInputs();
 
     btn.textContent = '✅ ' + last.period + '期(' + last.date + ') 已加载...';
 
@@ -1678,7 +1702,6 @@ document.querySelectorAll('input[type="tel"]').forEach(function(inp) {
   });
 });
 
-// Blue ball history preset (recent SSQ data)
 // ==================== BIAS REFERENCE DATA (快照数据，基于1850维度分析) ====================
 // 来源：dlt_rules.txt | 概率<0.5%的号码极端偏态
 // 注：此数据为2024005期的快照，当前遗漏已变化，仅作参考，不作硬杀号
@@ -1707,8 +1730,132 @@ function getBiasWarnings(pool, gameType) {
   return warns;
 }
 
-// Initialize cipher status display on load
+// ==================== SETTINGS PERSISTENCE ====================
+// 从localStorage恢复设置
+function restoreSettings() {
+  try {
+    var saved = localStorage.getItem('proSettings');
+    if (saved) {
+      var parsed = JSON.parse(saved);
+      Object.keys(parsed).forEach(function(k) {
+        if (k in BLUE_SETTINGS) BLUE_SETTINGS[k] = parsed[k];
+      });
+    }
+  } catch(e) {}
+
+  // 应用恢复的值到UI控件
+  var map = {
+    'setting-lonely': 'filterLonely',
+    'setting-mid': 'filterMid',
+    'setting-jump': 'filterJump',
+    'setting-ac-kill': 'filterAcKill',
+    'setting-consec-kill': 'filterConsecKill',
+    'setting-allprime-kill': 'filterAllPrimeKill',
+    'setting-historical-kill': 'filterHistoricalKill',
+    'setting-pkill-ssq': 'filterPosKillSSQ',
+    'setting-pkill-ssq-v2': 'posKillSSQV2',
+    'setting-pkill-ssq-v3': 'posKillSSQV3',
+    'setting-pkill-ssq-v4': 'posKillSSQV4',
+    'setting-pkill-dlt': 'filterPosKillDLT',
+    'setting-pkill-dlt-v2': 'posKillDLTV2',
+    'setting-pkill-dlt-v3': 'posKillDLTV3',
+    'setting-cipher-enabled': 'cipherEnabled',
+    'setting-cipher-blue-self': 'cipherBlueSelf'
+  };
+  Object.keys(map).forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.checked = BLUE_SETTINGS[map[id]] !== false;
+  });
+
+  // 滑动条值
+  var rangeMap = {
+    'setting-consec-max': 'consecMaxRun',
+    'setting-pkill-ssq-max': 'posKillSSQMax',
+    'setting-pkill-dlt-max': 'posKillDLTMax',
+    'setting-ac-kill-ssq': 'acKillSSQ',
+    'setting-ac-kill-dlt': 'acKillDLT'
+  };
+  Object.keys(rangeMap).forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.value = BLUE_SETTINGS[rangeMap[id]] || el.value;
+  });
+
+  // 更新滑动条相邻标签
+  var labelMap = {
+    'consec-max-val': 'setting-consec-max',
+    'pk_ssq_max_label': 'setting-pkill-ssq-max',
+    'pk_dlt_max_label': 'setting-pkill-dlt-max',
+    'ac_ssq_lbl': 'setting-ac-kill-ssq',
+    'ac_dlt_lbl': 'setting-ac-kill-dlt'
+  };
+  Object.keys(labelMap).forEach(function(lblId) {
+    var el = document.getElementById(lblId);
+    var src = document.getElementById(labelMap[lblId]);
+    if (el && src) el.textContent = src.value;
+  });
+
+  updateCipherStatusDisplay();
+}
+
+// 自动保存输入的号码
+function saveInputs() {
+  try {
+    var data = {};
+    // DLT front
+    var dltFS = [], dltBS = [];
+    document.querySelectorAll('.dlt-f').forEach(function(inp) { if (inp.value) dltFS.push(inp.value); });
+    document.querySelectorAll('.dlt-b').forEach(function(inp) { if (inp.value) dltBS.push(inp.value); });
+    if (dltFS.length === 5) data.dltFront = dltFS.join(',');
+    if (dltBS.length === 2) data.dltBack = dltBS.join(',');
+    // SSQ front
+    var ssqFS = [];
+    document.querySelectorAll('.ssq-f').forEach(function(inp) { if (inp.value) ssqFS.push(inp.value); });
+    if (ssqFS.length === 6) data.ssqFront = ssqFS.join(',');
+    var blue = document.getElementById('ssq-blue');
+    if (blue && blue.value) data.ssqBlue = blue.value;
+    var prev2 = document.getElementById('ssq-blue-prev2');
+    if (prev2 && prev2.value) data.ssqPrev2 = prev2.value;
+    localStorage.setItem('proInputs', JSON.stringify(data));
+  } catch(e) {}
+}
+
+// 恢复输入的号码
+function restoreInputs() {
+  try {
+    var raw = localStorage.getItem('proInputs');
+    if (!raw) return;
+    var data = JSON.parse(raw);
+    if (data.dltFront) {
+      var vals = data.dltFront.split(',', 5);
+      var inputs = document.querySelectorAll('.dlt-f');
+      for (var i = 0; i < Math.min(vals.length, inputs.length); i++) inputs[i].value = vals[i];
+    }
+    if (data.dltBack) {
+      var vals = data.dltBack.split(',', 2);
+      var inputs = document.querySelectorAll('.dlt-b');
+      for (var i = 0; i < Math.min(vals.length, inputs.length); i++) inputs[i].value = vals[i];
+    }
+    if (data.ssqFront) {
+      var vals = data.ssqFront.split(',', 6);
+      var inputs = document.querySelectorAll('.ssq-f');
+      for (var i = 0; i < Math.min(vals.length, inputs.length); i++) inputs[i].value = vals[i];
+    }
+    if (data.ssqBlue) document.getElementById('ssq-blue').value = data.ssqBlue;
+    if (data.ssqPrev2) document.getElementById('ssq-blue-prev2').value = data.ssqPrev2;
+  } catch(e) {}
+}
+
+// 监听输入变化自动保存
 setTimeout(function() {
+  document.querySelectorAll('.dlt-f, .dlt-b, .ssq-f, #ssq-blue, #ssq-blue-prev2').forEach(function(el) {
+    el.addEventListener('input', saveInputs);
+  });
+}, 200);
+
+// 初始化
+setTimeout(function() {
+  restoreSettings();
+  restoreInputs();
   updateCipherStatusDisplay();
 }, 100);
 </script>
