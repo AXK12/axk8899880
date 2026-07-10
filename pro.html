@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>彩票分析 · 三引擎 · 完全独立 + 一键复制 (v2.1)</title>
+<title>彩票分析 · 三引擎 · 完全独立 + 一键复制 (v2.2)</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;background:#0a0e1a;color:#e0e6f0;padding:12px;min-height:100vh}
@@ -84,6 +84,7 @@ label:first-child{margin-top:0}
 .pool-copy-btn{display:inline-block;padding:3px 10px;background:#1a3a20;border:1px solid #2a6a30;border-radius:6px;color:#27ae60;font-size:10px;cursor:pointer;margin-left:auto}
 .pool-copy-btn:hover{background:#2a4a30}
 .pool-count{font-size:11px;color:#6a8aaa;margin-left:auto}
+.v-badge{text-align:center;font-size:10px;color:#3a4a5a;margin-bottom:8px}
 </style>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
@@ -91,6 +92,7 @@ label:first-child{margin-top:0}
 </head>
 <body>
 <div class="container">
+<div class="v-badge">v2.2 · 2026-07-11</div>
 <h1>&#x1F3AF; 彩票分析 <small>三引擎 | 大乐透/双色球独立 | 复制随心</small></h1>
 <div class="tab-bar">
   <div class="tab-btn active" onclick="sw('dlt')">&#x1F3B1; 大乐透</div>
@@ -112,11 +114,11 @@ label:first-child{margin-top:0}
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:12px;color:#8899b0">&#x1F52E; 密码集萃（大乐透）</span><span id="d-cb" class="cipher-toggle" onclick="tcD()" style="background:#1a4a20;color:#27ae60">已开启</span></div>
   <hr style="border:0;border-top:1px solid #1e2a40;margin:6px 0">
   <div style="font-size:12px;color:#f0c040;margin-bottom:6px">&#x1F3B2; 组合过滤</div>
-  <div style="margin-top:6px"><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="da"> AC&le;</label><input type="range" id="dav" min="1" max="5" value="2" style="width:44px;accent-color:#e74c3c" oninput="l('dal').textContent=this.value"><span id="dal" style="font-size:13px;color:#e74c3c">2</span></div>
-  <div><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="dc"> 最长连号&ge;</label><input type="range" id="dcv" min="4" max="7" value="5" style="width:44px;accent-color:#e74c3c" oninput="l('dcl').textContent=this.value"><span id="dcl" style="font-size:13px;color:#e74c3c">5</span></div>
-  <div><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="dp"> 淘汰全质数</label></div>
-  <div><label style="font-size:11px">&#x1F504; 位置范围</label><div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-top:2px"><label style="font-size:11px;display:inline-flex;align-items:center;gap:2px"><input type="checkbox" id="dpk"> 启用</label><span style="font-size:10px;color:#f0c040">&#x2776;&#x2265;</span><input type="range" id="dpkv" min="14" max="26" value="16" style="width:40px;accent-color:#e67e22" oninput="l('dpkl').textContent=this.value"><span id="dpkl" style="font-size:11px;color:#e67e22">16</span><label style="font-size:9px;display:inline-flex;align-items:center;gap:1px"><input type="checkbox" id="dpk2"> &#x2777;&#x2265;10</label><label style="font-size:9px;display:inline-flex;align-items:center;gap:1px"><input type="checkbox" id="dpk3"> &#x2778;&#x2265;6</label></div></div>
-  <div><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="dh" checked> 淘汰历史头奖</label></div>
+  <div style="margin-top:6px"><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="da" onchange="sd()"> AC&le;</label><input type="range" id="dav" min="1" max="5" value="2" style="width:44px;accent-color:#e74c3c" oninput="l('dal').textContent=this.value" onchange="sd()"><span id="dal" style="font-size:13px;color:#e74c3c">2</span></div>
+  <div><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="dc" onchange="sd()"> 最长连号&ge;</label><input type="range" id="dcv" min="4" max="7" value="5" style="width:44px;accent-color:#e74c3c" oninput="l('dcl').textContent=this.value" onchange="sd()"><span id="dcl" style="font-size:13px;color:#e74c3c">5</span></div>
+  <div><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="dp" onchange="sd()"> 淘汰全质数</label></div>
+  <div><label style="font-size:11px">&#x1F504; 位置范围</label><div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-top:2px"><label style="font-size:11px;display:inline-flex;align-items:center;gap:2px"><input type="checkbox" id="dpk" onchange="sd()"> 启用</label><span style="font-size:10px;color:#f0c040">&#x2776;&#x2265;</span><input type="range" id="dpkv" min="14" max="26" value="16" style="width:40px;accent-color:#e67e22" oninput="l('dpkl').textContent=this.value" onchange="sd()"><span id="dpkl" style="font-size:11px;color:#e67e22">16</span><label style="font-size:9px;display:inline-flex;align-items:center;gap:1px"><input type="checkbox" id="dpk2" onchange="sd()"> &#x2777;&#x2265;10</label><label style="font-size:9px;display:inline-flex;align-items:center;gap:1px"><input type="checkbox" id="dpk3" onchange="sd()"> &#x2778;&#x2265;6</label></div></div>
+  <div><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="dh" checked onchange="sd()"> 淘汰历史头奖</label></div>
   <div id="dsf" class="settings-footer" onclick="sd()">&#x1F4BE; 保存大乐透设置</div>
   </div></details>
   <div class="result-box" id="dr"><div id="dri"></div></div>
@@ -135,15 +137,15 @@ label:first-child{margin-top:0}
   <details style="margin-top:10px;cursor:pointer"><summary style="font-size:11px;padding:6px 0;color:#e67e22">&#x1F3AD; 双色球高级设置</summary>
   <div style="background:#0e1525;border-radius:8px;padding:12px;margin-top:6px">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:12px;color:#8899b0">&#x1F52E; 密码集萃（双色球）</span><span id="s-cb" class="cipher-toggle" onclick="tcS()" style="background:#1a4a20;color:#27ae60">已开启</span></div>
-  <label style="font-size:11px">&#x1F535; 上上期蓝号（孤中跳过滤）</label><input type="tel" maxlength="2" id="sbp2" style="width:56px;height:36px;text-align:center;background:#1a2540;border:1px solid #2a3a58;border-radius:8px;color:#e0e6f0;font-size:16px">
-  <div style="margin-top:4px;display:flex;gap:10px;flex-wrap:wrap"><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="sbl"> 孤码</label><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="sbm"> 中码</label><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="sbj"> 跳码</label><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="sbs"> 密码参与蓝球</label></div>
+  <label style="font-size:11px">&#x1F535; 上上期蓝号（孤中跳过滤）</label><input type="tel" maxlength="2" id="sbp2" style="width:56px;height:36px;text-align:center;background:#1a2540;border:1px solid #2a3a58;border-radius:8px;color:#e0e6f0;font-size:16px" onchange="ss()">
+  <div style="margin-top:4px;display:flex;gap:10px;flex-wrap:wrap"><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="sbl" onchange="ss()"> 孤码</label><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="sbm" onchange="ss()"> 中码</label><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="sbj" onchange="ss()"> 跳码</label><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="sbs" onchange="ss()"> 密码参与蓝球</label></div>
   <hr style="border:0;border-top:1px solid #1e2a40;margin:6px 0">
   <div style="font-size:12px;color:#f0c040;margin-bottom:6px">&#x1F3B2; 组合过滤</div>
-  <div style="margin-top:6px"><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="sa"> AC&le;</label><input type="range" id="sav" min="1" max="6" value="3" style="width:44px;accent-color:#e74c3c" oninput="l('sal').textContent=this.value"><span id="sal" style="font-size:13px;color:#e74c3c">3</span></div>
-  <div><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="sc"> 最长连号&ge;</label><input type="range" id="scv" min="4" max="7" value="5" style="width:44px;accent-color:#e74c3c" oninput="l('scl').textContent=this.value"><span id="scl" style="font-size:13px;color:#e74c3c">5</span></div>
-  <div><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="sp"> 淘汰全红质数</label></div>
-  <div><label style="font-size:11px">&#x1F504; 位置范围</label><div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-top:2px"><label style="font-size:11px;display:inline-flex;align-items:center;gap:2px"><input type="checkbox" id="spk"> 启用</label><span style="font-size:10px;color:#f0c040">&#x2776;&#x2265;</span><input type="range" id="spkv" min="16" max="28" value="19" style="width:40px;accent-color:#e67e22" oninput="l('spkl').textContent=this.value"><span id="spkl" style="font-size:11px;color:#e67e22">19</span><label style="font-size:9px;display:inline-flex;align-items:center;gap:1px"><input type="checkbox" id="spk2"> &#x2777;&#x2265;13</label><label style="font-size:9px;display:inline-flex;align-items:center;gap:1px"><input type="checkbox" id="spk3"> &#x2778;&#x2265;4</label><label style="font-size:9px;display:inline-flex;align-items:center;gap:1px"><input type="checkbox" id="spk4"> &#x2779;&#x2265;7</label></div></div>
-  <div><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="sh" checked> 淘汰历史头奖</label></div>
+  <div style="margin-top:6px"><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="sa" onchange="ss()"> AC&le;</label><input type="range" id="sav" min="1" max="6" value="3" style="width:44px;accent-color:#e74c3c" oninput="l('sal').textContent=this.value" onchange="ss()"><span id="sal" style="font-size:13px;color:#e74c3c">3</span></div>
+  <div><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="sc" onchange="ss()"> 最长连号&ge;</label><input type="range" id="scv" min="4" max="7" value="5" style="width:44px;accent-color:#e74c3c" oninput="l('scl').textContent=this.value" onchange="ss()"><span id="scl" style="font-size:13px;color:#e74c3c">5</span></div>
+  <div><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="sp" onchange="ss()"> 淘汰全红质数</label></div>
+  <div><label style="font-size:11px">&#x1F504; 位置范围</label><div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-top:2px"><label style="font-size:11px;display:inline-flex;align-items:center;gap:2px"><input type="checkbox" id="spk" onchange="ss()"> 启用</label><span style="font-size:10px;color:#f0c040">&#x2776;&#x2265;</span><input type="range" id="spkv" min="16" max="28" value="19" style="width:40px;accent-color:#e67e22" oninput="l('spkl').textContent=this.value" onchange="ss()"><span id="spkl" style="font-size:11px;color:#e67e22">19</span><label style="font-size:9px;display:inline-flex;align-items:center;gap:1px"><input type="checkbox" id="spk2" onchange="ss()"> &#x2777;&#x2265;13</label><label style="font-size:9px;display:inline-flex;align-items:center;gap:1px"><input type="checkbox" id="spk3" onchange="ss()"> &#x2778;&#x2265;4</label><label style="font-size:9px;display:inline-flex;align-items:center;gap:1px"><input type="checkbox" id="spk4" onchange="ss()"> &#x2779;&#x2265;7</label></div></div>
+  <div><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="sh" checked onchange="ss()"> 淘汰历史头奖</label></div>
   <div id="ssf" class="settings-footer" onclick="ss()">&#x1F4BE; 保存双色球设置</div>
   </div></details>
   <div class="result-box" id="sr"><div id="sri"></div></div>
@@ -221,53 +223,68 @@ var H6=[],H5=[]
 var DS={ce:1,ak:1,av:2,ck:1,cv:5,pk:1,pk2:1,pk3:1,dk:1,dk2:16,sk:1},SS={ce:1,cbs:1,bl:1,bm:1,bj:1,ak:1,av:3,ck:1,cv:5,pk:1,pk2:1,pk3:1,pk4:1,dk:1,dk2:19,sk:1}
 
 function ld(){
-  try{var d=localStorage.getItem('dlts');if(d){var p=JSON.parse(d);Object.assign(DS,p)}var s=localStorage.getItem('ssqs');if(s){var p=JSON.parse(s);Object.assign(SS,p)}}catch(e){}
+  try{
+    var d=localStorage.getItem('dlts_new');
+    if(d){var p=JSON.parse(d);Object.assign(DS,p);console.log('[DLT] loaded:',JSON.stringify(p))}
+    else{var d2=localStorage.getItem('dlts');if(d2){var p=JSON.parse(d2);Object.assign(DS,p);console.log('[DLT] loaded (old key):',JSON.stringify(p))}}
+    var s=localStorage.getItem('ssqs_new');
+    if(s){var p=JSON.parse(s);Object.assign(SS,p);console.log('[SSQ] loaded:',JSON.stringify(p))}
+    else{var s2=localStorage.getItem('ssqs');if(s2){var p=JSON.parse(s2);Object.assign(SS,p);console.log('[SSQ] loaded (old key):',JSON.stringify(p))}}
+  }catch(e){console.warn('[ld] failed:',e)}
 }
+
+function saveDLT(){
+  var o={}
+  o.ak=g("da").checked;o.av=parseInt(g("dav").value)||2;o.ck=g("dc").checked;o.cv=parseInt(g("dcv").value)||5;
+  o.pk=g("dp").checked;o.dk=g("dpk").checked;o.dk2=parseInt(g("dpkv").value)||16;
+  o.pk2=g("dpk2").checked;o.pk3=g("dpk3").checked;o.sk=g("dh").checked;o.ce=DS.ce;
+  o._t=Date.now();
+  Object.assign(DS,o);
+  localStorage.setItem('dlts_new',JSON.stringify(DS));
+  console.log('[DLT] saved:',JSON.stringify(o));
+  var sf=g("dsf");sf.textContent="\u2713 已保存";sf.className="settings-footer saved";
+  clearTimeout(sf._to);sf._to=setTimeout(function(){sf.textContent="\u{1F4BE} 保存大乐透设置";sf.className="settings-footer"},2000)
+}
+function saveSSQ(){
+  var o={}
+  o.bl=g("sbl").checked;o.bm=g("sbm").checked;o.bj=g("sbj").checked;o.cbs=g("sbs").checked;
+  o.ak=g("sa").checked;o.av=parseInt(g("sav").value)||3;o.ck=g("sc").checked;o.cv=parseInt(g("scv").value)||5;
+  o.pk=g("sp").checked;o.dk=g("spk").checked;o.dk2=parseInt(g("spkv").value)||19;
+  o.pk2=g("spk2").checked;o.pk3=g("spk3").checked;o.pk4=g("spk4").checked;o.sk=g("sh").checked;o.ce=SS.ce;
+  o._t=Date.now();
+  Object.assign(SS,o);
+  localStorage.setItem('ssqs_new',JSON.stringify(SS));
+  console.log('[SSQ] saved:',JSON.stringify(o));
+  var sf=g("ssf");sf.textContent="\u2713 已保存";sf.className="settings-footer saved";
+  clearTimeout(sf._to);sf._to=setTimeout(function(){sf.textContent="\u{1F4BE} 保存双色球设置";sf.className="settings-footer"},2000)
+}
+
+function sd(){saveDLT()}
+function ss(){saveSSQ()}
+
+function rDS(){
+  try{
+    saveDLT();
+    var sf=g("dsf");sf.textContent="\u2713 已保存";sf.className="settings-footer saved";
+    clearTimeout(sf._to);sf._to=setTimeout(function(){sf.textContent="\u{1F4BE} 保存大乐透设置";sf.className="settings-footer"},2000)
+  }catch(e){console.error("[rDS] FAIL:",e)}
+}
+function rSS(){
+  try{
+    saveSSQ();
+    var sf=g("ssf");sf.textContent="\u2713 已保存";sf.className="settings-footer saved";
+    clearTimeout(sf._to);sf._to=setTimeout(function(){sf.textContent="\u{1F4BE} 保存双色球设置";sf.className="settings-footer"},2000)
+  }catch(e){console.error("[rSS] FAIL:",e)}
+}
+
 function uc(pr,on){
   var b=g(pr+'-cb');b.textContent=on?'已开启':'已关闭';b.style.background=on?'#1a4a20':'#3a3a4a';b.style.color=on?'#27ae60':'#666';b.style.border=on?'1px solid #2a6a30':'1px solid #4a4a5a'
 }
-function tcD(){DS.ce=!DS.ce;uc('d',DS.ce);localStorage.setItem('dlts',JSON.stringify(DS))}
-function tcS(){SS.ce=!SS.ce;uc('s',SS.ce);localStorage.setItem('ssqs',JSON.stringify(SS))}
+function tcD(){DS.ce=!DS.ce;uc('d',DS.ce);saveDLT()}
+function tcS(){SS.ce=!SS.ce;uc('s',SS.ce);saveSSQ()}
 function syD(){g('da').checked=DS.ak;g('dav').value=DS.av;g('dal').textContent=DS.av;g('dc').checked=DS.ck;g('dcv').value=DS.cv;g('dcl').textContent=DS.cv;g('dp').checked=DS.pk;g('dpk').checked=DS.dk;g('dpkv').value=DS.dk2;g('dpkl').textContent=DS.dk2;g('dpk2').checked=DS.pk2;g('dpk3').checked=DS.pk3;g('dh').checked=DS.sk;uc('d',DS.ce)}
 function syS(){g('sbl').checked=SS.bl;g('sbm').checked=SS.bm;g('sbj').checked=SS.bj;g('sbs').checked=SS.cbs;g('sa').checked=SS.ak;g('sav').value=SS.av;g('sal').textContent=SS.av;g('sc').checked=SS.ck;g('scv').value=SS.cv;g('scl').textContent=SS.cv;g('sp').checked=SS.pk;g('spk').checked=SS.dk;g('spkv').value=SS.dk2;g('spkl').textContent=SS.dk2;g('spk2').checked=SS.pk2;g('spk3').checked=SS.pk3;g('spk4').checked=SS.pk4;g('sh').checked=SS.sk;uc('s',SS.ce)}
 
-function rDS(){try{
-  DS.ak=g("da").checked;DS.av=parseInt(g("dav").value)||2;DS.ck=g("dc").checked;DS.cv=parseInt(g("dcv").value)||5;DS.pk=g("dp").checked;DS.dk=g("dpk").checked;DS.dk2=parseInt(g("dpkv").value)||16;DS.pk2=g("dpk2").checked;DS.pk3=g("dpk3").checked;DS.sk=g("dh").checked
-  localStorage.setItem("dlts",JSON.stringify(DS));var sf=g("dsf");sf.textContent="\u2705 \u5df2\u4fdd\u5b58";sf.className="settings-footer saved";setTimeout(function(){sf.textContent="\u{1F4BE} \u4fdd\u5b58\u5927\u4e50\u900f\u8bbe\u7f6e";sf.className="settings-footer"},1500)}catch(e){console.error("[rDS] FAIL:",e)}}
-function rSS(){try{
-  SS.bl=g("sbl").checked;SS.bm=g("sbm").checked;SS.bj=g("sbj").checked;SS.cbs=g("sbs").checked;SS.ak=g("sa").checked;SS.av=parseInt(g("sav").value)||3;SS.ck=g("sc").checked;SS.cv=parseInt(g("scv").value)||5;SS.pk=g("sp").checked;SS.dk=g("spk").checked;SS.dk2=parseInt(g("spkv").value)||19;SS.pk2=g("spk2").checked;SS.pk3=g("spk3").checked;SS.pk4=g("spk4").checked;SS.sk=g("sh").checked
-  localStorage.setItem("ssqs",JSON.stringify(SS));var sf=g("ssf");sf.textContent="\u2705 \u5df2\u4fdd\u5b58";sf.className="settings-footer saved";setTimeout(function(){sf.textContent="\u{1F4BE} \u4fdd\u5b58\u53cc\u8272\u7403\u8bbe\u7f6e";sf.className="settings-footer"},1500)}catch(e){console.error("[rSS] FAIL:",e)}}
-function sd(){
-  var btn=g("dsf");
-  if(!btn) return;
-  btn.textContent="\u23F3...";btn.style.color="#e67e22";btn.style.background="#1a2510";
-  try{
-    DS.ak=g("da").checked;DS.av=parseInt(g("dav").value)||2;DS.ck=g("dc").checked;DS.cv=parseInt(g("dcv").value)||5;
-    DS.pk=g("dp").checked;DS.dk=g("dpk").checked;DS.dk2=parseInt(g("dpkv").value)||16;
-    DS.pk2=g("dpk2").checked;DS.pk3=g("dpk3").checked;DS.sk=g("dh").checked;
-    DS.ce=DS.ce;localStorage.setItem("dlts",JSON.stringify(DS));
-    btn.textContent="\u2705";btn.style.color="#27ae60";btn.style.background="#1a3a20";
-    setTimeout(function(){btn.textContent="\u{1F4BE} \u4fdd\u5b58\u5927\u4e50\u900f\u8bbe\u7f6e";btn.style.color="#f0c040";btn.style.background="#1a3050"},1500)
-  }catch(e){
-    btn.textContent="\u2716";btn.style.color="#e74c3c"
-  }
-}
-function ss(){
-  var btn=g("ssf");
-  if(!btn) return;
-  btn.textContent="\u23F3...";btn.style.color="#e67e22";btn.style.background="#1a2510";
-  try{
-    SS.bl=g("sbl").checked;SS.bm=g("sbm").checked;SS.bj=g("sbj").checked;SS.cbs=g("sbs").checked;
-    SS.ak=g("sa").checked;SS.av=parseInt(g("sav").value)||3;SS.ck=g("sc").checked;SS.cv=parseInt(g("scv").value)||5;
-    SS.pk=g("sp").checked;SS.dk=g("spk").checked;SS.dk2=parseInt(g("spkv").value)||19;
-    SS.pk2=g("spk2").checked;SS.pk3=g("spk3").checked;SS.pk4=g("spk4").checked;SS.sk=g("sh").checked;
-    SS.ce=SS.ce;localStorage.setItem("ssqs",JSON.stringify(SS));
-    btn.textContent="\u2705";btn.style.color="#27ae60";btn.style.background="#1a3a20";
-    setTimeout(function(){btn.textContent="\u{1F4BE} \u4fdd\u5b58\u53cc\u8272\u7403\u8bbe\u7f6e";btn.style.color="#f0c040";btn.style.background="#1a3050"},1500)
-  }catch(e){
-    btn.textContent="\u2716";btn.style.color="#e74c3c"
-  }
-}
 function gc(pool,pool2,s1,s2,isS,S){
   if(pool.length<s1) return [];var MAX=5000,c=[],sorted=pool.slice().sort(function(a,b){return a-b})
   function ab(arr,k){var r=[];function dfs(s,d,c){if(d===k){r.push(c.slice());return}for(var i=s;i<arr.length;i++){c.push(arr[i]);dfs(i+1,d+1,c);c.pop()}}dfs(0,0,[]);return r}
@@ -450,6 +467,7 @@ function updateBlueHistoryFromData(){
 }
 
 ld();syD();syS();
+console.log('[Page] v2.2 loaded. LS dlts_new:',localStorage.getItem('dlts_new'),'ssqs_new:',localStorage.getItem('ssqs_new'));
 </script>
 </body>
 </html>
