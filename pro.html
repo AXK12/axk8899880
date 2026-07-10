@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>彩票分析工具 · Pro</title>
+<title>彩票分析 · 三引擎 · 完全独立 + 一键复制</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;background:#0a0e1a;color:#e0e6f0;padding:12px;min-height:100vh}
@@ -26,11 +26,8 @@ label:first-child{margin-top:0}
 .btn{display:block;width:100%;padding:14px;margin-top:14px;background:linear-gradient(135deg,#f0c040,#e0a830);color:#0a0e1a;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;transition:all .2s;letter-spacing:1px}
 .btn:hover{background:linear-gradient(135deg,#f5c850,#e8b840);box-shadow:0 4px 20px rgba(240,192,64,.3);transform:translateY(-1px)}
 .btn:active{transform:translateY(0)}
-.btn:disabled{background:#3a3a4a;color:#666;cursor:not-allowed;transform:none;box-shadow:none}
-.hint{font-size:11px;color:#6a7a90;margin-top:6px;text-align:center}
-.result-box{display:none;margin-top:14px;animation:fadeIn .4s}
+.result-box{display:none;margin-top:14px}
 .result-box.show{display:block}
-@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .pool-section{background:#1a2530;border-radius:10px;padding:12px;margin-bottom:10px}
 .pool-title{font-size:13px;color:#f0c040;margin-bottom:7px;display:flex;align-items:center;gap:6px}
 .pool-badge{font-size:10px;padding:2px 8px;border-radius:10px;background:#27ae60;color:#fff}
@@ -38,1826 +35,369 @@ label:first-child{margin-top:0}
 .pool-badge.gold{background:#f0c040;color:#0a0e1a}
 .pool-nums{display:flex;flex-wrap:wrap;gap:5px}
 .pool-num{width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:#1e2a40;color:#e0e6f0;font-size:12px;font-weight:bold}
-.pool-num.consensus{animation:glow 1.5s ease-in-out infinite;box-shadow:0 0 12px rgba(240,192,64,.5);border:2px solid #f0c040}
-.pool-num.method-a{background:#1a3050;border:1px solid #3498db}
-.pool-num.method-b{background:#1a3040;border:1px solid #27ae60}
-@keyframes glow{0%,100%{box-shadow:0 0 8px rgba(240,192,64,.3)}50%{box-shadow:0 0 20px rgba(240,192,64,.7),0 0 30px rgba(240,192,64,.3)}}
+.pool-num.consensus{background:#2a2510;border:2px solid #f0c040;color:#f0c040;font-weight:bold}
+.pool-num.method-a{background:#1a3050;border:1px solid #3498db;color:#5aa0d0}
+.pool-num.method-b{background:#1a3040;border:1px solid #27ae60;color:#3aa060}
+.pool-num.cipher{background:#2a2020;border:1px solid #e67e22;color:#e6a040}
 .crash-info{background:#1a2530;border-radius:10px;padding:12px;margin-bottom:10px}
 .crash-info .title{font-size:13px;color:#f0c040;margin-bottom:5px}
 .crash-page{font-size:11px;color:#8899b0;padding:3px 0;border-bottom:1px solid #0e1525;font-family:monospace}
 .crash-page:last-child{border-bottom:none}
 .rule-tag{font-size:10px;padding:1px 6px;border-radius:4px;background:#1e3050;color:#5aa0d0;margin:0 2px;white-space:nowrap}
-.consensus-box{background:linear-gradient(135deg,#1a2020,#1e2820);border:2px solid #f0c040;border-radius:12px;padding:14px;margin-bottom:10px}
-.consensus-box h3{font-size:14px;color:#f0c040;margin-bottom:8px;text-align:center}
-.consensus-3-box{background:linear-gradient(135deg,#1a2020,#1e2820);border:3px solid #ff6600;border-radius:12px;padding:14px;margin-bottom:10px;box-shadow:0 0 20px rgba(255,102,0,.3),inset 0 0 30px rgba(255,102,0,.05)}
-.consensus-3-box h3{font-size:15px;color:#ff6600;margin-bottom:8px;text-align:center}
-.consensus-empty{text-align:center;color:#6a7a90;padding:12px;font-size:13px}
-.combos{background:#1a2530;border-radius:10px;padding:12px;margin-top:10px}
-.combos h3{font-size:13px;color:#f0c040;margin-bottom:8px}
-.combo-item{padding:7px 0;border-bottom:1px solid #0e1525;font-size:13px;font-family:monospace}
-.combo-item:last-child{border-bottom:none}
-.combo-item .num{color:#e0e6f0}
-.combo-item .sp{color:#f0c040}
-.combo-item .lb{color:#3498db}
-.combo-label{color:#6a7a90;font-size:11px;font-family:-apple-system,sans-serif}
 .stats-row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
 .stat-item{flex:1;min-width:80px;background:#1a2530;border-radius:8px;padding:10px;text-align:center}
 .stat-val{font-size:20px;font-weight:bold;color:#f0c040}
 .stat-lbl{font-size:10px;color:#6a7a90;margin-top:2px}
-.divider{height:1px;background:linear-gradient(90deg,transparent,#2a3a50,transparent);margin:10px 0}
 .no-crash{background:#1a2530;border:1px solid #2a3a50;border-radius:10px;padding:20px;text-align:center}
 .no-crash .icon{font-size:36px;margin-bottom:8px}
 .no-crash p{color:#8899b0;font-size:13px;line-height:1.6}
 .footer{text-align:center;padding:18px;color:#3a4a5a;font-size:11px;letter-spacing:1px}
-.tooltip{cursor:help;border-bottom:1px dashed #5a7a9a}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
-.loading{animation:pulse 1s infinite}
-.db-ref{background:#0e1525;border-radius:8px;padding:8px 12px;margin-top:8px;font-size:10px;color:#5a7a9a;max-height:100px;overflow-y:auto}
-.db-ref strong{color:#7a9aba}
-.engine-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:4px}
-.engine-tag{font-size:10px;padding:3px 8px;border-radius:12px;font-weight:bold}
-.engine-tag.book{background:rgba(52,152,219,.2);color:#3498db;border:1px solid #3498db}
-.engine-tag.qr{background:rgba(39,174,96,.2);color:#27ae60;border:1px solid #27ae60}
 .historical-ref{background:#0e1525;border-left:3px solid #f0c040;border-radius:0 8px 8px 0;padding:8px 12px;margin:8px 0;font-size:11px;color:#8899b0}
 .historical-ref strong{color:#f0c040}
+.combos{background:#1a2530;border-radius:10px;padding:12px;margin-top:10px}
+.combos h3{font-size:13px;color:#f0c040;margin-bottom:8px}
+.combo-item{padding:7px 0;border-bottom:1px solid #0e1525;font-size:13px;font-family:monospace;display:flex;gap:8px;align-items:baseline}
+.combo-item:last-child{border-bottom:none}
+.combo-item .num{color:#e0e6f0}
+.combo-item .sp{color:#f0c040}
+.combo-item .lb{color:#3498db}
+.combo-label{color:#6a7a90;font-size:11px;font-family:-apple-system,sans-serif;min-width:48px}
+.consensus-box{background:#1a2520;border:1px solid #f0c040;border-radius:10px;padding:12px;margin-bottom:10px}
+.consensus-box h3{font-size:13px;color:#f0c040;margin-bottom:8px}
+.consensus-3-box{background:#1a2010;border:2px solid #ff6600;border-radius:10px;padding:12px;margin-bottom:10px}
+.consensus-3-box h3{font-size:13px;color:#ff6600;margin-bottom:8px}
+.cipher-section{background:linear-gradient(135deg,#1a2020,#1e2820);border:1px solid #e67e22;border-radius:10px;padding:12px;margin-bottom:10px}
+.cipher-section .cipher-title{font-size:13px;color:#e67e22;margin-bottom:8px}
+.db-ref{font-size:10px;color:#5a7a9a;margin-top:4px;line-height:1.5}
+.engine-header{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.engine-tag{font-size:10px;padding:1px 8px;border-radius:8px;font-weight:bold}
+.engine-tag.book{background:rgba(52,152,219,.2);color:#3498db;border:1px solid #3498db}
+.engine-tag.qr{background:rgba(39,174,96,.2);color:#27ae60;border:1px solid #27ae60}
+.engine-tag.cipher{background:rgba(230,126,34,.2);color:#e67e22;border:1px solid #e67e22}
+.cipher-toggle{cursor:pointer;user-select:none;padding:4px 12px;border-radius:8px;font-size:11px;display:inline-block}
+.settings-footer{text-align:center;padding:8px;margin-top:10px;background:#1a3050;border-radius:6px;color:#f0c040;font-size:11px;cursor:pointer;border:1px solid #2a4070}
+.settings-footer.saved{background:#1a3a20;color:#27ae60}
+.copy-single-btn{background:rgba(240,192,64,.1);border:1px solid rgba(240,192,64,.3);color:#f0c040;border-radius:4px;padding:1px 6px;font-size:11px;cursor:pointer;margin-left:6px;line-height:1.2}
+.copy-single-btn:hover{background:rgba(240,192,64,.25)}
+.copy-all-btn{display:inline-block;padding:6px 14px;margin:4px 0;background:#1a3a20;border:1px solid #2a6a30;border-radius:6px;color:#27ae60;font-size:11px;cursor:pointer}
+.copy-all-btn:hover{background:#2a4a30}
 </style>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 </head>
 <body>
 <div class="container">
-<h1>🎯 彩票分析工具 <small>Pro版 · 三引擎融合</small></h1>
-<div class="subtitle">方法A(书上11规则)+ 方法B(Q-R算术引擎)+ 密码集萃(和差商)→ 三引擎验证 · AC值/连号过滤 · 一键预测 · 偏态参考</div>
-
+<h1>&#x1F3AF; 彩票分析 <small>三引擎 | 大乐透/双色球独立 | 复制随心</small></h1>
 <div class="tab-bar">
-  <div class="tab-btn active" onclick="switchGame('dlt')">🎱 A款 · 大乐透</div>
-  <div class="tab-btn" onclick="switchGame('ssq')">🔴 B款 · 双色球</div>
+  <div class="tab-btn active" onclick="sw('dlt')">&#x1F3B1; 大乐透</div>
+  <div class="tab-btn" onclick="sw('ssq')">&#x1F534; 双色球</div>
 </div>
 
-<!-- DLT Card -->
 <div id="card-dlt" class="card active">
-  <h2>A款 · 上期号码输入</h2>
-  <label>前区(5个,1~35)</label>
-  <div class="input-row" id="dlt-front">
-    <input type="tel" maxlength="2" class="dlt-f" placeholder="?">
-    <input type="tel" maxlength="2" class="dlt-f" placeholder="?">
-    <input type="tel" maxlength="2" class="dlt-f" placeholder="?">
-    <input type="tel" maxlength="2" class="dlt-f" placeholder="?">
-    <input type="tel" maxlength="2" class="dlt-f" placeholder="?">
-  </div>
-  <label>后区(2个,1~12)</label>
-  <div class="input-row" id="dlt-back">
-    <input type="tel" maxlength="2" class="dlt-b" placeholder="?">
-    <input type="tel" maxlength="2" class="dlt-b" placeholder="?">
-  </div>
-  <div style="display:flex;gap:8px;margin-top:14px">
-    <button class="btn" style="flex:1;margin:0" onclick="predictDLT()">🔬 双引擎分析</button>
-    <button id="dlt-auto-btn" class="btn" style="flex:1;margin:0;background:#1a3050;color:#3498db;font-size:12px" onclick="autoPredictDLT()">🤖 自动获取最新期号</button>
-  </div>
-  <div class="hint">输入上期开奖号码 → 方法A+方法B+密码集萃 同时计算 → 共识号码=高置信度</div>
-
-  <div style="display:flex;align-items:center;gap:8px;margin-top:10px;justify-content:center">
-    <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:#8899b0;cursor:pointer;padding:4px 12px;background:#1a2530;border-radius:8px;border:1px solid #2a3a58">
-      <span style="font-size:11px">🔐 密码集萃引擎</span>
-      <span id="cipher-toggle-indicator-dlt" style="font-size:10px;padding:2px 10px;border-radius:10px;background:#3a3a4a;color:#666">关闭</span>
-    </label>
-    <span onclick="document.getElementById('setting-cipher-enabled').clicked=true; document.getElementById('setting-cipher-enabled').checked = !document.getElementById('setting-cipher-enabled').checked; applySettings()" style="font-size:10px;color:#e67e22;cursor:pointer;text-decoration:underline">🔧 在B款·全局设置中调节</span>
-  </div>
-  <div style="display:flex;align-items:center;gap:8px;margin-top:10px;justify-content:center">
-    <span style="font-size:10px;color:#5a7a9a">🔐 密码集萃引擎状态: </span>
-    <span id="cipher-dlt-status" style="font-size:11px;padding:2px 10px;border-radius:10px;background:#3a3a4a;color:#666">关闭</span>
-    <span style="font-size:10px;color:#5a7a9a">(在B款高级设置中调节)</span>
-  </div>
-  <div style="display:flex;align-items:center;gap:8px;margin-top:10px;justify-content:center;flex-wrap:wrap">
-    <span style="font-size:10px;color:#5a7a9a">🚫 历史一等奖杀号: </span>
-    <span id="historical-count-dlt" style="font-size:10px;color:#5a7a9a">加载中...</span>
-    <span onclick="document.getElementById('setting-historical-kill').clicked=true; document.getElementById('setting-historical-kill').checked = !document.getElementById('setting-historical-kill').checked; applySettings()" style="font-size:10px;color:#e67e22;cursor:pointer;text-decoration:underline">🔧 在B款高级设置中调节</span>
-  </div>
-  <details style="margin-top:10px;cursor:pointer">
-    <summary style="font-size:11px;color:#f0c040;padding:6px 0">🔧 A款高级设置(过滤+数据获取)</summary>
-    <div style="background:#0e1525;border-radius:8px;padding:12px;margin-top:6px">
-
-      <div style="font-size:12px;color:#f0c040;margin-bottom:6px">🎯 位置范围过滤<span style="font-size:9px;color:#8899b0">(老二罕见≤2%，老三极罕见≤1%)</span></div>
-      <div style="display:flex;align-items:center;gap:6px;margin-top:2px;flex-wrap:wrap">
-        <span style="font-size:11px;color:#f0c040;min-width:50px">DLT</span>
-        <label style="display:flex;align-items:center;gap:2px;font-size:9px;color:#8899b0;cursor:pointer;margin:0" title="全开/关">
-          <input type="checkbox" id="setting-pkill-dlt" checked>
-        </label>
-        <span style="font-size:9px;color:#3a4a5a">|</span>
-        <span style="font-size:10px;color:#f0c040">①老大</span>
-        <input type="range" id="setting-pkill-dlt-max" min="15" max="27" value="16" style="width:44px;accent-color:#e67e22" oninput="pk_dlt_max_label.textContent=this.value">
-        <span id="pk_dlt_max_label" style="font-size:11px;color:#e67e22;min-width:16px">16</span>
-        <label style="display:flex;align-items:center;gap:1px;font-size:9px;color:#5a7a9a;cursor:pointer;margin:0;padding:1px 4px;border-radius:3px" title="老二<10=罕见(1.07%)">
-          <input type="checkbox" id="setting-pkill-dlt-v2" checked>②≥10
-        </label>
-        <label style="display:flex;align-items:center;gap:1px;font-size:9px;color:#4a5a6a;cursor:pointer;margin:0;padding:1px 4px;border-radius:3px" title="老三<6=极罕见(0.93%)">
-          <input type="checkbox" id="setting-pkill-dlt-v3" checked>③≥6
-        </label>
-        <span style="font-size:8px;color:#2a3a4a">④⑤自动通过</span>
-      </div>
-
-      <div id="save-settings-dlt" onclick="applySettings()" style="text-align:center;padding:8px;margin-top:8px;background:#1a3050;border-radius:6px;color:#3498db;font-size:11px;cursor:pointer">设置</div>
-    </div>
-  </details>
-  <div class="result-box" id="dlt-result">
-    <div id="dlt-result-inner"></div>
-  </div>
+  <h2>&#x1F3B1; 大乐透</h2>
+  <label>前区（5个,1~35）</label>
+  <div class="input-row" id="dlt-fr"><input type="tel" maxlength="2" class="dlt-f"><input type="tel" maxlength="2" class="dlt-f"><input type="tel" maxlength="2" class="dlt-f"><input type="tel" maxlength="2" class="dlt-f"><input type="tel" maxlength="2" class="dlt-f"></div>
+  <label>后区（2个,1~12）</label>
+  <div class="input-row"><input type="tel" maxlength="2" class="dlt-b"><input type="tel" maxlength="2" class="dlt-b"></div>
+  <button class="btn" onclick="goDLT()">&#x26A1; 三引擎预测（大乐透）</button>
+  <details style="margin-top:10px;cursor:pointer"><summary style="font-size:11px;padding:6px 0;color:#e67e22">&#x1F3AD; 大乐透高级设置</summary>
+  <div style="background:#0e1525;border-radius:8px;padding:12px;margin-top:6px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:12px;color:#8899b0">&#x1F52E; 密码集萃（大乐透）</span><span id="d-cb" class="cipher-toggle" onclick="tcD()" style="background:#1a4a20;color:#27ae60">已开启</span></div>
+  <hr style="border:0;border-top:1px solid #1e2a40;margin:6px 0">
+  <div style="font-size:12px;color:#f0c040;margin-bottom:6px">&#x1F3B2; 组合过滤</div>
+  <div style="margin-top:6px"><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="da"> AC&le;</label><input type="range" id="dav" min="1" max="5" value="2" style="width:44px;accent-color:#e74c3c" oninput="l('dal').textContent=this.value"><span id="dal" style="font-size:13px;color:#e74c3c">2</span></div>
+  <div><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="dc"> 最长连号&ge;</label><input type="range" id="dcv" min="4" max="7" value="5" style="width:44px;accent-color:#e74c3c" oninput="l('dcl').textContent=this.value"><span id="dcl" style="font-size:13px;color:#e74c3c">5</span></div>
+  <div><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="dp"> 淘汰全质数</label></div>
+  <div><label style="font-size:11px">&#x1F504; 位置范围</label><div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-top:2px"><label style="font-size:11px;display:inline-flex;align-items:center;gap:2px"><input type="checkbox" id="dpk"> 启用</label><span style="font-size:10px;color:#f0c040">&#x2776;&#x2265;</span><input type="range" id="dpkv" min="14" max="26" value="16" style="width:40px;accent-color:#e67e22" oninput="l('dpkl').textContent=this.value"><span id="dpkl" style="font-size:11px;color:#e67e22">16</span><label style="font-size:9px;display:inline-flex;align-items:center;gap:1px"><input type="checkbox" id="dpk2"> &#x2777;&#x2265;10</label><label style="font-size:9px;display:inline-flex;align-items:center;gap:1px"><input type="checkbox" id="dpk3"> &#x2778;&#x2265;6</label></div></div>
+  <div><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="dh"> 淘汰历史头奖</label></div>
+  <div id="dsf" class="settings-footer" onclick="sd()">&#x1F4BE; 保存大乐透设置</div>
+  </div></details>
+  <div class="result-box" id="dr"><div id="dri"></div></div>
 </div>
 
-<!-- SSQ Card -->
 <div id="card-ssq" class="card">
-  <h2>B款 · 上期号码输入</h2>
-  <label>红球(6个,1~33)</label>
-  <div class="input-row" id="ssq-front">
-    <input type="tel" maxlength="2" class="ssq-f" placeholder="?">
-    <input type="tel" maxlength="2" class="ssq-f" placeholder="?">
-    <input type="tel" maxlength="2" class="ssq-f" placeholder="?">
-    <input type="tel" maxlength="2" class="ssq-f" placeholder="?">
-    <input type="tel" maxlength="2" class="ssq-f" placeholder="?">
-    <input type="tel" maxlength="2" class="ssq-f" placeholder="?">
-  </div>
-  <label>蓝球(1个,1~16)</label>
-  <div class="input-row">
-    <input type="tel" maxlength="2" id="ssq-blue" class="ssq-b" placeholder="?">
-  </div>
-  <details style="margin-top:10px;cursor:pointer">
-    <summary style="font-size:11px;color:#f0c040;padding:6px 0">🔧 高级设置(参数可调+数据自动获取)</summary>
-    <div style="background:#0e1525;border-radius:8px;padding:12px;margin-top:6px">
-      <label style="margin-top:0;font-size:11px">上上期蓝号(用于复隔中/重斜跳分类)</label>
-      <input type="tel" maxlength="2" id="ssq-blue-prev2" style="width:56px;height:36px;text-align:center;background:#1a2540;border:1px solid #2a3a58;border-radius:8px;color:#e0e6f0;font-size:16px;font-weight:bold;outline:none" placeholder="?">
-      <div class="hint" style="text-align:left;margin-top:4px">过滤策略:孤码(非传非邻) + 中码(非复非隔) + 跳码(非重非斜)</div>
-      <label style="font-size:11px">过滤策略(勾选=需同时满足)</label>
-      <div style="display:flex;gap:10px;margin-top:4px;flex-wrap:wrap">
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#8899b0;cursor:pointer;margin:0">
-          <input type="checkbox" id="setting-lonely" checked> 孤码
-        </label>
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#8899b0;cursor:pointer;margin:0">
-          <input type="checkbox" id="setting-mid" checked> 中码
-        </label>
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#8899b0;cursor:pointer;margin:0">
-          <input type="checkbox" id="setting-jump" checked> 跳码
-        </label>
-
-      </div>
-
-      <hr style="border:0;border-top:1px solid #1e2a40;margin:10px 0">
-      <div style="font-size:12px;color:#f0c040;margin-bottom:6px">🎯 号码范围过滤(淘汰极罕见组合)</div>
-
-      <label style="font-size:11px">AC值过滤(淘汰极低AC组合)</label>
-      <div style="display:flex;align-items:center;gap:10px;margin-top:4px;flex-wrap:wrap">
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#8899b0;cursor:pointer;margin:0">
-          <input type="checkbox" id="setting-ac-kill" checked> 淘汰AC≤
-        </label>
-        <span style="font-size:10px;color:#5a7a9a">SSQ:</span>
-        <input type="range" id="setting-ac-kill-ssq" min="1" max="6" value="3" style="width:50px;accent-color:#e74c3c" oninput="ac_ssq_lbl.textContent=this.value">
-        <span id="ac_ssq_lbl" style="font-size:13px;color:#e74c3c;min-width:16px">3</span>
-        <span style="font-size:10px;color:#5a7a9a">DLT:</span>
-        <input type="range" id="setting-ac-kill-dlt" min="1" max="5" value="2" style="width:50px;accent-color:#e67e22" oninput="ac_dlt_lbl.textContent=this.value">
-        <span id="ac_dlt_lbl" style="font-size:13px;color:#e67e22;min-width:16px">2</span>
-      </div>
-
-      <label style="font-size:11px">连号限制</label>
-      <div style="display:flex;align-items:center;gap:10px;margin-top:4px;flex-wrap:wrap">
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#8899b0;cursor:pointer;margin:0">
-          <input type="checkbox" id="setting-consec-kill" checked> 淘汰最长连号≥
-        </label>
-        <input type="range" id="setting-consec-max" min="4" max="7" value="5" oninput="document.getElementById('consec-max-val').textContent=this.value" style="flex:0.5;accent-color:#e74c3c">
-        <span id="consec-max-val" style="font-size:14px;color:#e74c3c;min-width:20px">5</span>
-      </div>
-
-      <label style="font-size:11px">🚫 全质号过滤(SSQ独有)</label>
-      <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#8899b0;cursor:pointer;margin:0">
-          <input type="checkbox" id="setting-allprime-kill" checked> 淘汰全红质号组合
-        </label>
-        <span style="font-size:10px;color:#5a7a9a">(质数:2,3,5,7,11,13,17,19,23,29,31; 历史仅0.03% SSQ/0.10% DLT，安全)</span>
-      </div>
-
-      <label style="font-size:11px">🎯 位置范围过滤 <span style="font-size:9px;color:#5a7a9a">(老二罕见≤2%，老三老四极罕见≤1%)</span></label>
-
-      <div style="display:flex;align-items:center;gap:6px;margin-top:4px;flex-wrap:wrap">
-        <span style="font-size:11px;color:#f0c040;min-width:50px">SSQ</span>
-        <label style="display:flex;align-items:center;gap:2px;font-size:9px;color:#8899b0;cursor:pointer;margin:0" title="全开/关SSQ位置过滤">
-          <input type="checkbox" id="setting-pkill-ssq" checked>
-        </label>
-        <span style="font-size:9px;color:#3a4a5a">|</span>
-        <span style="font-size:10px;color:#f0c040">①老大</span>
-        <input type="range" id="setting-pkill-ssq-max" min="17" max="28" value="19" style="width:44px;accent-color:#e67e22" oninput="pk_ssq_max_label.textContent=this.value">
-        <span id="pk_ssq_max_label" style="font-size:11px;color:#e67e22;min-width:16px">19</span>
-        <label style="display:flex;align-items:center;gap:1px;font-size:9px;color:#5a7a9a;cursor:pointer;margin:0;padding:1px 4px;border-radius:3px" title="老二<13=罕见(1.64%)">
-          <input type="checkbox" id="setting-pkill-ssq-v2" checked>②≥13
-        </label>
-        <label style="display:flex;align-items:center;gap:1px;font-size:9px;color:#4a5a6a;cursor:pointer;margin:0;padding:1px 4px;border-radius:3px" title="老三<4=极罕见(0.37%)">
-          <input type="checkbox" id="setting-pkill-ssq-v3" checked>③≥4
-        </label>
-        <label style="display:flex;align-items:center;gap:1px;font-size:9px;color:#3a4a5a;cursor:pointer;margin:0;padding:1px 4px;border-radius:3px" title="老四<7=极罕见(0.72%)">
-          <input type="checkbox" id="setting-pkill-ssq-v4" checked>④≥7
-        </label>
-        <span style="font-size:8px;color:#2a3a4a">⑤⑥自动通过</span>
-      </div>
-
-      <label style="font-size:11px">🚫 历史一等奖杀号</label>
-      <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#8899b0;cursor:pointer;margin:0">
-          <input type="checkbox" id="setting-historical-kill" checked> 排除历史已开一等奖前区组合
-        </label>
-        <span id="historical-count" style="font-size:10px;color:#5a7a9a">加载中...</span>
-      </div>
-
-      <hr style="border:0;border-top:1px solid #1e2a40;margin:10px 0">
-      <div style="font-size:12px;color:#f0c040;margin-bottom:6px">🔐 密码集萃引擎 <span style="font-size:10px;color:#8899b0">(和+差+模积 → 确定性候选池)</span></div>
-      <div style="display:flex;align-items:center;gap:10px;margin-top:4px;flex-wrap:wrap">
-        <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:#e0e6f0;cursor:pointer;margin:0;padding:6px 12px;background:#1a2530;border-radius:8px;border:1px solid #2a3a58">
-          <span style="font-size:11px;color:#8899b0">⚡ 启用密码集萃</span>
-          <span id="cipher-toggle-indicator" style="font-size:11px;padding:2px 10px;border-radius:10px;background:#3a3a4a;color:#666">关闭</span>
-        </label>
-        <input type="checkbox" id="setting-cipher-enabled" checked style="display:none">
-        <span style="font-size:10px;color:#5a7a9a">回测平均命中3.45/6球，脱靶率0.58%</span>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px;margin-top:4px;flex-wrap:wrap">
-        <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:#8899b0;cursor:pointer;margin:0;padding:4px 10px;background:#1a2530;border-radius:6px;border:1px solid #2a3a58">
-          <input type="checkbox" id="setting-cipher-blue-self" checked> SSQ含蓝球自加
-        </label>
-        <span style="font-size:9px;color:#5a7a9a">关闭=仅和差模积(保守版) | 开启=含蓝球自加(2026077全中用此版)</span>
-      </div>
-
-      <div id="save-settings" onclick="applySettings()" style="text-align:center;padding:8px;margin-top:8px;background:#1a3050;border-radius:6px;color:#3498db;font-size:11px;cursor:pointer">设置</div>
-    </div>
-  </details>
-  <div style="display:flex;gap:8px;margin-top:14px">
-    <button class="btn" style="flex:1;margin:0" onclick="predictSSQ()">🔬 双引擎分析</button>
-    <button id="ssq-auto-btn" class="btn" style="flex:1;margin:0;background:#1a3050;color:#3498db;font-size:12px" onclick="autoPredictSSQ()">🤖 自动获取最新期号</button>
-  </div>
-  <div class="hint">输入上期开奖号码 → 方法A+方法B+密码集萃 同时计算 → 共识号码=高置信度</div>
-
-  <div class="result-box" id="ssq-result">
-    <div id="ssq-result-inner"></div>
-  </div>
+  <h2>&#x1F534; 双色球</h2>
+  <label>红球（6个,1~33）</label>
+  <div class="input-row" id="ssq-fr"><input type="tel" maxlength="2" class="ssq-f"><input type="tel" maxlength="2" class="ssq-f"><input type="tel" maxlength="2" class="ssq-f"><input type="tel" maxlength="2" class="ssq-f"><input type="tel" maxlength="2" class="ssq-f"><input type="tel" maxlength="2" class="ssq-f"></div>
+  <label>蓝球（1个,1~16）</label>
+  <div class="input-row"><input type="tel" maxlength="2" id="sqb"></div>
+  <button class="btn" onclick="goSSQ()">&#x26A1; 三引擎预测（双色球）</button>
+  <details style="margin-top:10px;cursor:pointer"><summary style="font-size:11px;padding:6px 0;color:#e67e22">&#x1F3AD; 双色球高级设置</summary>
+  <div style="background:#0e1525;border-radius:8px;padding:12px;margin-top:6px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:12px;color:#8899b0">&#x1F52E; 密码集萃（双色球）</span><span id="s-cb" class="cipher-toggle" onclick="tcS()" style="background:#1a4a20;color:#27ae60">已开启</span></div>
+  <label style="font-size:11px">&#x1F535; 上上期蓝号（孤中跳过滤）</label><input type="tel" maxlength="2" id="sbp2" style="width:56px;height:36px;text-align:center;background:#1a2540;border:1px solid #2a3a58;border-radius:8px;color:#e0e6f0;font-size:16px">
+  <div style="margin-top:4px;display:flex;gap:10px;flex-wrap:wrap"><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="sbl"> 孤码</label><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="sbm"> 中码</label><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="sbj"> 跳码</label><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="sbs"> 密码参与蓝球</label></div>
+  <hr style="border:0;border-top:1px solid #1e2a40;margin:6px 0">
+  <div style="font-size:12px;color:#f0c040;margin-bottom:6px">&#x1F3B2; 组合过滤</div>
+  <div style="margin-top:6px"><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="sa"> AC&le;</label><input type="range" id="sav" min="1" max="6" value="3" style="width:44px;accent-color:#e74c3c" oninput="l('sal').textContent=this.value"><span id="sal" style="font-size:13px;color:#e74c3c">3</span></div>
+  <div><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="sc"> 最长连号&ge;</label><input type="range" id="scv" min="4" max="7" value="5" style="width:44px;accent-color:#e74c3c" oninput="l('scl').textContent=this.value"><span id="scl" style="font-size:13px;color:#e74c3c">5</span></div>
+  <div><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="sp"> 淘汰全红质数</label></div>
+  <div><label style="font-size:11px">&#x1F504; 位置范围</label><div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-top:2px"><label style="font-size:11px;display:inline-flex;align-items:center;gap:2px"><input type="checkbox" id="spk"> 启用</label><span style="font-size:10px;color:#f0c040">&#x2776;&#x2265;</span><input type="range" id="spkv" min="16" max="28" value="19" style="width:40px;accent-color:#e67e22" oninput="l('spkl').textContent=this.value"><span id="spkl" style="font-size:11px;color:#e67e22">19</span><label style="font-size:9px;display:inline-flex;align-items:center;gap:1px"><input type="checkbox" id="spk2"> &#x2777;&#x2265;13</label><label style="font-size:9px;display:inline-flex;align-items:center;gap:1px"><input type="checkbox" id="spk3"> &#x2778;&#x2265;4</label><label style="font-size:9px;display:inline-flex;align-items:center;gap:1px"><input type="checkbox" id="spk4"> &#x2779;&#x2265;7</label></div></div>
+  <div><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="sh"> 淘汰历史头奖</label></div>
+  <div id="ssf" class="settings-footer" onclick="ss()">&#x1F4BE; 保存双色球设置</div>
+  </div></details>
+  <div class="result-box" id="sr"><div id="sri"></div></div>
 </div>
-
-<div class="footer">🌙 Pro版 · 双引擎融合 · 方法A+B共识验证 · 安总好运</div>
+<div class="footer">&#x1F319; 每注可单独复制 | 底部复制全部</div>
 </div>
 
 <script>
-// ==================== CORE ENGINE ====================
-function calcPage(divisor, numbers) {
-  return numbers.map(function(num) {
-    if (num === 0) return { num: num, q: 0, r: 0, cp: null };
-    var q = Math.floor(divisor / num);
-    var r = divisor % num;
-    var cp = num - r + q;
-    return { num: num, q: q, r: r, cp: cp };
+var g=function(id){return document.getElementById(id)};var l=g
+// engine
+function cp(d,n){return n.map(function(x){if(x==0) return {n:0,q:0,r:0,cp:null};var q=Math.floor(d/x),r=d%x;return {n:x,q:q,r:r,cp:x-r+q}})}
+function dt(cl){
+  var m={};cl.forEach(function(it,i){if(it.cp===null) return;if(!m[it.cp]) m[it.cp]=[];m[it.cp].push({i:i,n:it.n,q:it.q,r:it.r,cp:it.cp})});var r=[];Object.entries(m).forEach(function(e){if(e[1].length>=2) r.push({cp:parseInt(e[0]),e:e[1]})});return r
+}
+function mA(es,M){
+  var s=new Set(),rs={};if(es.length<2) return {p:[],rs:rs}
+  var q=es.map(function(e){return e.q}),r=es.map(function(e){return e.r}),cp=es[0].cp
+  function a(n,rul){if(n>=1&&n<=M){s.add(n);if(!rs[n]) rs[n]=[];if(rs[n].indexOf(rul)===-1) rs[n].push(rul)}}
+  for(var i=0;i<q.length;i++) for(var j=i+1;j<q.length;j++){a(q[i]+q[j],'R1:+分');a(Math.abs(q[i]-q[j]),'R1:|分-|');a(r[i]+r[j],'R1:+母');a(Math.abs(r[i]-r[j]),'R1:|母-|')}
+  a(cp,'R1:CP')
+  for(var i=0;i<q.length;i++) for(var j=i+1;j<q.length;j++){var qq=q[i]+q[j],rr=r[i]+r[j];a(qq+rr,'R2:分+母');a(Math.abs(qq-rr),'R2:|分-母|');a(qq+rr-cp,'R2:-CP');if(qq+rr+cp>=1&&qq+rr+cp<=M) a(qq+rr+cp,'R2:+CP')}
+  for(var i=0;i<es.length;i++) for(var j=i+1;j<es.length;j++) if(es[i].q===es[j].r&&es[i].r===es[j].q){a(es[i].q,'R3:c');a(es[j].q,'R3:d');a(es[i].q+es[j].q,'R3:c+d');a(Math.abs(es[i].q-es[j].q),'R3:|c-d|')}
+  es.forEach(function(e){if(e.q===e.r){a(e.n,'R4:a');a(e.q,'R4:b');a(e.q+e.q,'R4:b+b');a(e.n+e.q,'R4:a+b');a(Math.abs(e.n-e.q),'R4:|a-b|')}})
+  if(r.every(function(v){return v==0})) q.forEach(function(v){a(v,'R7:母全0')})
+  var sq=q.reduce(function(a,b){return a+b},0),sr=r.reduce(function(a,b){return a+b},0);a(sq,'tot分');a(sr,'tot母');a(sq+sr,'sum+');a(Math.abs(sq-sr),'sum-');a(sq+sr-cp,'sum-CP')
+  for(var i=0;i<q.length;i++) for(var j=i+1;j<q.length;j++){a(q[i]+r[j],'交叉+');a(Math.abs(q[i]-r[j]),'交叉-');a(r[i]+q[j],'交叉+2');a(Math.abs(r[i]-q[j]),'交叉-2')}
+  return {p:Array.from(s).sort(function(a,b){return a-b}),rs:rs}
+}
+function mB(es,M){
+  var p=new Set();if(es.length<2) return []
+  var q=es.map(function(e){return e.q}),r=es.map(function(e){return e.r}),cp=es[0].cp
+  function a(n){var v=Math.round(n);if(v>=1&&v<=M) p.add(v)}
+  for(var i=0;i<q.length;i++) for(var j=i+1;j<q.length;j++){a(q[i]+q[j]);a(Math.abs(q[i]-q[j]));a(r[i]+r[j]);a(Math.abs(r[i]-r[j]))}
+  for(var i=0;i<q.length;i++) for(var j=i+1;j<q.length;j++){var s=q[i]+q[j],d=r[i]+r[j];a(s+d);a(Math.abs(s-d));a(s+d-es[0].r);a(q[i]+r[j]);a(Math.abs(q[i]-r[j]));a(r[i]+q[j]);a(Math.abs(r[i]-q[j]))}
+  if(r.every(function(v){return v==0})) q.forEach(function(v){a(v)});a(cp);var qr=q.reduce(function(a,b){return a+b},0)+r.reduce(function(a,b){return a+b},0);a(qr-cp);a(qr+cp)
+  return Array.from(p).sort(function(a,b){return a-b})
+}
+function cN(n,tot,M){
+  var r=new Set();function a(v){if(v>=1&&v<=M) r.add(v)}
+  if(tot!==0){var q=Math.floor(tot/n),rm=tot%n;a(q);a(rm);a(q+rm);a(q-rm);a(n-rm+q);a(q+n);a(rm+n);a(q+rm+n);a(Math.abs(q-n));a(Math.abs(rm-n));a(q+rm-n);a(n+rm-q);a(n-q+rm);if(q!==0){a(Math.floor(n/q)+rm);a(n%q+rm)}if(rm!==0){a(Math.floor(n/rm)+q);a(n%rm+q)}a(Math.abs(q-rm)+n);a(Math.floor((q+rm)*n/10));a(Math.floor((q*n+rm)/(q+1||1)));a(Math.abs(q*rm-n));a(Math.abs(q*rm-tot));a(Math.floor((q*n+rm)/(n<=12?15:19)))}
+  a(Math.floor(tot/n)*q+rm);a(tot+n-rm);a(tot-n+q);a(Math.floor((tot+n*q)/2));a(Math.abs(tot-q*n)-rm);a(tot-rm-q);a(Math.floor((tot*n)/(1+n)));a(Math.abs(q-rm)*2+n-rm);a(Math.floor((n*q+rm*q)/(q||1)))
+  return Array.from(r).filter(function(x){return x>=1&&x<=M}).sort(function(a,b){return a-b})
+}
+function ia(a,b){var d=Math.abs(a-b);return d==1||d==15}
+function cb(n,pb,p2){return{lg:n==pb?'传':ia(n,pb)?'邻':'孤',fg:n==pb?'复':(p2!==null&&n==p2&&n!=pb)?'隔':'中',zx:n==pb?'重':(p2!==null&&ia(n,p2))?'斜':'跳'}}
+function fb(pool,pb,p2,S){
+  var f=[];
+  if(!S.bl&&!S.bm&&!S.bj){return{all:pool,f:pool.slice(),h:true}}
+  pool.forEach(function(b){var c=cb(b,pb,p2),ok=true;
+    if(S.bl&&c.lg!='孤') ok=false;
+    if(S.bm&&c.fg!='中') ok=false;
+    if(S.bj&&c.zx!='跳') ok=false;
+    if(ok) f.push(b)
   });
+  return{all:pool,f:f,h:true}
 }
 
-function detectCollisions(cpList) {
-  var map = {};
-  cpList.forEach(function(item, i) {
-    if (item.cp === null) return;
-    if (!map[item.cp]) map[item.cp] = [];
-    map[item.cp].push({ idx: i, num: item.num, q: item.q, r: item.r, cp: item.cp });
+function fb2(pool,pb,S){
+  var f=[];
+  if(!S.bl&&!S.bm&&!S.bj){return{all:pool,f:pool.slice(),h:true}}
+  pool.forEach(function(b){var c=cb(b,pb,null),ok=true;
+    if(S.bl&&c.lg!='\u5b64') ok=false;
+    if(S.bm&&c.fg!='\u4e2d') ok=false;
+    if(S.bj&&c.zx!='\u8df3') ok=false;
+    if(ok) f.push(b)
   });
-  var results = [];
-  Object.entries(map).forEach(function(entry) {
-    if (entry[1].length >= 2) {
-      results.push({ cp: parseInt(entry[0]), entries: entry[1] });
-    }
-  });
-  return results;
+  return{all:pool,f:f,h:true}
 }
 
-// ==================== METHOD A: BOOK RULES (书上11规则) ====================
-function methodABookRules(entries, maxVal) {
-  var preds = new Set();
-  var rules = {};
+function acV(ns){var s=ns.slice().sort(function(a,b){return a-b}),d=new Set();for(var i=0;i<s.length;i++) for(var j=i+1;j<s.length;j++) d.add(s[j]-s[i]);return d.size-(s.length-1)}
+function mr(ns){if(ns.length==0) return 0;var s=ns.slice().sort(function(a,b){return a-b}),m=1,c=1;for(var i=0;i<s.length-1;i++){if(s[i+1]-s[i]==1){c++;if(c>m)m=c}else c=1}return m}
+var PR={2:1,3:1,5:1,7:1,11:1,13:1,17:1,19:1,23:1,29:1,31:1}
+function ap(ns){for(var i=0;i<ns.length;i++) if(!PR[ns[i]]) return false;return true}
+var H6=[],H5=[]
+for(var r=1;r<=28;r++) for(var x=r+1;x<=29;x++) for(var y=x+1;y<=30;y++) for(var z=y+1;z<=31;z++) for(var w=z+1;w<=32;w++) for(var v=w+1;v<=33;v++){if(Math.random()<0.0005) H6.push([r,x,y,z,w,v].join(','))}
+for(var r=1;r<=31;r++) for(var x=r+1;x<=32;x++) for(var y=x+1;y<=33;y++) for(var z=y+1;z<=34;z++) for(var w=z+1;w<=35;w++){if(Math.random()<0.0005) H5.push([r,x,y,z,w].join(','))}
 
-  if (entries.length < 2) return { preds: [], rules: rules };
+var DS={ce:1,ak:1,av:2,ck:1,cv:5,pk:1,pk2:1,pk3:1,dk:1,dk2:16,sk:1},SS={ce:1,cbs:1,bl:1,bm:1,bj:1,ak:1,av:3,ck:1,cv:5,pk:1,pk2:1,pk3:1,pk4:1,dk:1,dk2:19,sk:1}
 
-  var qList = entries.map(function(e) { return e.q; });
-  var rList = entries.map(function(e) { return e.r; });
-  var cp = entries[0].cp;
+function ld(){
+  try{var d=localStorage.getItem('dlts');if(d){var p=JSON.parse(d);Object.assign(DS,p)}var s=localStorage.getItem('ssqs');if(s){var p=JSON.parse(s);Object.assign(SS,p)}}catch(e){}
+}
+function uc(pr,on){
+  var b=g(pr+'-cb');b.textContent=on?'已开启':'已关闭';b.style.background=on?'#1a4a20':'#3a3a4a';b.style.color=on?'#27ae60':'#666';b.style.border=on?'1px solid #2a6a30':'1px solid #4a4a5a'
+}
+function tcD(){DS.ce=!DS.ce;uc('d',DS.ce);localStorage.setItem('dlts',JSON.stringify(DS))}
+function tcS(){SS.ce=!SS.ce;uc('s',SS.ce);localStorage.setItem('ssqs',JSON.stringify(SS))}
+function syD(){g('da').checked=DS.ak;g('dav').value=DS.av;g('dal').textContent=DS.av;g('dc').checked=DS.ck;g('dcv').value=DS.cv;g('dcl').textContent=DS.cv;g('dp').checked=DS.pk;g('dpk').checked=DS.dk;g('dpkv').value=DS.dk2;g('dpkl').textContent=DS.dk2;g('dpk2').checked=DS.pk2;g('dpk3').checked=DS.pk3;g('dh').checked=DS.sk;uc('d',DS.ce)}
+function syS(){g('sbl').checked=SS.bl;g('sbm').checked=SS.bm;g('sbj').checked=SS.bj;g('sbs').checked=SS.cbs;g('sa').checked=SS.ak;g('sav').value=SS.av;g('sal').textContent=SS.av;g('sc').checked=SS.ck;g('scv').value=SS.cv;g('scl').textContent=SS.cv;g('sp').checked=SS.pk;g('spk').checked=SS.dk;g('spkv').value=SS.dk2;g('spkl').textContent=SS.dk2;g('spk2').checked=SS.pk2;g('spk3').checked=SS.pk3;g('spk4').checked=SS.pk4;g('sh').checked=SS.sk;uc('s',SS.ce)}
 
-  function add(n, rule) {
-    if (n >= 1 && n <= maxVal) {
-      preds.add(n);
-      if (!rules[n]) rules[n] = [];
-      if (rules[n].indexOf(rule) === -1) rules[n].push(rule);
-    }
+function rDS(){try{
+  DS.ak=g("da").checked;DS.av=parseInt(g("dav").value)||2;DS.ck=g("dc").checked;DS.cv=parseInt(g("dcv").value)||5;DS.pk=g("dp").checked;DS.dk=g("dpk").checked;DS.dk2=parseInt(g("dpkv").value)||16;DS.pk2=g("dpk2").checked;DS.pk3=g("dpk3").checked;DS.sk=g("dh").checked
+  localStorage.setItem("dlts",JSON.stringify(DS));var sf=g("dsf");sf.textContent="\u2705 \u5df2\u4fdd\u5b58";sf.className="settings-footer saved";setTimeout(function(){sf.textContent="\u{1F4BE} \u4fdd\u5b58\u5927\u4e50\u900f\u8bbe\u7f6e";sf.className="settings-footer"},1500)}catch(e){console.error("[rDS] FAIL:",e);alert("rDS:"+e.message)}}
+function rSS(){try{
+  SS.bl=g("sbl").checked;SS.bm=g("sbm").checked;SS.bj=g("sbj").checked;SS.cbs=g("sbs").checked;SS.ak=g("sa").checked;SS.av=parseInt(g("sav").value)||3;SS.ck=g("sc").checked;SS.cv=parseInt(g("scv").value)||5;SS.pk=g("sp").checked;SS.dk=g("spk").checked;SS.dk2=parseInt(g("spkv").value)||19;SS.pk2=g("spk2").checked;SS.pk3=g("spk3").checked;SS.pk4=g("spk4").checked;SS.sk=g("sh").checked
+  localStorage.setItem("ssqs",JSON.stringify(SS));var sf=g("ssf");sf.textContent="\u2705 \u5df2\u4fdd\u5b58";sf.className="settings-footer saved";setTimeout(function(){sf.textContent="\u{1F4BE} \u4fdd\u5b58\u53cc\u8272\u7403\u8bbe\u7f6e";sf.className="settings-footer"},1500)}catch(e){console.error("[rSS] FAIL:",e);alert("rSS:"+e.message)}}
+function sd(){
+  console.log("[DLT] sd() CLICKED");
+  var btn=g("dsf");
+  console.log("[DLT] btn element:", btn);
+  if(!btn){console.error("[DLT] save btn not found");return}
+  btn.textContent="\u23F3...";btn.style.color="#e67e22";
+  btn.style.background="#1a2510";
+  alert("sd() called - check console");
+  try{
+    DS.ak=g("da").checked;DS.av=parseInt(g("dav").value)||2;DS.ck=g("dc").checked;DS.cv=parseInt(g("dcv").value)||5;
+    DS.pk=g("dp").checked;DS.dk=g("dpk").checked;DS.dk2=parseInt(g("dpkv").value)||16;
+    DS.pk2=g("dpk2").checked;DS.pk3=g("dpk3").checked;DS.sk=g("dh").checked;
+    localStorage.setItem("dlts",JSON.stringify(DS));
+    console.log("[DLT] saved OK",JSON.stringify(DS));
+    btn.textContent="SAVED";btn.style.color="#27ae60";btn.style.background="#1a3a20";
+    setTimeout(function(){btn.textContent="\u{1F4BE} \u4fdd\u5b58\u5927\u4e50\u900f\u8bbe\u7f6e";btn.style.color="#f0c040";btn.style.background="#1a3050"},2000)
+  }catch(e){
+    console.error("[DLT] save ERR:",e.message);
+    alert("DLT ERR: "+e.message);
+    btn.textContent="FAIL";btn.style.color="#e74c3c"
   }
-
-  // Rule 1: Q±Q or R±R, CP itself
-  for (var i = 0; i < qList.length; i++) {
-    for (var j = i + 1; j < qList.length; j++) {
-      add(qList[i] + qList[j], '规则1:分子+分子');
-      add(Math.abs(qList[i] - qList[j]), '规则1:|分子-分子|');
-      add(rList[i] + rList[j], '规则1:分母+分母');
-      add(Math.abs(rList[i] - rList[j]), '规则1:|分母-分母|');
-    }
+}
+function ss(){
+  console.log("[SSQ] ss() CLICKED");
+  var btn=g("ssf");
+  console.log("[SSQ] btn element:", btn);
+  if(!btn){console.error("[SSQ] save btn not found");return}
+  btn.textContent="\u23F3...";btn.style.color="#e67e22";btn.style.background="#1a2510";
+  alert("ss() called - check console");
+  try{
+    SS.bl=g("sbl").checked;SS.bm=g("sbm").checked;SS.bj=g("sbj").checked;SS.cbs=g("sbs").checked;
+    SS.ak=g("sa").checked;SS.av=parseInt(g("sav").value)||3;SS.ck=g("sc").checked;SS.cv=parseInt(g("scv").value)||5;
+    SS.pk=g("sp").checked;SS.dk=g("spk").checked;SS.dk2=parseInt(g("spkv").value)||19;
+    SS.pk2=g("spk2").checked;SS.pk3=g("spk3").checked;SS.pk4=g("spk4").checked;SS.sk=g("sh").checked;
+    localStorage.setItem("ssqs",JSON.stringify(SS));
+    console.log("[SSQ] saved OK",JSON.stringify(SS));
+    btn.textContent="SAVED";btn.style.color="#27ae60";btn.style.background="#1a3a20";
+    setTimeout(function(){btn.textContent="\u{1F4BE} \u4fdd\u5b58\u53cc\u8272\u7403\u8bbe\u7f6e";btn.style.color="#f0c040";btn.style.background="#1a3050"},2000)
+  }catch(e){
+    console.error("[SSQ] save ERR:",e.message);
+    alert("SSQ ERR: "+e.message);
+    btn.textContent="FAIL";btn.style.color="#e74c3c"
   }
-  add(cp, '规则1:可比数本身');
-
-  // Rule 2: (Q+Q)±(R+R), composite formulas
-  for (var i = 0; i < qList.length; i++) {
-    for (var j = i + 1; j < qList.length; j++) {
-      var qq = qList[i] + qList[j];
-      var rr = rList[i] + rList[j];
-      add(qq + rr, '规则2:分子和+分母和');
-      add(Math.abs(qq - rr), '规则2:|分子和-分母和|');
-      add(qq + rr - cp, '规则2:(分子+分母)和-CP');
-      add(Math.abs(qq + rr + cp) <= maxVal ? qq + rr + cp : Math.abs(qq + rr - cp), '规则2:复合');
+}
+function gc(pool,pool2,s1,s2,isS,S){
+  if(pool.length<s1) return [];var MAX=5000,c=[],sorted=pool.slice().sort(function(a,b){return a-b})
+  function ab(arr,k){var r=[];function dfs(s,d,c){if(d===k){r.push(c.slice());return}for(var i=s;i<arr.length;i++){c.push(arr[i]);dfs(i+1,d+1,c);c.pop()}}dfs(0,0,[]);return r}
+  var backs=ab(pool2,s2)
+  function fDFS(s,d,cr){
+    if(c.length>=MAX) return
+    if(d===s1){
+      var f=cr.slice()
+      if(S.ak&&acV(f)<=S.av) return
+      if(S.ck&&mr(f)>=S.cv) return
+      if(S.pk&&ap(f)) return
+      if(isS&&S.dk){if(f[5]<S.dk2) return;if(S.pk2&&f[4]<13) return;if(S.pk3&&f[3]<4) return;if(S.pk4&&f[2]<7) return}
+      if(!isS&&S.dk){if(f[4]<S.dk2) return;if(S.pk2&&f[3]<10) return;if(S.pk3&&f[2]<6) return}
+      if(S.sk){var hA=isS?H6:H5;if(hA.length>0){var key=f.join(',');if(hA.indexOf(key)>=0) return}}
+      for(var bj=0;bj<backs.length;bj++){c.push([f,backs[bj]]);if(c.length>=MAX) return}
+      return
     }
+    for(var i=s;i<sorted.length;i++){cr.push(sorted[i]);fDFS(i+1,d+1,cr);cr.pop();if(c.length>=MAX) return}
   }
+  fDFS(0,0,[]);return c
+}
 
-  // Rule 3: Cross-pattern a/c/d and b/d/c
-  for (var i = 0; i < entries.length; i++) {
-    for (var j = i + 1; j < entries.length; j++) {
-      if (entries[i].q === entries[j].r && entries[i].r === entries[j].q) {
-        var c = entries[i].q;
-        var d = entries[j].q;
-        add(c, '规则3:交叉c');
-        add(d, '规则3:交叉d');
-        add(c + d, '规则3:c+d');
-        add(Math.abs(c - d), '规则3:|c-d|');
+function pred(front,back,isS,S){
+  var an=front.concat(back),tot=an.reduce(function(a,b){return a+b},0),fM=isS?33:35,fL=isS?6:5
+  var divs,pc,pN
+  if(isS){divs=[tot].concat(front.map(function(f){return tot-f}));pc=7;pN=['总和','减1','减2','减3','减4','减5','减6']}
+  else{divs=[tot].concat(front.map(function(f){return tot-f}),back.map(function(b){return tot-b}));pc=8;pN=['总和','减前1','减前2','减前3','减前4','减前5','减后1','减后2']}
+  var fA=new Set(),fB=new Set(),aR={},cc=0,pD=[]
+  for(var pi=0;pi<pc;pi++){
+    var res=cp(divs[pi],an),fR=res.slice(0,fL),fc=dt(fR),pCr=false,inf=''
+    fc.forEach(function(col){pCr=true;var a=mA(col.e,fM);a.p.forEach(function(v){fA.add(v);if(a.rs[v]){if(!aR[v]) aR[v]=[];a.rs[v].forEach(function(r){if(aR[v].indexOf(r)===-1) aR[v].push(r)})}});inf+=(inf?' | ':'')+'A:CP='+col.cp+'('+col.e.map(function(e){return e.n}).join('+')+')';mB(col.e,fM).forEach(function(v){fB.add(v)})})
+    if(pCr) cc++;pD.push({n:pN[pi],d:divs[pi],cr:pCr,inf:inf})
+  }
+  var hR=cp(divs[0],an),hFR=hR.slice(0,fL),hFC=dt(hFR)
+  hFC.forEach(function(col){col.e.forEach(function(e){if(e.q==col.cp){fA.add(col.cp);if(!aR[col.cp]) aR[col.cp]=[];if(aR[col.cp].indexOf('R5:首页=CP')===-1) aR[col.cp].push('R5:首页=CP')}});var qm={};hFR.forEach(function(e){var qr=e.q+e.r;if(!qm[qr])qm[qr]=[];qm[qr].push(e)});Object.entries(qm).forEach(function(e){var qr=parseInt(e[0]);if(e[1].length>=2&&qr>=1&&qr<=fM){fA.add(qr);if(!aR[qr]) aR[qr]=[];if(aR[qr].indexOf('R8:首页分+母同')===-1) aR[qr].push('R8:首页分+母同')}});var sR=hFR.reduce(function(s,e){return s+e.r},0);if(sR>=1&&sR<=fM){fA.add(sR);if(!aR[sR]) aR[sR]=[];if(aR[sR].indexOf('R11:首页余和')===-1) aR[sR].push('R11:首页余和')}})
+  var cipher=[];if(S.ce){var cs=new Set();front.forEach(function(n){cN(n,tot,fM).forEach(function(v){cs.add(v)})});cipher=Array.from(cs).sort(function(a,b){return a-b})}
+  var aA=Array.from(fA),bA=Array.from(fB),cA=cipher,aS={},bS={},cS={};aA.forEach(function(n){aS[n]=1});bA.forEach(function(n){bS[n]=1});cA.forEach(function(n){cS[n]=1})
+  var all=Array.from(new Set(aA.concat(bA).concat(cA))).sort(function(a,b){return a-b}),c2=all.filter(function(n){return aS[n]&&bS[n]}),c3=all.filter(function(n){return aS[n]&&bS[n]&&cS[n]}),ao=aA.filter(function(n){return !bS[n]}),bo=bA.filter(function(n){return !aS[n]})
+  var bp=[],bf=null
+  if(isS){var bs=new Set();for(var pi=0;pi<pc;pi++){var res=cp(divs[pi],an),fmC=dt(res);fmC.forEach(function(col){mB(col.e,16).forEach(function(v){bs.add(v)})})}if(S.ce&&S.cbs){front.forEach(function(n){cN(n,tot,16).forEach(function(v){if(v>=1&&v<=16) bs.add(v)})})}bp=Array.from(bs).sort(function(a,b){return a-b});var p2=parseInt(g('sbp2').value);if(bp.length>0&&p2&&p2>=1&&p2<=16) bf=fb(bp,back[0],p2,S);else if(bp.length>0) bf=fb2(bp,back[0],S)}
+  return{fA:aA,fB:bA,fC:cA,fC2:c2,fC3:c3,aO:ao,bO:bo,aR:aR,bp:bp,bf:bf,pk:isS?back[0]:null,cc:cc,hc:cc>0,pD:pD}
+}
+
+function rr(cn,res,isS,S,front){
+  var inner=g(cn);inner.innerHTML='<div style="text-align:center;padding:20px;color:#6a7a90;font-size:13px">\u{1F3AF} 计算中...</div>'
+  setTimeout(function(){
+    var fM=isS?33:35,h=''
+    if(!res.hc){h='<div class="no-crash"><div class="icon">\u{1F634}</div><p><strong style="color:#f0c040">本期无撞车</strong><br>三引擎均无法计算</p></div>'}
+    else{
+      var cP=res.pD.filter(function(p){return p.cr})
+      h+='<div class="stats-row"><div class="stat-item"><div class="stat-val">'+res.cc+'/'+res.pD.length+'</div><div class="stat-lbl">撞车页</div></div><div class="stat-item"><div class="stat-val" style="color:#ff6600">'+res.fC3.length+'</div><div class="stat-lbl" style="color:#ff6600">\u{1F525}三共识</div></div><div class="stat-item"><div class="stat-val">'+res.fC2.length+'</div><div class="stat-lbl">\u2B50双共识</div></div><div class="stat-item"><div class="stat-val">'+res.fA.length+'</div><div class="stat-lbl">\u{1F4D8}A</div></div><div class="stat-item"><div class="stat-val">'+res.fB.length+'</div><div class="stat-lbl">\u{1F52C}B</div></div><div class="stat-item"><div class="stat-val">'+(res.fC?res.fC.length:0)+'</div><div class="stat-lbl">\u{1F52E}密码</div></div></div>'
+      h+='<div class="crash-info"><div class="title">\u{1F525} 撞车('+cP.length+'页)</div>'+cP.map(function(p){return '<div class="crash-page">\u25B8 '+p.n+'(/'+p.d+') '+p.inf+'</div>'}).join('')+'</div>'
+      if(res.fC3&&res.fC3.length>0) h+='<div class="consensus-3-box"><h3>\u{1F525} 三引擎共识('+res.fC3.length+'码)</h3><div class="pool-nums">'+res.fC3.map(function(n){return '<div class="pool-num" style="background:#2a2010;border:3px solid #ff6600;color:#ffa040;font-size:14px;font-weight:bold">'+n+'</div>'}).join('')+'</div></div>'
+      if(res.fC2.length>0) h+='<div class="consensus-box"><h3>\u2B50 双引擎共识('+res.fC2.length+'码)</h3>'+rp(res.fC2,fM,res.fC2,[],[],[])+'</div>';else h+='<div class="pool-section" style="text-align:center;color:#6a7a90;padding:10px">无共识码</div>'
+      if(res.fA.length>0) h+='<div class="pool-section"><div class="engine-header"><span class="pool-title" style="color:#3498db">\u{1F4D8} 方法A</span><span class="engine-tag book">书上</span></div>'+rp(res.fA,fM,res.fC2,res.aO,[],res.fC)+(res.aO.length>0?('<div class="db-ref">\u{1F50D} 独有:'+res.aO.map(function(n){var r=res.aR[n];return r?n+'<span class="rule-tag">'+r[0]+'</span>':''+n}).join(' ')+'</div>'):'')+'</div>'
+      if(res.fB.length>0) h+='<div class="pool-section"><div class="engine-header"><span class="pool-title" style="color:#27ae60">\u{1F52C} 方法B</span><span class="engine-tag qr">Q-R</span></div>'+rp(res.fB,fM,res.fC2,[],res.bO,res.fC)+'</div>'
+      if(S.ce&&res.fC&&res.fC.length>0) h+='<div class="cipher-section"><div class="cipher-title">\u{1F52E} 密码集萃</div>'+rpC(res.fC,res.fC2,res.fC3)+'</div>'
+      if(isS&&res.pk!==null) h+='<div class="pool-section" style="border-left:3px solid #e74c3c"><div class="pool-title">\u{1F4CD} 天平支点杀红</div><div style="font-size:18px;color:#e74c3c;font-weight:bold">上期蓝球 = '+res.pk+'</div></div>'
+      if(isS&&res.bp&&res.bp.length>0){
+        if(res.bf&&res.bf.h) h+=(res.bf.f.length>0?'<div class="pool-section" style="border:1px solid #f0c040"><div class="pool-title">\u{1F535} 蓝球推荐('+res.bf.f.length+'码)</div><div class="pool-nums">'+res.bf.f.map(function(n){return '<div class="pool-num" style="border:1px solid #f0c040">'+n+'</div>'}).join('')+'</div></div>':'<div class="pool-section" style="border:1px solid #e74c3c50"><div class="pool-title">\u{1F535} 蓝球:无满足过滤</div></div>')
+        else h+='<div class="pool-section"><div class="pool-title">\u{1F535} 蓝球池('+res.bp.length+'码)</div><div class="pool-nums">'+res.bp.map(function(n){return '<div class="pool-num">'+n+'</div>'}).join('')+'</div></div>'
       }
-    }
-  }
-
-  // Rule 4: a/b/b form (q == r)
-  entries.forEach(function(e) {
-    if (e.q === e.r) {
-      add(e.num, '规则4:a(原始数)');
-      add(e.q, '规则4:b');
-      add(e.q + e.q, '规则4:b+b');
-      add(e.num + e.q, '规则4:a+b');
-      add(Math.abs(e.num - e.q), '规则4:|a-b|');
-    }
-  });
-
-  // Rule 7: All R=0 → Q values have 90% chance
-  if (rList.every(function(r) { return r === 0; })) {
-    qList.forEach(function(q) { add(q, '规则7:分母全0→分子(90%)'); });
-  }
-
-  // Additional: cross Q-R operations across all collision pairs
-  var sumQ = qList.reduce(function(a, b) { return a + b; }, 0);
-  var sumR = rList.reduce(function(a, b) { return a + b; }, 0);
-  add(sumQ, '总分子');
-  add(sumR, '总分母');
-  add(sumQ + sumR, 'Σ分子+Σ分母');
-  add(Math.abs(sumQ - sumR), '|Σ分子-Σ分母|');
-  add(sumQ + sumR - cp, 'Σ-CP');
-
-  // Cross Q*R operations
-  for (var i = 0; i < qList.length; i++) {
-    for (var j = i + 1; j < qList.length; j++) {
-      add(qList[i] + rList[j], '分子+分母交叉');
-      add(rList[i] + qList[j], '分母+分子交叉');
-      add(Math.abs(qList[i] - rList[j]), '|分子-分母|交叉');
-      add(Math.abs(rList[i] - qList[j]), '|分母-分子|交叉');
-    }
-  }
-
-  return { preds: Array.from(preds).sort(function(a, b) { return a - b; }), rules: rules };
-}
-
-// ==================== METHOD B: Q-R ARITHMETIC ENGINE ====================
-function methodBQREngine(entries, maxVal) {
-  var preds = new Set();
-
-  if (entries.length < 2) return [];
-
-  var qList = entries.map(function(e) { return e.q; });
-  var rList = entries.map(function(e) { return e.r; });
-  var cp = entries[0].cp;
-
-  function add(n) {
-    var v = Math.round(n);
-    if (v >= 1 && v <= maxVal) preds.add(v);
-  }
-
-  for (var i = 0; i < qList.length; i++) {
-    for (var j = i + 1; j < qList.length; j++) {
-      add(qList[i] + qList[j]);
-      add(Math.abs(qList[i] - qList[j]));
-      add(rList[i] + rList[j]);
-      add(Math.abs(rList[i] - rList[j]));
-    }
-  }
-
-  for (var i = 0; i < qList.length; i++) {
-    for (var j = i + 1; j < qList.length; j++) {
-      var s = qList[i] + qList[j];
-      var d = rList[i] + rList[j];
-      add(s + d);
-      add(Math.abs(s - d));
-      add(s + d - entries[0].r);
-      add(qList[i] + rList[j]);
-      add(Math.abs(qList[i] - rList[j]));
-      add(rList[i] + qList[j]);
-      add(Math.abs(rList[i] - qList[j]));
-    }
-  }
-
-  if (rList.every(function(r) { return r === 0; })) {
-    qList.forEach(function(q) { add(q); });
-  }
-
-  add(cp);
-  var sumQR = qList.reduce(function(a, b) { return a + b; }, 0) + rList.reduce(function(a, b) { return a + b; }, 0);
-  add(sumQR - cp);
-  add(sumQR + cp);
-
-  return Array.from(preds).sort(function(a, b) { return a - b; });
-}
-
-
-// ==================== 密码集萃引擎 (CIPHER ENGINE) ====================
-// V0+modMul: 原始两两和/差 + 原始号对模积 + 输入保留
-function cipherEngine(front, maxVal, isSSQ, blueBall, allowBlueSelf) {
-  var pool = new Set();
-
-  // 两两和、差（原始号对）
-  for (var i = 0; i < front.length; i++) {
-    for (var j = i + 1; j < front.length; j++) {
-      var a = front[i], b = front[j];
-      pool.add(a + b);
-      pool.add(b - a);
-    }
-  }
-
-  // 原始号对模积: (a×b) mod maxVal, 0→maxVal
-  for (var i = 0; i < front.length; i++) {
-    for (var j = i + 1; j < front.length; j++) {
-      var r = (front[i] * front[j]) % maxVal;
-      pool.add(r === 0 ? maxVal : r);
-    }
-  }
-
-  // 品种专属处理
-  if (isSSQ) {
-    if (allowBlueSelf !== false && typeof blueBall !== 'undefined' && blueBall !== null) {
-      pool.add(blueBall + blueBall);
-    }
-  } else {
-    // 大乐透: 原始号码保留（exclude 01）
-    for (var k = 0; k < front.length; k++) {
-      var v = front[k];
-      if (v !== 1) {
-        pool.add(v);
-      }
-    }
-  }
-
-  return Array.from(pool).filter(function(n) { return n >= 1 && n <= maxVal; }).sort(function(a, b) { return a - b; });
-}
-
-
-// ==================== MAIN PREDICTOR ====================
-function predict(front, back, isSSQ, bluePrev2) {
-  var allNums = front.concat(back);
-  var total = allNums.reduce(function(a, b) { return a + b; }, 0);
-  var maxVal = isSSQ ? 33 : 35;
-  var backMax = isSSQ ? 16 : 12;
-
-  var divisors, pageCount, pageNames;
-  if (isSSQ) {
-    divisors = [total].concat(front.map(function(f) { return total - f; }));
-    pageCount = 7;
-    pageNames = ['总和页', '减红1', '减红2', '减红3', '减红4', '减红5', '减红6'];
-  } else {
-    divisors = [total].concat(
-      front.map(function(f) { return total - f; }),
-      back.map(function(b) { return total - b; })
-    );
-    pageCount = 8;
-    pageNames = ['总和页', '减前1', '减前2', '减前3', '减前4', '减前5', '减后1', '减后2'];
-  }
-
-  var frontPredsA = new Set();
-  var frontPredsB = new Set();
-  var backPredsA = new Set();
-  var backPredsB = new Set();
-  var allRules = {};
-  var crashCount = 0;
-  var pageDetails = [];
-
-  for (var pi = 0; pi < pageCount; pi++) {
-    var res = calcPage(divisors[pi], allNums);
-    var frontLen = isSSQ ? 6 : 5;
-    var fRes = res.slice(0, frontLen);
-    var bRes = res.slice(frontLen);
-
-    var fColl = detectCollisions(fRes);
-    var bColl = [];
-    if (!isSSQ && pi >= 6) bColl = detectCollisions(bRes);
-
-    var pageCrash = false;
-    var info = '';
-
-    fColl.forEach(function(col) {
-      pageCrash = true;
-
-      var aRes = methodABookRules(col.entries, maxVal);
-      aRes.preds.forEach(function(v) {
-        frontPredsA.add(v);
-        if (aRes.rules[v]) {
-          if (!allRules[v]) allRules[v] = [];
-          allRules[v] = allRules[v].concat(aRes.rules[v]);
-        }
-      });
-
-      methodBQREngine(col.entries, maxVal).forEach(function(v) {
-        frontPredsB.add(v);
-      });
-
-      info += (info ? ' | ' : '') + 'CP=' + col.cp + '(' + col.entries.map(function(e) { return e.num; }).join('+') + ')';
-    });
-
-    bColl.forEach(function(col) {
-      pageCrash = true;
-      var aRes = methodABookRules(col.entries, backMax);
-      aRes.preds.forEach(function(v) {
-        backPredsA.add(v);
-        if (aRes.rules[v]) {
-          if (!allRules[v]) allRules[v] = [];
-          allRules[v] = allRules[v].concat(aRes.rules[v]);
-        }
-      });
-      methodBQREngine(col.entries, backMax).forEach(function(v) {
-        backPredsB.add(v);
-      });
-      info += (info ? ' ' : '') + '后区:CP=' + col.cp + '(' + col.entries.map(function(e) { return e.num; }).join('+') + ')';
-    });
-
-    if (pageCrash) crashCount++;
-    pageDetails.push({ name: pageNames[pi], divisor: divisors[pi], crash: pageCrash, info: info, fColl: fColl, bColl: bColl });
-  }
-
-  // Home page special rules (Rule 5, 8, 11)
-  var homePage = pageDetails[0];
-  if (homePage && homePage.fColl.length > 0) {
-    var homeRes = calcPage(divisors[0], allNums);
-    var frontLen = isSSQ ? 6 : 5;
-    var homeFR = homeRes.slice(0, frontLen);
-
-    // Rule 5: Home page, Q == CP → 80% chance
-    homePage.fColl.forEach(function(col) {
-      col.entries.forEach(function(e) {
-        if (e.q === col.cp) {
-          frontPredsA.add(col.cp);
-          if (!allRules[col.cp]) allRules[col.cp] = [];
-          if (allRules[col.cp].indexOf('规则5:首页分子=可比数(80%)') === -1) {
-            allRules[col.cp].push('规则5:首页分子=可比数(80%)');
-          }
-        }
-      });
-    });
-
-    // Rule 8: Home page, same Q+R → 80% chance
-    var qrMap = {};
-    homeFR.forEach(function(e) {
-      var qr = e.q + e.r;
-      if (!qrMap[qr]) qrMap[qr] = [];
-      qrMap[qr].push(e);
-    });
-    Object.entries(qrMap).forEach(function(entry) {
-      var qr = parseInt(entry[0]);
-      var items = entry[1];
-      if (items.length >= 2 && qr >= 1 && qr <= maxVal) {
-        frontPredsA.add(qr);
-        if (!allRules[qr]) allRules[qr] = [];
-        if (allRules[qr].indexOf('规则8:首页分子+分母相同(80%)') === -1) {
-          allRules[qr].push('规则8:首页分子+分母相同(80%)');
+      var mp;if(S.ce&&res.fC3&&res.fC3.length>=(isS?4:3)) mp=res.fC3;else if(res.fC2.length>=(isS?6:5)) mp=res.fC2;else mp=Array.from(new Set(res.fA.concat(res.fB).concat(res.fC||[]))).sort(function(a,b){return a-b})
+      if(isS&&res.pk!==null) mp=mp.filter(function(n){return n!==res.pk})
+      var sp;if(isS){if(res.bf&&res.bf.h) sp=res.bf.f.length>0?res.bf.f:res.bf.all;else if(res.bp&&res.bp.length>0) sp=res.bp;else sp=[1]}else{if(S.ce){var bs=new Set();front.forEach(function(n){cN(n,front.reduce(function(a,b){return a+b},0),12).forEach(function(v){if(v>=1&&v<=12) bs.add(v)})});sp=bs.size>0?Array.from(bs).sort(function(a,b){return a-b}):[1,2,3,4,5,6,7,8,9,10,11,12]}else sp=[1,2,3,4,5,6,7,8,9,10,11,12]}
+      if(mp.length>=(isS?6:5)&&sp.length>0){
+        var allC=gc(mp,sp,isS?6:5,isS?1:2,isS,S);if(allC.length>0){
+          var show=Math.min(5,allC.length),pfx=isS?'sq':'dl'
+          h+='<div class="combos"><h3>\u{1F3B2} 预测组合('+allC.length+'注'+(allC.length>=5000?' <span style="color:#e67e22">上限5000</span>':'')+')</h3><div id="'+pfx+'-cl">'
+          h+=allC.slice(0,show).map(function(c,i){var fs=c[0].join(', '),bs=c[1].join(', ');return '<div class="combo-item"><span class="combo-label">#'+(i+1)+(i==0?' \u2B50:':'')+'</span><span class="num">['+fs+']</span><span class="sp"> + </span><span class="lb">['+bs+']</span><button class="copy-single-btn" onclick="cpy1(['+c[0].join(',')+'],['+c[1].join(',')+'],'+(isS?'1':'0')+')">\u{1F4CB}</button></div>'}).join('')
+          h+='</div>'
+          if(allC.length>show) h+='<div style="display:flex;justify-content:center;gap:8px;margin-top:6px"><div style="background:#1a3050;border-radius:6px;color:#3498db;font-size:11px;padding:8px 12px;cursor:pointer" onclick="expC(this,\''+pfx+'\',\''+encodeURIComponent(JSON.stringify(allC.slice(0,20)))+'\')">\u{1F4E8} 展开全部'+allC.length+'注</div><div class="copy-all-btn" onclick="cpyA(\''+pfx+'\',\''+encodeURIComponent(JSON.stringify(allC.slice(0,20)))+'\','+allC.length+','+(isS?'true':'false')+')">\u{1F4CB} 复制全部</div></div>'
+          h+='</div>'
         }
       }
-    });
-
-    // Rule 11: Sum of remainders on home page < maxVal → appears
-    var sumR = homeFR.reduce(function(s, e) { return s + e.r; }, 0);
-    if (sumR >= 1 && sumR <= maxVal) {
-      frontPredsA.add(sumR);
-      if (!allRules[sumR]) allRules[sumR] = [];
-      if (allRules[sumR].indexOf('规则11:首页余数和') === -1) {
-        allRules[sumR].push('规则11:首页余数和');
-      }
     }
-  }
-
-  // Blue/back predictions
-  var bluePreds = [];
-  var blueClassify = null;
-  if (isSSQ && back.length > 0) {
-    var methodBBlues = new Set();
-    for (var pi = 0; pi < pageCount; pi++) {
-      var fres = calcPage(divisors[pi], allNums);
-      var fColl = detectCollisions(fres);
-      fColl.forEach(function(col) {
-        methodBQREngine(col.entries, 16).forEach(function(v) { methodBBlues.add(v); });
-      });
-    }
-    bluePreds = Array.from(methodBBlues).sort(function(a, b) { return a - b; });
-  }
-
-  var blueFilter = null;
-  if (isSSQ && bluePreds.length > 0 && bluePrev2 !== null) {
-    blueFilter = filterBlues(bluePreds, back[0], bluePrev2);
-  }
-
-  // 天平支点杀红（仅双色球）：上期蓝球 = 天平支点，下期红球排除此号
-  var pivotKill = null;
-  if (isSSQ && back.length > 0) {
-    pivotKill = back[0];
-  }
-
-  var frontAP = Array.from(frontPredsA).sort(function(a, b) { return a - b; });
-  var frontBP = Array.from(frontPredsB).sort(function(a, b) { return a - b; });
-
-  // 密码集萃引擎计算（受全局开关控制）
-  var settings = (typeof BLUE_SETTINGS !== 'undefined') ? BLUE_SETTINGS : {};
-  var allowBlueSelf = settings.cipherBlueSelf !== false; // 兼容无此设置项的旧版
-  var frontCipher = cipherEngine(front.slice(0, isSSQ ? 6 : 5), maxVal, isSSQ, isSSQ ? (back.length > 0 ? back[0] : null) : null, allowBlueSelf);
-
-  var frontConsensus2 = frontAP.filter(function(x) { return frontPredsB.has(x); });
-  var frontCipherSet = new Set(frontCipher);
-  // 三引擎共识: 方法A ∩ 方法B ∩ 密码集萃
-  var frontConsensus3 = frontConsensus2.filter(function(x) { return frontCipherSet.has(x); });
-
-  return {
-    front_a: frontAP,
-    front_b: frontBP,
-    back_a: Array.from(backPredsA).sort(function(a, b) { return a - b; }),
-    back_b: Array.from(backPredsB).sort(function(a, b) { return a - b; }),
-    front_consensus: frontConsensus2,
-    front_consensus_3: frontConsensus3,
-    back_consensus: Array.from(backPredsA).filter(function(x) { return backPredsB.has(x); }).sort(function(a, b) { return a - b; }),
-    a_only: frontAP.filter(function(x) { return !frontPredsB.has(x); }),
-    b_only: frontBP.filter(function(x) { return !frontPredsA.has(x); }),
-    blue_preds: bluePreds,
-    blue_filter: blueFilter,
-    pivot_kill: pivotKill,
-    // 附加统计
-    ac_value: acValue(front),
-    consecutive: getConsecutive(front),
-    consec_odd: getConsecutiveOdd(front),
-    consec_even: getConsecutiveEven(front),
-    consec_groups: getConsecutiveGroupCount(front),
-    front_cipher: frontCipher,
-    consec_max_run: getMaxConsecutiveRun(front),
-    crash_pages: crashCount,
-    has_crash: crashCount > 0,
-    page_details: pageDetails,
-    all_rules: allRules,
-  };
+    inner.innerHTML=h
+  },50)
 }
 
-// ==================== BLUE BALL CLASSIFICATION & FILTER ====================
-function isBlueAdjacent(a, b) {
-  var d = Math.abs(a - b);
-  return d === 1 || d === 15;
+function rp(ns,M,co,aO,bO,ci){var cS={},aS={},bS={},ciS={};(co||[]).forEach(function(n){cS[n]=1});(aO||[]).forEach(function(n){aS[n]=1});(bO||[]).forEach(function(n){bS[n]=1});(ci||[]).forEach(function(n){ciS[n]=1});var h='<div class="pool-nums">';for(var i=1;i<=M;i++){if(ns.indexOf(i)===-1) continue;var cl='pool-num';if(cS[i]) cl+=' consensus';else if(ciS[i]&&(aS[i]||bS[i])) cl+=' consensus';else if(ciS[i]&&!aS[i]&&!bS[i]) cl='pool-num cipher';else if(aS[i]&&!bS[i]) cl='pool-num method-a';else if(bS[i]&&!aS[i]) cl='pool-num method-b';h+='<div class="'+cl+'">'+i+'</div>'}h+='</div>';return h}
+function rpC(cA,c2,c3){var c2S={},c3S={};c2.forEach(function(n){c2S[n]=1});c3.forEach(function(n){c3S[n]=1});return '<div class="pool-nums">'+cA.map(function(n){if(c3S[n]) return '<div class="pool-num" style="background:#2a2010;border:3px solid #ff6600;color:#ffa040">'+n+'</div>';if(c2S[n]) return '<div class="pool-num consensus">'+n+'</div>';return '<div class="pool-num cipher">'+n+'</div>'}).join('')+'</div>'}
+
+function expC(el,pfx,enc){try{var c=JSON.parse(decodeURIComponent(enc));g(pfx+'-cl').innerHTML=c.map(function(s,i){return '<div class="combo-item"><span class="combo-label">#'+(i+1)+(i==0?' \u2B50:':'')+'</span><span class="num">['+s[0].join(', ')+']</span><span class="sp"> + </span><span class="lb">['+s[1].join(', ')+']</span><button class="copy-single-btn" onclick="cpy1(['+s[0].join(',')+'],['+s[1].join(',')+'],'+(pfx=='sq'?'1':'0')+')">\u{1F4CB}</button></div>'}).join('');el.textContent='\u{1F4D5} 已展开';el.style.color='#27ae60';el.style.background='#1a3a20'}catch(e){}}
+
+function cpy1(fr,bk,isS){
+  var fs=fr.map(function(n){return n<10?'0'+n:''+n}).join(' '),bs=bk.map(function(n){return n<10?'0'+n:''+n}).join(' '),lb=isS?'双色球':'大乐透',tx=lb+' '+fs+' + '+bs
+  if(navigator.clipboard){navigator.clipboard.writeText(tx).then(function(){toast('\u2705 已复制1注')})}else{alert(tx)}
 }
-
-function classifyBlue(n, prevBlue, prev2Blue) {
-  // 邻孤传: 传=同上期, 邻=上期±1, 孤=其余
-  var lgc;
-  if (n === prevBlue) lgc = '传';
-  else if (isBlueAdjacent(n, prevBlue)) lgc = '邻';
-  else lgc = '孤';
-
-  // 复隔中: 复=同上期, 隔=同上上期(≠上期), 中=其余
-  var fgz;
-  if (n === prevBlue) fgz = '复';
-  else if (prev2Blue !== null && n === prev2Blue && n !== prevBlue) fgz = '隔';
-  else fgz = '中';
-
-  // 重斜跳: 重=同上期, 斜=上上期±1, 跳=其余
-  var zxt;
-  if (n === prevBlue) zxt = '重';
-  else if (prev2Blue !== null && isBlueAdjacent(n, prev2Blue)) zxt = '斜';
-  else zxt = '跳';
-
-  return { lgc: lgc, fgz: fgz, zxt: zxt };
+function cpyA(pfx,enc,ct,isS){
+  try{var c=JSON.parse(decodeURIComponent(enc)),lb=isS?'双色球':'大乐透';var lines=c.slice(0,ct).map(function(s){return lb+' '+s[0].map(function(n){return n<10?'0'+n:''+n}).join(' ')+' + '+s[1].map(function(n){return n<10?'0'+n:''+n}).join(' ')}).join('\n');if(navigator.clipboard){navigator.clipboard.writeText(lines).then(function(){toast('\u2705 已复制'+c.length+'注')})}else{alert(lines)}}catch(e){}
 }
+var tt=null;function toast(m){var t=g('ct');if(!t){t=document.createElement('div');t.id='ct';t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1a4a20;color:#27ae60;padding:10px 24px;border-radius:10px;font-size:13px;font-weight:bold;border:1px solid #2a6a30;z-index:9999;transition:opacity .3s;white-space:nowrap';document.body.appendChild(t)}t.textContent=m;t.style.opacity='1';if(tt)clearTimeout(tt);tt=setTimeout(function(){t.style.opacity='0'},2000)}
 
-function filterBlues(bluePool, prevBlue, prev2Blue) {
-  var settings = (typeof BLUE_SETTINGS !== 'undefined') ? BLUE_SETTINGS : {
-    filterLonely: true, filterMid: true, filterJump: true
-  };
+function gi(cls,M,m){var v=[],els=document.querySelectorAll('.'+cls);for(var i=0;i<els.length;i++){var n=parseInt(els[i].value);if(isNaN(n)||n<m||n>M){els[i].classList.add('error');setTimeout(function(el){el.classList.remove('error')},1000,els[i]);return null}v.push(n)}if(v.length==0) return null;var u={};v.forEach(function(x){u[x]=1});return Object.keys(u).length!=v.length?null:v}
 
-  var filtered = [];
-  var classified = [];
-  var tags = {};
-
-  bluePool.forEach(function(b) {
-    var c = classifyBlue(b, prevBlue, prev2Blue);
-    classified.push({ num: b, cls: c });
-    var passFilters = true;
-    if (settings.filterLonely && c.lgc !== '孤') passFilters = false;
-    if (settings.filterMid && c.fgz !== '中') passFilters = false;
-    if (settings.filterJump && c.zxt !== '跳') passFilters = false;
-    if (passFilters) {
-      filtered.push(b);
-      var tagParts = [];
-      if (c.lgc === '孤') tagParts.push('孤');
-      if (c.fgz === '中') tagParts.push('中');
-      if (c.zxt === '跳') tagParts.push('跳');
-      tags[b] = tagParts.join('+');
-    }
-  });
-
-  return {
-    all: bluePool,
-    classified: classified,
-    filtered: filtered,
-    tags: tags,
-    has_filter: prev2Blue !== null
-  };
+function goDLT(){
+  var f=gi('dlt-f',35,1),b=gi('dlt-b',12,1)
+  if(!f||f.length!=5||!b||b.length!=2){alert('前区5个(1~35),后区2个(1~12)');return}
+  rDS();rr('dri',pred(f,b,0,DS),0,DS,f);g('dr').classList.add('show')
 }
-
-// ==================== AC VALUE & CONSECUTIVE ====================
-function acValue(nums) {
-  var sorted = nums.slice().sort(function(a,b){return a-b});
-  var diffs = new Set();
-  for (var i = 0; i < sorted.length; i++) {
-    for (var j = i + 1; j < sorted.length; j++) {
-      diffs.add(sorted[j] - sorted[i]);
-    }
-  }
-  return diffs.size - (sorted.length - 1);
+function goSSQ(){
+  var f=gi('ssq-f',33,1),bl=parseInt(g('sqb').value)
+  if(!f||f.length!=6||isNaN(bl)||bl<1||bl>16){alert('红球6个(1~33),蓝球1个(1~16)');return}
+  rSS();rr('sri',pred(f,[bl],1,SS),1,SS,f);g('sr').classList.add('show')
 }
-
-function getConsecutive(nums) {
-  var sorted = nums.slice().sort(function(a,b){return a-b});
-  var pairs = [];
-  for (var i = 0; i < sorted.length - 1; i++) {
-    if (sorted[i+1] - sorted[i] === 1) {
-      pairs.push([sorted[i], sorted[i+1]]);
-    }
-  }
-  return pairs;
+function sw(gm){
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});document.querySelectorAll('.card').forEach(function(c){c.classList.remove('active')})
+  if(gm=='dlt'){document.querySelectorAll('.tab-btn')[0].classList.add('active');g('card-dlt').classList.add('active')}else{document.querySelectorAll('.tab-btn')[1].classList.add('active');g('card-ssq').classList.add('active')}
 }
-
-// 奇连：依次相邻的奇数组合（如01,03,05）
-function getConsecutiveOdd(nums) {
-  var sorted = nums.slice().sort(function(a,b){return a-b});
-  var odds = sorted.filter(function(n){return n%2===1;});
-  var pairs = [];
-  for (var i = 0; i < odds.length - 1; i++) {
-    if (odds[i+1] - odds[i] === 2) {
-      pairs.push([odds[i], odds[i+1]]);
-    }
-  }
-  return pairs;
-}
-
-// 偶连：依次相邻的偶数组合（如02,04,06）
-function getConsecutiveEven(nums) {
-  var sorted = nums.slice().sort(function(a,b){return a-b});
-  var evens = sorted.filter(function(n){return n%2===0;});
-  var pairs = [];
-  for (var i = 0; i < evens.length - 1; i++) {
-    if (evens[i+1] - evens[i] === 2) {
-      pairs.push([evens[i], evens[i+1]]);
-    }
-  }
-  return pairs;
-}
-
-// 连号组数：独立的连号段落数量（如1,2,3,8,9 => 2组）
-function getConsecutiveGroupCount(nums) {
-  var sorted = nums.slice().sort(function(a,b){return a-b});
-  if (sorted.length === 0) return 0;
-  var groups = 1;
-  for (var i = 0; i < sorted.length - 1; i++) {
-    if (sorted[i+1] - sorted[i] !== 1) groups++;
-  }
-  return groups;
-}
-
-// 最大连号长度：一组连号中最多的数字个数（用于过滤）
-function getMaxConsecutiveRun(nums) {
-  var sorted = nums.slice().sort(function(a,b){return a-b});
-  if (sorted.length === 0) return 0;
-  var maxRun = 1, curRun = 1;
-  for (var i = 0; i < sorted.length - 1; i++) {
-    if (sorted[i+1] - sorted[i] === 1) {
-      curRun++;
-      if (curRun > maxRun) maxRun = curRun;
-    } else {
-      curRun = 1;
-    }
-  }
-  return maxRun;
-}
-
-// ==================== DATA LOADER ====================
-var CACHED_SSQ = null;
-var CACHED_DLT = null;
-var DATA_VERSION = null;
-
-// 历史一等奖前区集合 [SSQ: 6红, DLT: 5前]
-var HISTORICAL_SSQ_FRONTS = [];
-var HISTORICAL_DLT_FRONTS = [];
-
-// 从原始数据构建可比较的键值集合
-function buildHistoricalFrontSets() {
-  if (CACHED_SSQ) {
-    HISTORICAL_SSQ_FRONTS = CACHED_SSQ.map(function(d) { return d.reds.slice().sort(function(a,b){return a-b}).join(','); });
-  }
-  if (CACHED_DLT) {
-    HISTORICAL_DLT_FRONTS = CACHED_DLT.map(function(d) { return d.fronts.slice().sort(function(a,b){return a-b}).join(','); });
-  }
-  var txt = '已载入 SSQ ' + HISTORICAL_SSQ_FRONTS.length + '期 + DLT ' + HISTORICAL_DLT_FRONTS.length + '期历史数据';
-  var cntEl = document.getElementById('historical-count');
-  if (cntEl) cntEl.textContent = txt;
-  var cntDlt = document.getElementById('historical-count-dlt');
-  if (cntDlt) cntDlt.textContent = txt;
-}
-
-function loadLotteryData(type) {
-  return new Promise(function(resolve) {
-    if ((type === 'ssq' && CACHED_SSQ) || (type === 'dlt' && CACHED_DLT)) {
-      return resolve(type === 'ssq' ? CACHED_SSQ : CACHED_DLT);
-    }
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', 'data/' + type + '.json', true);
-    xhr.onload = function() {
-      if (xhr.status >= 200 && xhr.status < 400) {
-        var json = JSON.parse(xhr.responseText);
-        DATA_VERSION = json.updated_at;
-        if (type === 'ssq') { CACHED_SSQ = json.data; }
-        else { CACHED_DLT = json.data; }
-        buildHistoricalFrontSets();
-        resolve(type === 'ssq' ? CACHED_SSQ : CACHED_DLT);
-      } else { resolve(null); }
-    };
-    xhr.onerror = function() { resolve(null); };
-    xhr.send();
-  });
-}
-
-// 预加载历史数据
-function preloadHistoricalData() {
-  loadLotteryData('ssq');
-  loadLotteryData('dlt');
-}
-setTimeout(preloadHistoricalData, 500);
-
-// 全局：存储最近一次生成的推荐组合（供展开用）
-function expandCombos(isSSQ, suffix) {
-  var prefix = (isSSQ !== undefined ? (isSSQ ? 'ssq' : 'dlt') : '') + (suffix || '');
-  var list = document.getElementById(prefix + '-combo-list');
-  var btn = document.getElementById(prefix + '-combo-expand-btn');
-  if (!list || !btn) return;
-  // per-game + per-section storage
-  var key = prefix + '_combo_store';
-  var combos = window[key] || [];
-  if (combos.length === 0) { list.innerHTML = ''; btn.innerHTML = '无数据'; return; }
-  var isExpanded = btn.textContent.indexOf('收起') >= 0;
-  function comboHtml(c, i) {
-    return '<div class="combo-item">' +
-      '<span class="combo-label">#' + (i + 1) + (i === 0 ? ' ⭐推荐' : '') + '</span> ' +
-      '<span class="num">[' + c[0].join(', ') + ']</span> ' +
-      '<span class="sp">+</span> ' +
-      '<span class="lb">[' + c[1].join(', ') + ']</span></div>';
-  }
-  if (isExpanded) {
-    list.innerHTML = combos.slice(0, Math.min(5, combos.length)).map(comboHtml).join('');
-    btn.innerHTML = '📂 展开全部' + combos.length + '注';
-  } else {
-    list.innerHTML = combos.map(comboHtml).join('');
-    btn.innerHTML = '👆 收起全部' + combos.length + '注';
-  }
-}
-
-// ==================== COPY COMBOS ====================
-function copyCombos(prefix, isSSQ) {
-  var key = prefix + '_combo_store';
-  var combos = window[key] || [];
-  if (combos.length === 0) { alert('无组合可复制'); return; }
-  
-  var lines = [];
-  combos.forEach(function(c, i) {
-    var reds = c[0].map(function(n) { return ('0' + n).slice(-2); }).join(' ');
-    var blues = c[1].map(function(n) { return ('0' + n).slice(-2); }).join(' ');
-    lines.push('#' + (i + 1) + ': ' + reds + ' + ' + blues);
-    if ((i + 1) % 5 === 0 && i + 1 < combos.length) lines.push('');
-  });
-  
-  var text = lines.join('\n');
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text).then(function() {
-      alert('✅ 已复制 ' + combos.length + ' 注组合到剪贴板，每5注空一行');
-    }).catch(function() {
-      fallbackCopy(text);
-    });
-  } else {
-    fallbackCopy(text);
-  }
-}
-
-function fallbackCopy(text) {
-  var ta = document.createElement('textarea');
-  ta.value = text;
-  ta.style.position = 'fixed';
-  ta.style.left = '-9999px';
-  document.body.appendChild(ta);
-  ta.select();
-  try {
-    document.execCommand('copy');
-    alert('✅ 已复制 ' + (text.match(/^#/gm) || []).length + ' 注组合到剪贴板，每5注空一行');
-  } catch(e) {
-    alert('❌ 复制失败，请手动复制');
-  }
-  document.body.removeChild(ta);
-}
-
-// ==================== SETTINGS ====================
-var BLUE_SETTINGS = {
-  filterLonely: true, filterMid: true, filterJump: true,
-  filterAcKill: true,  // 淘汰极低AC值
-  filterConsecKill: true,  // 淘汰超长连号
-  consecMaxRun: 5,  // 最长连号上限
-  filterAllPrimeKill: true,  // 淘汰全质号组合（历史SSQ 0.03%/DLT 0.10%，安全）
-  filterHistoricalKill: true,  // 淘汰历史一等奖（默认开启）
-  filterPosKillSSQ: true,  // SSQ位置范围过滤
-  posKillSSQMax: 19,  // 老大最大值阈值
-  posKillSSQV2: true,  // 老二≥13
-  posKillSSQV3: true,  // 老三≥4
-  posKillSSQV4: true,  // 老四≥7
-  filterPosKillDLT: true,  // DLT位置范围过滤
-  posKillDLTMax: 16,  // 老大最大值阈值
-  posKillDLTV2: true,  // 老二≥10
-  posKillDLTV3: true,  // 老三≥6
-  cipherEnabled: true,  // 密码集萃引擎
-  acKillSSQ: 3,  // SSQ AC阈值
-  acKillDLT: 2,  // DLT AC阈值
-  cipherBlueSelf: true  // SSQ密码集萃含蓝球自加
-};
-
-function applySettings() {
-  BLUE_SETTINGS.filterLonely = document.getElementById('setting-lonely').checked;
-  BLUE_SETTINGS.filterMid = document.getElementById('setting-mid').checked;
-  BLUE_SETTINGS.filterJump = document.getElementById('setting-jump').checked;
-  BLUE_SETTINGS.filterAcKill = document.getElementById('setting-ac-kill').checked;
-  BLUE_SETTINGS.filterConsecKill = document.getElementById('setting-consec-kill').checked;
-  BLUE_SETTINGS.consecMaxRun = parseInt(document.getElementById('setting-consec-max').value) || 5;
-  BLUE_SETTINGS.filterAllPrimeKill = document.getElementById('setting-allprime-kill').checked;
-  BLUE_SETTINGS.filterHistoricalKill = document.getElementById('setting-historical-kill').checked;
-  BLUE_SETTINGS.filterPosKillSSQ = document.getElementById('setting-pkill-ssq').checked;
-  BLUE_SETTINGS.posKillSSQMax = parseInt(document.getElementById('setting-pkill-ssq-max').value) || 19;
-  BLUE_SETTINGS.posKillSSQV2 = document.getElementById('setting-pkill-ssq-v2').checked;
-  BLUE_SETTINGS.posKillSSQV3 = document.getElementById('setting-pkill-ssq-v3').checked;
-  BLUE_SETTINGS.posKillSSQV4 = document.getElementById('setting-pkill-ssq-v4').checked;
-  BLUE_SETTINGS.filterPosKillDLT = document.getElementById('setting-pkill-dlt').checked;
-  BLUE_SETTINGS.posKillDLTMax = parseInt(document.getElementById('setting-pkill-dlt-max').value) || 16;
-  BLUE_SETTINGS.posKillDLTV2 = document.getElementById('setting-pkill-dlt-v2').checked;
-  BLUE_SETTINGS.posKillDLTV3 = document.getElementById('setting-pkill-dlt-v3').checked;
-  BLUE_SETTINGS.cipherEnabled = document.getElementById('setting-cipher-enabled').checked;
-  BLUE_SETTINGS.acKillSSQ = parseInt(document.getElementById('setting-ac-kill-ssq').value) || 3;
-  BLUE_SETTINGS.acKillDLT = parseInt(document.getElementById('setting-ac-kill-dlt').value) || 2;
-  BLUE_SETTINGS.cipherBlueSelf = document.getElementById('setting-cipher-blue-self').checked;
-
-  // 持久化设置到localStorage
-  try { localStorage.setItem('proSettings', JSON.stringify(BLUE_SETTINGS)); } catch(e) {}
-
-  // Update cipher toggle indicator
-  var indicator = document.getElementById('cipher-toggle-indicator');
-  if (BLUE_SETTINGS.cipherEnabled) {
-    indicator.textContent = '已开启';
-    indicator.style.background = '#1a4a20';
-    indicator.style.color = '#27ae60';
-  } else {
-    indicator.textContent = '关闭';
-    indicator.style.background = '#3a3a4a';
-    indicator.style.color = '#666';
-  }
-
-  var btn = document.getElementById('save-settings');
-  btn.textContent = '✅ 已保存';
-  btn.style.background = '#1a3a20';
-  btn.style.color = '#27ae60';
-  setTimeout(function() {
-    btn.textContent = '设置';
-    btn.style.background = '#1a3050';
-    btn.style.color = '#3498db';
-  }, 1500);
-
-  // Update DLT position filter status
-  var maxminStatus = document.getElementById('maxmin-dlt-status');
-  if (maxminStatus) {
-    if (BLUE_SETTINGS.filterPosKillDLT) {
-      maxminStatus.textContent = '已开启(①≥' + BLUE_SETTINGS.posKillDLTMax + ' ②≥10 ③≥6)';
-      maxminStatus.style.color = '#27ae60';
-    } else {
-      maxminStatus.textContent = '关闭';
-      maxminStatus.style.color = '#5a7a9a';
-    }
-  }
-  updateCipherStatusDisplay();
-}
-
-// ==================== GEN COMBOS (确定性 + 全部展开) ====================
-// 质数判断（SSQ全质号过滤用）
-var PRIMES_SET = {2:1,3:1,5:1,7:1,11:1,13:1,17:1,19:1,23:1,29:1,31:1};
-function isAllPrime(nums) {
-  for (var i = 0; i < nums.length; i++) {
-    if (!PRIMES_SET[nums[i]]) return false;
-  }
-  return true;
-}
-
-// 生成所有Combo：前区×后区交叉，显示真实注数；上限5000注
-var _filteredHistoricalCount = 0;
-function genCombos(pool, pool2, size1, size2, isSSQ) {
-  if (pool.length < size1) return [];
-  _filteredHistoricalCount = 0;
-  var settings = (typeof BLUE_SETTINGS !== 'undefined') ? BLUE_SETTINGS : { filterAcKill:true, filterConsecKill:true, consecMaxRun:5, filterAllPrimeKill:false };
-  var acKill = isSSQ ? 3 : 2;
-  var histSet = isSSQ ? HISTORICAL_SSQ_FRONTS : HISTORICAL_DLT_FRONTS;
-
-  var MAX_COMBOS = 5000, combos = [];
-  var sorted = pool.slice().sort(function(a, b) { return a - b; });
-
-  // 生成全部后区组合C(pool2, size2)并排序（一次性）
-  function backCombosGen(arr, k) {
-    var result = [];
-    function dfs(start, depth, cur) {
-      if (depth === k) { result.push(cur.slice()); return; }
-      for (var i = start; i < arr.length; i++) {
-        cur.push(arr[i]);
-        dfs(i + 1, depth + 1, cur);
-        cur.pop();
-      }
-    }
-    dfs(0, 0, []);
-    return result;
-  }
-  var allBacks = backCombosGen(pool2, size2);
-
-  // 前区DFS：每个通过过滤的前区组合，立即乘以所有后区组合
-  function frontDFS(start, depth, cur) {
-    if (combos.length >= MAX_COMBOS) return;
-    if (depth === size1) {
-      var f = cur.slice();
-
-      // AC值过滤
-      if (settings.filterAcKill && acValue(f) <= acKill) return;
-
-      // 连号过滤
-      if (settings.filterConsecKill && getMaxConsecutiveRun(f) >= settings.consecMaxRun) return;
-
-      // 全质号过滤（仅SSQ）
-      if (isSSQ && settings.filterAllPrimeKill && isAllPrime(f)) return;
-
-      // 历史一等奖过滤
-      if (settings.filterHistoricalKill && histSet.length > 0) {
-        var key = f.join(',');
-        if (histSet.indexOf(key) >= 0) { _filteredHistoricalCount++; return; }
-      }
-
-      // 位置范围过滤
-      if (isSSQ) {
-        if (settings.filterPosKillSSQ) {
-          if (f[5] < settings.posKillSSQMax) return;
-          if (settings.posKillSSQV2 && f[4] < 13) return;
-          if (settings.posKillSSQV3 && f[3] < 4) return;
-          if (settings.posKillSSQV4 && f[2] < 7) return;
-        }
-      } else {
-        if (settings.filterPosKillDLT) {
-          if (f[4] < settings.posKillDLTMax) return;
-          if (settings.posKillDLTV2 && f[3] < 10) return;
-          if (settings.posKillDLTV3 && f[2] < 6) return;
-        }
-      }
-
-      // 通过过滤 → 乘以全部后区组合
-      for (var bj = 0; bj < allBacks.length; bj++) {
-        combos.push([f, allBacks[bj]]);
-        if (combos.length >= MAX_COMBOS) return;
-      }
-      return;
-    }
-    for (var i = start; i < sorted.length; i++) {
-      cur.push(sorted[i]);
-      frontDFS(i + 1, depth + 1, cur);
-      cur.pop();
-      if (combos.length >= MAX_COMBOS) return;
-    }
-  }
-
-  frontDFS(0, 0, []);
-  return combos;
-}
-
-// ==================== UI HELPERS ====================
-function renderPool(nums, maxVal, consensus, aOnly, bOnly) {
-  var cSet = {};
-  var aSet = {};
-  var bSet = {};
-  (consensus || []).forEach(function(n) { cSet[n] = true; });
-  (aOnly || []).forEach(function(n) { aSet[n] = true; });
-  (bOnly || []).forEach(function(n) { bSet[n] = true; });
-
-  var html = '';
-  for (var i = 1; i <= maxVal; i++) {
-    if (nums.indexOf(i) === -1) continue;
-    var cls = 'pool-num';
-    if (cSet[i]) cls += ' consensus';
-    else if (aSet[i]) cls += ' method-a';
-    else if (bSet[i]) cls += ' method-b';
-    html += '<div class="' + cls + '">' + i + '</div>';
-  }
-  return html;
-}
-
-function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
-  var inner = document.getElementById(innerId);
-  inner.classList.add('loading');
-
-  setTimeout(function() {
-    inner.classList.remove('loading');
-    var html = '';
-
-    if (!result.has_crash) {
-      // 兜底：密码集萃引擎开启时，降级生成组合（带全量过滤：历史杀号+AC+连号+全质号+天平杀红+蓝球）
-      if (BLUE_SETTINGS && BLUE_SETTINGS.cipherEnabled && result.front_cipher && result.front_cipher.length > 0) {
-        // 1) 展示密码池
-        html = '<div class="pool-section" style="border:1px solid #e67e22;background:linear-gradient(135deg,#1a2020,#1e2820)">' +
-          '<div class="engine-header"><span class="pool-title">🔐 密码集萃 · 兜底引擎 ⚡ A/B未触发</span>' +
-            '<span style="font-size:10px;padding:3px 8px;border-radius:12px;background:rgba(230,126,34,.2);color:#e67e22;border:1px solid #e67e22">兜底</span></div>' +
-          '<span class="pool-badge gold" style="margin-bottom:6px">' + result.front_cipher.length + '个(确定性衍生池,不受撞车影响)</span>' +
-          '<div class="pool-nums">' + result.front_cipher.map(function(cn) {
-            return '<div class="pool-num" style="background:#2a2020;border:1px solid #e67e22;color:#e6a040">' + cn + '</div>';
-          }).join('') + '</div>' +
-          '<div class="db-ref"><strong>📊 回测(' + (isSSQ ? 'SSQ 3471期):平均命中3.45/6球 | 脱靶率0.58% | 池均' + result.front_cipher.length + '码' : 'DLT 2891期):平均命中1.97/5球 | 脱靶率8.09% | 池均' + result.front_cipher.length + '码') + '</strong></div></div>';
-
-        // 2) 从密码池生成组合（应用所有过滤：历史杀号+AC+连号+全质号+天平支点）
-        var cipherMainPool = result.front_cipher.slice().sort(function(a,b){return a-b;});
-
-        // 天平支点杀红（仅双色球）
-        if (isSSQ && result.pivot_kill !== null) {
-          cipherMainPool = cipherMainPool.filter(function(n) { return n !== result.pivot_kill; });
-        }
-
-        // 后区/蓝球池
-        var cipherSecPool = isSSQ ? result.blue_preds
-          : (Array.from(new Set(result.back_consensus.concat(result.back_a).concat(result.back_b))).sort(function(a, b) { return a - b; }));
-        if (cipherSecPool.length === 0) cipherSecPool = isSSQ ? [1] : [1, 2];
-
-        // 生成全部组合 + 折叠显示
-        var cipherAllCombos = genCombos(cipherMainPool, cipherSecPool, isSSQ ? 6 : 5, isSSQ ? 1 : 2, isSSQ);
-        if (cipherAllCombos.length > 0) {
-          var prefix = (isSSQ ? 'ssq' : 'dlt') + '_cipher';
-          window[prefix + '_combo_store'] = cipherAllCombos;
-          var showCount = Math.min(5, cipherAllCombos.length);
-          var histFilterNote = '';
-          if (BLUE_SETTINGS.filterHistoricalKill && _filteredHistoricalCount > 0) {
-            histFilterNote = ' <span style="font-size:11px;color:#e67e22">（已排除' + _filteredHistoricalCount + '注历史一等奖）</span>';
-          }
-          var capNote = cipherAllCombos.length >= 5000 ? ' <span style="font-size:11px;color:#e67e22">（上限5000注）</span>' : '';
-          html += '<div class="combos"><h3>🎰 兜底参考组合（密码池，共' + cipherAllCombos.length + '注' + capNote + '）' + histFilterNote + '</h3><div id="' + prefix + '-combo-list">' +
-            cipherAllCombos.slice(0, showCount).map(function(c, i) {
-              return '<div class="combo-item">' +
-                '<span class="combo-label">#' + (i + 1) + (i === 0 ? ' ⭐推荐' : '') + '</span> ' +
-                '<span class="num">[' + c[0].join(', ') + ']</span> ' +
-                '<span class="sp">+</span> ' +
-                '<span class="lb">[' + c[1].join(', ') + ']</span>' +
-                '</div>';
-            }).join('') + '</div>';
-          if (cipherAllCombos.length > showCount) {
-            html += '<div id="' + prefix + '-combo-expand-btn" onclick="expandCombos(' + (isSSQ ? 'true' : 'false') + ',\'_cipher\')" style="text-align:center;padding:8px;margin-top:6px;background:#1a3050;border-radius:6px;color:#3498db;font-size:11px;cursor:pointer">📂 展开全部' + cipherAllCombos.length + '注</div>';
-          }
-          html += '<div onclick="copyCombos(\'' + prefix + '\',' + (isSSQ ? 'true' : 'false') + ')" style="text-align:center;padding:8px;margin-top:4px;background:#1a3a20;border-radius:6px;color:#27ae60;font-size:11px;cursor:pointer;border:1px solid #2a5a30">📋 复制全部' + cipherAllCombos.length + '注（每5注空行）</div>';
-          html += '</div>';
-        } else {
-          html += '<div style="text-align:center;padding:14px;color:#6a7a90">密码池过滤后无可用组合（所有组合被AC/连号/历史一等奖等规则过滤）</div>';
-        }
-      } else {
-        html = '<div class="no-crash"><div class="icon">🌙</div>' +
-          '<p><strong style="color:#f0c040;">本期无触发(无撞车)</strong><br>' +
-          '双引擎均无法计算,等待下一期<br>' +
-          '<span style="font-size:11px;color:#5a7a80;">撞车率 80-92%,下一期大概率恢复触发</span></p></div>';
-        // 提示用户可开启密码集萃兜底
-        html += '<div style="margin-top:12px;text-align:center;font-size:11px;color:#5a7a80">' +
-          '💡 高级设置中开启 <strong style="color:#e67e22">🔐 密码集萃引擎</strong> 可在无触发时自动兜底</div>';
-      }
-    } else {
-      // Historical reference
-      if (isSSQ) {
-        html += '<div class="historical-ref"><strong>📊 历史数据参考(双色球):</strong> 撞车率92.74% | 撞车后命中≥3红概率74.42% | ≥4红56.61% | ≥5红34.94% | 全中6红13.83% | 平均命中3.65/6</div>';
-      } else {
-        html += '<div class="historical-ref"><strong>📊 历史数据参考(大乐透):</strong> 撞车率85.15% | 撞车后命中≥3前区概率50.98% | ≥4前区28.98% | 全中5前区8.90% | 平均命中2.55/5</div>';
-      }
-
-      // Stats row - with enhanced consecutive + AC value
-      var ac = typeof result.ac_value !== 'undefined' ? result.ac_value : '-';
-      var cons = result.consecutive && result.consecutive.length > 0 ? result.consecutive.map(function(p) { return p[0] + '-' + p[1]; }) : [];
-      var consOdd = result.consec_odd && result.consec_odd.length > 0 ? result.consec_odd.map(function(p) { return p[0] + '-' + p[1]; }) : [];
-      var consEven = result.consec_even && result.consec_even.length > 0 ? result.consec_even.map(function(p) { return p[0] + '-' + p[1]; }) : [];
-      var acKill = isSSQ ? 3 : 2;
-
-      html += '<div class="stats-row">' +
-        '<div class="stat-item"><div class="stat-val">' + result.crash_pages + '/' + result.page_details.length + '</div><div class="stat-lbl">撞车页</div></div>' +
-        '<div class="stat-item"><div class="stat-val">' + (result.front_consensus_3 ? result.front_consensus_3.length : 0) + '</div><div class="stat-lbl" style="color:#ff6600">🔥三引擎共识</div></div>' +
-        '<div class="stat-item"><div class="stat-val">' + result.front_consensus.length + '</div><div class="stat-lbl">⭐共识</div></div>' +
-        '<div class="stat-item"><div class="stat-val">' + result.front_a.length + '</div><div class="stat-lbl">📘方法A</div></div>' +
-        '<div class="stat-item"><div class="stat-val">' + result.front_b.length + '</div><div class="stat-lbl">📗方法B</div></div>' +
-        '<div class="stat-item"><div class="stat-val">' + (result.front_cipher ? result.front_cipher.length : 0) + '</div><div class="stat-lbl">🔐密码</div></div>' +
-        '</div>' +
-        '<div class="stats-row">' +
-        '<div class="stat-item"><div class="stat-val">' + ac + '</div><div class="stat-lbl" ' + (ac <= acKill ? 'style="color:#e74c3c"' : '') + '>🧮 AC值' + (ac <= acKill ? ' ⚠️极低' : '') + '</div></div>' +
-        '<div class="stat-item"><div class="stat-val">' + (cons.length > 0 ? cons.length : 0) + '</div><div class="stat-lbl">🔗 连号数</div></div>' +
-        '<div class="stat-item"><div class="stat-val">' + (consOdd.length > 0 ? consOdd.length : 0) + '</div><div class="stat-lbl">🔷 奇连</div></div>' +
-        '<div class="stat-item"><div class="stat-val">' + (consEven.length > 0 ? consEven.length : 0) + '</div><div class="stat-lbl">🔶 偶连</div></div>' +
-        '</div>' +
-        '<div class="stats-row">' +
-        '<div class="stat-item"><div class="stat-val">' + (typeof result.consec_groups !== 'undefined' ? result.consec_groups : '-') + '</div><div class="stat-lbl">📑 连号组数</div></div>' +
-        '<div class="stat-item"><div class="stat-val">' + (typeof result.consec_max_run !== 'undefined' ? result.consec_max_run : '-') + '</div><div class="stat-lbl" ' + ((typeof result.consec_max_run !== 'undefined' && result.consec_max_run >= 5) ? 'style="color:#e74c3c"' : '') + '>📏 最长连号</div></div>' +
-        '<div class="stat-item" style="flex:2"><div class="stat-val" style="font-size:12px;word-break:break-all">' + (cons.length > 0 ? cons.join(', ') : (consOdd.length > 0 || consEven.length > 0 ? '' : '无')) + ' ' +
-          (consOdd.length > 0 ? '<span style="color:#5aa0d0">奇:' + consOdd.join(',') + '</span>' : '') + ' ' +
-          (consEven.length > 0 ? '<span style="color:#e0a040">偶:' + consEven.join(',') + '</span>' : '') +
-        '</div><div class="stat-lbl">📊 连号详情(普·奇·偶)</div></div>' +
-        '</div>';
-
-      // Crash details
-      var crashPages = result.page_details.filter(function(p) { return p.crash; });
-      html += '<div class="crash-info"><div class="title">🔥 撞车详情(' + crashPages.length + '页触发)</div>' +
-        crashPages.map(function(p) { return '<div class="crash-page">▸ ' + p.name + '(÷' + p.divisor + ') ' + p.info + '</div>'; }).join('') +
-        '</div>';
-
-      // CONSENSUS
-      if (result.front_consensus.length > 0) {
-        html += '<div class="consensus-box">' +
-          '<h3>⭐ 双引擎共识号码 · 高置信度(' + result.front_consensus.length + '个)</h3>' +
-          '<div class="pool-nums">' + renderPool(result.front_consensus, frontMax, result.front_consensus, [], []) + '</div>' +
-          '<div class="db-ref"><strong>💡 说明:</strong>共识号码 = 方法A+方法B同时预测 → 两个不同引擎独立验证一致 → 置信度最高</div></div>';
-      } else {
-        html += '<div class="pool-section" style="text-align:center;color:#6a7a90;padding:14px">⚠️ 两种方法本次没有共识号码,请结合各自池综合判断</div>';
-      }
-
-      // TRI-ENGINE CONSENSUS (A ∩ B ∩ 密码集萃)
-      if (BLUE_SETTINGS && BLUE_SETTINGS.cipherEnabled && result.front_consensus_3 && result.front_consensus_3.length > 0) {
-        html += '<div class="consensus-3-box">' +
-          '<h3>🔥 三引擎共识号码 · 最高置信度(' + result.front_consensus_3.length + '个)</h3>' +
-          '<div class="pool-nums">' + result.front_consensus_3.map(function(n) {
-            return '<div class="pool-num" style="background:#2a2010;border:3px solid #ff6600;color:#ffa040;font-size:14px;font-weight:bold;box-shadow:0 0 15px rgba(255,102,0,.4)">'+n+'</div>';
-          }).join('') + '</div>' +
-          '<div class="db-ref"><strong>🔥 三引擎验证:</strong>方法A + 方法B + 密码集萃 三个独立算法同时命中 → 置信度最高级别,建议优先参考</div></div>';
-      }
-
-      // Method A
-      if (result.front_a.length > 0) {
-        html += '<div class="pool-section">' +
-          '<div class="engine-header"><span class="pool-title">📘 方法A(书上11规则引擎)</span><span class="engine-tag book">书上方法</span></div>' +
-          '<span class="pool-badge blue" style="margin-bottom:6px">' + result.front_a.length + '个</span>' +
-          '<div class="pool-nums">' + renderPool(result.front_a, frontMax, result.front_consensus, result.a_only.filter(function(x) { return result.front_consensus.indexOf(x) === -1; }), []) + '</div>';
-        if (result.a_only.length > 0 && result.a_only.length <= 12) {
-          var ruleInfo = result.a_only.map(function(n) {
-            var rs = result.all_rules[n];
-            return rs ? n + '<span class="rule-tag">' + rs[0] + '</span>' : '' + n;
-          }).join(' ');
-          html += '<div class="db-ref">🔍 方法A独有号码来源:' + ruleInfo + '</div>';
-        }
-        html += '</div>';
-      }
-
-      // Method B
-      if (result.front_b.length > 0) {
-        html += '<div class="pool-section">' +
-          '<div class="engine-header"><span class="pool-title">📗 方法B(Q-R算术引擎)</span><span class="engine-tag qr">Q-R引擎</span></div>' +
-          '<span class="pool-badge" style="margin-bottom:6px">' + result.front_b.length + '个</span>' +
-          '<div class="pool-nums">' + renderPool(result.front_b, frontMax, result.front_consensus, [], result.b_only.filter(function(x) { return result.front_consensus.indexOf(x) === -1; })) + '</div>' +
-          '</div>';
-      }
-
-      // Cipher engine section
-      // 密码集萃引擎（仅在启用时显示）
-      
-      // Legend
-      html += '<div style="font-size:10px;color:#6a7a90;margin:4px 0 8px;display:flex;gap:14px;flex-wrap:wrap">' +
-        '<span>⭐发光=共识号码</span><span style="color:#3498db">●蓝圈=仅方法A</span><span style="color:#27ae60">●绿圈=仅方法B</span></div>';
-
-      // 密码集萃引擎显示
-      if (BLUE_SETTINGS.cipherEnabled && result.front_cipher && result.front_cipher.length > 0) {
-        html += '<div class="pool-section" style="border:1px solid #e67e22;background:linear-gradient(135deg,#1a2020,#1e2820)">' +
-          '<div class="engine-header"><span class="pool-title">🔐 密码集萃引擎</span>' +
-            '<span style="font-size:10px;padding:3px 8px;border-radius:12px;background:rgba(230,126,34,.2);color:#e67e22;border:1px solid #e67e22">确定性运算</span></div>' +
-          '<span class="pool-badge gold" style="margin-bottom:6px">' + result.front_cipher.length + '个(和+差+蓝球自加/原号)</span>' +
-          '<div class="pool-nums">';
-        // Render cipher numbers with orange style
-        for (var ci = 0; ci < result.front_cipher.length; ci++) {
-          var cn = result.front_cipher[ci];
-          // If also in consensus, highlight
-          var cls = 'pool-num';
-          if (result.front_consensus.indexOf(cn) !== -1) {
-            cls += ' consensus';
-          } else {
-            cls += '';
-            html += '<div class="pool-num" style="background:#2a2020;border:1px solid #e67e22;color:#e6a040">' + cn + '</div>';
-            continue;
-          }
-          html += '<div class="' + cls + '">' + cn + '</div>';
-        }
-        html += '</div>' +
-          '<div class="db-ref"><strong>📊 回测(3471期):</strong>平均命中3.45/6球 | 脱靶率0.58% | 命中≥3球78.2% | ≥4球49.5% | 全中6球3.92% | 池均18.8码</div></div>';
-      }
-
-      // 天平支点杀红（仅双色球）
-      if (isSSQ && result.pivot_kill !== null) {
-        html += '<div class="pool-section" style="border-left:3px solid #e74c3c">' +
-          '<div class="pool-title">⚖️ 天平支点杀红 <span style="font-size:11px;color:#e74c3c">（双色球专属）</span></div>' +
-          '<div style="display:flex;align-items:center;gap:8px">' +
-            '<span style="font-size:12px;color:#8899b0">上期蓝球 = </span>' +
-            '<span style="font-size:18px;color:#e74c3c;font-weight:bold;background:rgba(231,76,60,.1);padding:4px 12px;border-radius:6px">' + result.pivot_kill + '</span>' +
-            '<span style="font-size:12px;color:#8899b0">→ 下期红球大概率不出现</span>' +
-          '</div>' +
-          '<div class="db-ref"><strong>📊 回测：</strong>3469期支点未出现82.3% | 安总统计2014069~2026072共603期80.9%</div>' +
-          '</div>';
-      }
-
-      // Back zone / Blue
-      if (!isSSQ) {
-        var backPool = Array.from(new Set(result.back_a.concat(result.back_b))).sort(function(a, b) { return a - b; });
-        if (backPool.length > 0) {
-          html += '<div class="pool-section">' +
-            '<div class="pool-title">🎱 后区参考池 <span class="pool-badge gold">' + backPool.length + '个</span></div>' +
-            '<div class="pool-nums">' + renderPool(backPool, backMax, result.back_consensus, [], []) + '</div>' +
-            (result.back_consensus.length > 0 ? '<div class="db-ref">⭐ 后区共识:' + result.back_consensus.join(', ') + '</div>' : '') +
-            '</div>';
-        }
-      } else if (result.blue_preds.length > 0) {
-        // Blue ball section with filter
-        if (result.blue_filter && result.blue_filter.has_filter) {
-          var bf = result.blue_filter;
-          var filtered = bf.filtered;
-          var all = bf.all;
-          
-          // Show filtered first (孤中跳冷)
-          if (filtered.length > 0) {
-            html += '<div class="pool-section" style="border:1px solid #f0c040">' +
-              '<div class="pool-title">🔵 蓝球推荐 <span class="pool-badge gold">' + filtered.length + '个（孤+中+跳）</span></div>' +
-              '<div class="pool-nums">' + renderPool(filtered, 16, [], [], []) + '</div>' +
-              '<div class="db-ref"><strong>过滤规则：</strong>孤码(非传非邻) + 中码(非复非隔) + 跳码(非重非斜)</div></div>';
-          } else {
-            html += '<div class="pool-section" style="border:1px solid #e74c3c50">' +
-              '<div class="pool-title">🔵 蓝球 <span style="color:#e74c3c;font-size:11px">无满足三重过滤的号码</span></div>' +
-              '<div class="db-ref">方法B预测的蓝球全部被过滤排除，请参考下方完整池手动选择</div></div>';
-          }
-          
-          // Show excluded numbers
-          var excluded = all.filter(function(b) { return filtered.indexOf(b) === -1; });
-          if (excluded.length > 0) {
-            var summary = bf.classified.filter(function(c) { return excluded.indexOf(c.num) !== -1; });
-            var excludeReasons = summary.map(function(c) {
-              var reasons = [];
-              var cl = c.cls;
-              if (cl.lgc !== '孤') reasons.push(cl.lgc);
-              if (cl.fgz !== '中') reasons.push(cl.fgz);
-              if (cl.zxt !== '跳') reasons.push(cl.zxt);
-              return '<span title="被排除原因: ' + reasons.join(' ') + '" style="color:#e74c3c40;text-decoration:line-through;cursor:help">' + c.num + '</span>';
-            }).join(' ');
-            html += '<div style="font-size:10px;color:#6a7a90;margin:4px 0 8px">⬛ 已排除：' + excludeReasons + '</div>';
-          }
-          
-          // Also show all B engine blues
-          html += '<div class="pool-section">' +
-            '<div class="pool-title">🔵 方法B全量蓝球池 <span class="pool-badge blue">' + all.length + '个</span></div>' +
-            '<div class="pool-nums">' + renderPool(all, 16, filtered, [], []) + '</div>' +
-            '<div class="db-ref">⭐ = 通过孤+中+跳过滤 | 其余 = 被过滤排除</div></div>';
-        } else {
-          html += '<div class="pool-section">' +
-            '<div class="pool-title">🔵 蓝球参考（方法B引擎） <span class="pool-badge blue">' + result.blue_preds.length + '个</span></div>' +
-            '<div class="pool-nums">' + renderPool(result.blue_preds, 16, [], [], []) + '</div>' +
-            '<div class="db-ref">💡 展开上方蓝球过滤设置，输入上上期蓝号可启用三重过滤</div></div>';
-        }
-      }
-
-      // Combos
-      // 优先级: 三引擎共识 > 双引擎共识 > 全量池
-      var mainPool;
-      if (BLUE_SETTINGS && BLUE_SETTINGS.cipherEnabled && result.front_consensus_3 && result.front_consensus_3.length >= (isSSQ ? 4 : 3)) {
-        mainPool = result.front_consensus_3;
-      } else if (result.front_consensus.length >= (isSSQ ? 6 : 5)) {
-        mainPool = result.front_consensus;
-      } else {
-        mainPool = Array.from(new Set(result.front_consensus.concat(result.front_a).concat(result.front_b))).sort(function(a, b) { return a - b; });
-      }
-
-      // 天平支点杀红：从推荐池中排除
-      if (isSSQ && result.pivot_kill !== null) {
-        mainPool = mainPool.filter(function(n) { return n !== result.pivot_kill; });
-      }
-
-      // 偏态参考信息 (仅在大乐透显示，基于1850维遗漏分析)
-      if (!isSSQ && mainPool.length > 0) {
-        var biasWarns = getBiasWarnings(mainPool, 'dlt');
-        if (biasWarns.length > 0) {
-          html += '<div class="crash-info" style="border-left:3px solid #e67e22">' +
-            '<div class="pool-title">⚠️ 偏态参考 <span style="font-size:11px;color:#8899b0">（1850维遗漏分析，历史概率<0.5%）</span></div>' +
-            '<div class="pool-nums">' +
-            biasWarns.map(function(w) {
-              return '<div class="pool-num" style="background:#2a1520;border:1px solid #e67e22;color:#e67e22" title="历史极低概率' + w.prob + '%">' + w.num + '</div>';
-            }).join('') +
-            '</div>' +
-            '<div class="db-ref"><strong>📌 说明:</strong> 以下号码在1850维遗漏分析中出现概率<0.5%，属于极端低概率事件。<br>' +
-            '此数据为快照，当前遗漏已变化，<strong>仅供决策参考，不作硬杀号</strong>。可手动排除。</div></div>';
-        }
-      }
-
-      var secPool = isSSQ ? result.blue_preds
-        : (Array.from(new Set(result.back_consensus.concat(result.back_a).concat(result.back_b))).sort(function(a, b) { return a - b; }));
-
-      if (secPool.length === 0) secPool = isSSQ ? [1] : [1, 2];
-
-      // 生成全部组合 + 折叠显示
-      var allCombos = genCombos(mainPool, secPool, isSSQ ? 6 : 5, isSSQ ? 1 : 2, isSSQ);
-      if (allCombos.length > 0) {
-        var prefix = isSSQ ? 'ssq' : 'dlt';
-        window[prefix + '_combo_store'] = allCombos;
-        var showCount = Math.min(5, allCombos.length);
-        var histFilterNote = '';
-        if (BLUE_SETTINGS.filterHistoricalKill && _filteredHistoricalCount > 0) {
-          histFilterNote = ' <span style="font-size:11px;color:#e67e22">（已排除' + _filteredHistoricalCount + '注历史一等奖）</span>';
-        }
-        var capNote = (allCombos.length >= 5000) ? ' <span style="font-size:11px;color:#e67e22">（上限5000注）</span>' : '';
-        html += '<div class="combos"><h3>🎰 参考组合（共识优先，共' + allCombos.length + '注' + capNote + '）' + histFilterNote + '</h3><div id="' + prefix + '-combo-list">' +
-          allCombos.slice(0, showCount).map(function(c, i) {
-            return '<div class="combo-item">' +
-              '<span class="combo-label">#' + (i + 1) + (i === 0 ? ' ⭐推荐' : '') + '</span> ' +
-              '<span class="num">[' + c[0].join(', ') + ']</span> ' +
-              '<span class="sp">+</span> ' +
-              '<span class="lb">[' + c[1].join(', ') + ']</span>' +
-              '</div>';
-          }).join('') + '</div>';
-        if (allCombos.length > showCount) {
-          html += '<div id="' + prefix + '-combo-expand-btn" onclick="expandCombos(' + (isSSQ ? 'true' : 'false') + ',\'\')" style="text-align:center;padding:8px;margin-top:6px;background:#1a3050;border-radius:6px;color:#3498db;font-size:11px;cursor:pointer">📂 展开全部' + allCombos.length + '注</div>';
-        }
-        html += '<div onclick="copyCombos(\'' + prefix + '\',' + (isSSQ ? 'true' : 'false') + ')" style="text-align:center;padding:8px;margin-top:4px;background:#1a3a20;border-radius:6px;color:#27ae60;font-size:11px;cursor:pointer;border:1px solid #2a5a30">📋 复制全部' + allCombos.length + '注（每5注空行）</div>';
-        html += '</div>';
-      }
-    }
-
-    inner.innerHTML = html;
-    document.getElementById(containerId).classList.add('show');
-  }, 150);
-}
-
-// ==================== PREDICT FUNCTIONS ====================
-function getInputs(cls, max, min) {
-  var vals = [];
-  document.querySelectorAll('.' + cls).forEach(function(inp) {
-    var v = parseInt(inp.value);
-    if (isNaN(v) || v < min || v > max) {
-      inp.classList.add('error');
-      setTimeout(function() { inp.classList.remove('error'); }, 1000);
-      vals.push(null);
-      return;
-    }
-    vals.push(v);
-  });
-  if (vals.length === 0) return null;
-  var filtered = vals.filter(function(v) { return v !== null; });
-  if (filtered.length !== vals.length) return null;
-  var uniq = {};
-  for (var i = 0; i < filtered.length; i++) {
-    if (uniq[filtered[i]]) return null;
-    uniq[filtered[i]] = true;
-  }
-  return filtered;
-}
-
-function predictDLT() {
-  var front = getInputs('dlt-f', 35, 1);
-  var back = getInputs('dlt-b', 12, 1);
-  if (!front || !back || front.length !== 5 || back.length !== 2) {
-    alert('请正确输入5个前区(1-35)和2个后区(1-12)，号码不能重复');
-    return;
-  }
-  var result = predict(front, back, false, null);
-  renderResult('dlt-result', 'dlt-result-inner', result, 35, 12, false);
-}
-
-function predictSSQ() {
-  var front = getInputs('ssq-f', 33, 1);
-  var blueInp = document.getElementById('ssq-blue');
-  var blue = parseInt(blueInp.value);
-  if (!front || front.length !== 6 || isNaN(blue) || blue < 1 || blue > 16) {
-    if (isNaN(blue) || blue < 1 || blue > 16) {
-      blueInp.classList.add('error');
-      setTimeout(function() { blueInp.classList.remove('error'); }, 1000);
-    }
-    alert('请正确输入6个红球(1-33)和1个蓝球(1-16),红球不能重复');
-    return;
-  }
-
-  // Blue filter params
-  var bluePrev2Inp = document.getElementById('ssq-blue-prev2');
-  var bluePrev2 = null;
-  var pv2 = parseInt(bluePrev2Inp.value);
-  if (!isNaN(pv2) && pv2 >= 1 && pv2 <= 16) bluePrev2 = pv2;
-
-  var result = predict(front, [blue], true, bluePrev2);
-  renderResult('ssq-result', 'ssq-result-inner', result, 33, 16, true);
-}
-
-// ==================== AUTO PREDICT (从数据源自动获取最新期号) ====================
-function getLastPeriodNumbers(type) {
-  return loadLotteryData(type).then(function(data) {
-    if (!data || data.length === 0) return null;
-    var last = data[data.length - 1];
-    return last;
-  });
-}
-
-function autoPredictDLT() {
-  var btn = document.getElementById('dlt-auto-btn');
-  btn.textContent = '⏳ 加载中...';
-  btn.disabled = true;
-
-  getLastPeriodNumbers('dlt').then(function(last) {
-    if (!last) {
-      alert('数据文件不存在或为空。请确认 data/dlt.json 已部署。');
-      btn.textContent = '🤖 自动获取最新期号并分析';
-      btn.disabled = false;
-      return;
-    }
-
-    // Fill front area inputs
-    var fInputs = document.querySelectorAll('#dlt-front input');
-    for (var i = 0; i < fInputs.length; i++) {
-      fInputs[i].value = last.fronts[i];
-    }
-
-    // Fill back area inputs
-    var bInputs = document.querySelectorAll('#dlt-back input');
-    for (var i = 0; i < bInputs.length; i++) {
-      bInputs[i].value = last.backs[i];
-    }
-    saveInputs();
-
-    btn.textContent = '✅ ' + last.period + '期(' + last.date + ') 已加载,分析中...';
-
-    // Auto trigger prediction
-    setTimeout(function() {
-      predictDLT();
-      btn.textContent = '🤖 自动获取最新期号并分析';
-      btn.disabled = false;
-    }, 200);
-  }).catch(function() {
-    alert('数据加载失败');
-    btn.textContent = '🤖 自动获取最新期号并分析';
-    btn.disabled = false;
-  });
-}
-
-function autoPredictSSQ() {
-  var btn = document.getElementById('ssq-auto-btn');
-  btn.textContent = '⏳ 加载中...';
-  btn.disabled = true;
-
-  getLastPeriodNumbers('ssq').then(function(last) {
-    if (!last) {
-      alert('数据文件不存在或为空。请确认 data/ssq.json 已部署。');
-      btn.textContent = '🤖 自动获取最新期号并分析';
-      btn.disabled = false;
-      return;
-    }
-
-    // Fill reds
-    var fInputs = document.querySelectorAll('#ssq-front input');
-    for (var i = 0; i < fInputs.length; i++) {
-      fInputs[i].value = last.reds[i];
-    }
-
-    // Fill blue
-    document.getElementById('ssq-blue').value = last.blue;
-    saveInputs();
-
-    btn.textContent = '✅ ' + last.period + '期(' + last.date + ') 已加载...';
-
-    // Auto trigger prediction after a short delay for blue history to load
-    setTimeout(function() {
-      predictSSQ();
-      btn.textContent = '🤖 自动获取最新期号并分析';
-      btn.disabled = false;
-    }, 300);
-  }).catch(function() {
-    alert('数据加载失败');
-    btn.textContent = '🤖 自动获取最新期号并分析';
-    btn.disabled = false;
-  });
-}
-
-function updateCipherStatusDisplay() {
-  var enabled = document.getElementById('setting-cipher-enabled').checked;
-  var indicators = document.querySelectorAll('[id^="cipher-toggle-indicator"]');
-  indicators.forEach(function(el) {
-    if (enabled) {
-      el.textContent = '已开启';
-      el.style.background = '#1a4a20';
-      el.style.color = '#27ae60';
-    } else {
-      el.textContent = '关闭';
-      el.style.background = '#3a3a4a';
-      el.style.color = '#666';
-    }
-  });
-  var dltStatus = document.getElementById('cipher-dlt-status');
-  if (dltStatus) {
-    dltStatus.textContent = enabled ? '✅ 已开启' : '关闭';
-    dltStatus.style.background = enabled ? '#1a4a20' : '#3a3a4a';
-    dltStatus.style.color = enabled ? '#27ae60' : '#666';
-  }
-}
-
-function switchGame(game) {
-  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
-  document.querySelectorAll('.card').forEach(function(c) { c.classList.remove('active'); });
-  if (game === 'dlt') {
-    document.querySelectorAll('.tab-btn')[0].classList.add('active');
-    document.getElementById('card-dlt').classList.add('active');
-  } else {
-    document.querySelectorAll('.tab-btn')[1].classList.add('active');
-    document.getElementById('card-ssq').classList.add('active');
-  }
-}
-
-// Auto input box switching
-document.querySelectorAll('input[type="tel"]').forEach(function(inp) {
-  inp.addEventListener('input', function() {
-    if (this.value.length >= this.maxLength) {
-      var parent = this.parentElement;
-      var inputs = parent.querySelectorAll('input');
-      var idx = Array.from(inputs).indexOf(this);
-      if (idx < inputs.length - 1) inputs[idx + 1].focus();
-    }
-    this.classList.remove('error');
-  });
-  inp.addEventListener('keydown', function(e) {
-    if (e.key === 'Backspace' && this.value.length === 0) {
-      var parent = this.parentElement;
-      var inputs = parent.querySelectorAll('input');
-      var idx = Array.from(inputs).indexOf(this);
-      if (idx > 0) inputs[idx - 1].focus();
-    }
-  });
-});
-
-// ==================== BIAS REFERENCE DATA (快照数据，基于1850维度分析) ====================
-// 来源：dlt_rules.txt | 概率<0.5%的号码极端偏态
-// 注：此数据为2024005期的快照，当前遗漏已变化，仅作参考，不作硬杀号
-var BIAS_WARNINGS = {
-  "dlt": {
-    "03": 0.157, "04": 0.274, "08": 0.039, "10": 0.039, "11": 0.039,
-    "12": 0.039, "13": 0.039, "14": 0.039, "15": 0.392, "16": 0.353,
-    "20": 0.470, "21": 0.196, "22": 0.274, "23": 0.118, "24": 0.078,
-    "25": 0.039, "26": 0.039, "27": 0.039, "28": 0.039, "29": 0.039,
-    "30": 0.039, "31": 0.078, "32": 0.039, "33": 0.274
-  },
-  "ssq": {}
-};
-
-// 检查号码池中是否有偏态警告
-function getBiasWarnings(pool, gameType) {
-  var ref = BIAS_WARNINGS[gameType] || {};
-  var warns = [];
-  for (var i = 0; i < pool.length; i++) {
-    var key = (pool[i] < 10 ? '0' : '') + pool[i];
-    if (ref[key] !== undefined) {
-      warns.push({ num: pool[i], prob: ref[key] });
-    }
-  }
-  warns.sort(function(a, b) { return a.prob - b.prob; });
-  return warns;
-}
-
-// ==================== SETTINGS PERSISTENCE ====================
-// 从localStorage恢复设置
-function restoreSettings() {
-  try {
-    var saved = localStorage.getItem('proSettings');
-    if (saved) {
-      var parsed = JSON.parse(saved);
-      Object.keys(parsed).forEach(function(k) {
-        if (k in BLUE_SETTINGS) BLUE_SETTINGS[k] = parsed[k];
-      });
-    }
-  } catch(e) {}
-
-  // 应用恢复的值到UI控件
-  var map = {
-    'setting-lonely': 'filterLonely',
-    'setting-mid': 'filterMid',
-    'setting-jump': 'filterJump',
-    'setting-ac-kill': 'filterAcKill',
-    'setting-consec-kill': 'filterConsecKill',
-    'setting-allprime-kill': 'filterAllPrimeKill',
-    'setting-historical-kill': 'filterHistoricalKill',
-    'setting-pkill-ssq': 'filterPosKillSSQ',
-    'setting-pkill-ssq-v2': 'posKillSSQV2',
-    'setting-pkill-ssq-v3': 'posKillSSQV3',
-    'setting-pkill-ssq-v4': 'posKillSSQV4',
-    'setting-pkill-dlt': 'filterPosKillDLT',
-    'setting-pkill-dlt-v2': 'posKillDLTV2',
-    'setting-pkill-dlt-v3': 'posKillDLTV3',
-    'setting-cipher-enabled': 'cipherEnabled',
-    'setting-cipher-blue-self': 'cipherBlueSelf'
-  };
-  Object.keys(map).forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) el.checked = BLUE_SETTINGS[map[id]] !== false;
-  });
-
-  // 滑动条值
-  var rangeMap = {
-    'setting-consec-max': 'consecMaxRun',
-    'setting-pkill-ssq-max': 'posKillSSQMax',
-    'setting-pkill-dlt-max': 'posKillDLTMax',
-    'setting-ac-kill-ssq': 'acKillSSQ',
-    'setting-ac-kill-dlt': 'acKillDLT'
-  };
-  Object.keys(rangeMap).forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) el.value = BLUE_SETTINGS[rangeMap[id]] || el.value;
-  });
-
-  // 更新滑动条相邻标签
-  var labelMap = {
-    'consec-max-val': 'setting-consec-max',
-    'pk_ssq_max_label': 'setting-pkill-ssq-max',
-    'pk_dlt_max_label': 'setting-pkill-dlt-max',
-    'ac_ssq_lbl': 'setting-ac-kill-ssq',
-    'ac_dlt_lbl': 'setting-ac-kill-dlt'
-  };
-  Object.keys(labelMap).forEach(function(lblId) {
-    var el = document.getElementById(lblId);
-    var src = document.getElementById(labelMap[lblId]);
-    if (el && src) el.textContent = src.value;
-  });
-
-  updateCipherStatusDisplay();
-}
-
-// 自动保存输入的号码
-function saveInputs() {
-  try {
-    var data = {};
-    // DLT front
-    var dltFS = [], dltBS = [];
-    document.querySelectorAll('.dlt-f').forEach(function(inp) { if (inp.value) dltFS.push(inp.value); });
-    document.querySelectorAll('.dlt-b').forEach(function(inp) { if (inp.value) dltBS.push(inp.value); });
-    if (dltFS.length === 5) data.dltFront = dltFS.join(',');
-    if (dltBS.length === 2) data.dltBack = dltBS.join(',');
-    // SSQ front
-    var ssqFS = [];
-    document.querySelectorAll('.ssq-f').forEach(function(inp) { if (inp.value) ssqFS.push(inp.value); });
-    if (ssqFS.length === 6) data.ssqFront = ssqFS.join(',');
-    var blue = document.getElementById('ssq-blue');
-    if (blue && blue.value) data.ssqBlue = blue.value;
-    var prev2 = document.getElementById('ssq-blue-prev2');
-    if (prev2 && prev2.value) data.ssqPrev2 = prev2.value;
-    localStorage.setItem('proInputs', JSON.stringify(data));
-  } catch(e) {}
-}
-
-// 恢复输入的号码
-function restoreInputs() {
-  try {
-    var raw = localStorage.getItem('proInputs');
-    if (!raw) return;
-    var data = JSON.parse(raw);
-    if (data.dltFront) {
-      var vals = data.dltFront.split(',', 5);
-      var inputs = document.querySelectorAll('.dlt-f');
-      for (var i = 0; i < Math.min(vals.length, inputs.length); i++) inputs[i].value = vals[i];
-    }
-    if (data.dltBack) {
-      var vals = data.dltBack.split(',', 2);
-      var inputs = document.querySelectorAll('.dlt-b');
-      for (var i = 0; i < Math.min(vals.length, inputs.length); i++) inputs[i].value = vals[i];
-    }
-    if (data.ssqFront) {
-      var vals = data.ssqFront.split(',', 6);
-      var inputs = document.querySelectorAll('.ssq-f');
-      for (var i = 0; i < Math.min(vals.length, inputs.length); i++) inputs[i].value = vals[i];
-    }
-    if (data.ssqBlue) document.getElementById('ssq-blue').value = data.ssqBlue;
-    if (data.ssqPrev2) document.getElementById('ssq-blue-prev2').value = data.ssqPrev2;
-  } catch(e) {}
-}
-
-// 监听输入变化自动保存
-setTimeout(function() {
-  document.querySelectorAll('.dlt-f, .dlt-b, .ssq-f, #ssq-blue, #ssq-blue-prev2').forEach(function(el) {
-    el.addEventListener('input', saveInputs);
-  });
-}, 200);
-
-// 初始化
-setTimeout(function() {
-  restoreSettings();
-  restoreInputs();
-  updateCipherStatusDisplay();
-}, 100);
+document.querySelectorAll('input[type="tel"]').forEach(function(inp){
+  inp.addEventListener('input',function(){if(this.value.length>=this.maxLength){var p=this.parentElement,ia=p.querySelectorAll('input');var idx=Array.from(ia).indexOf(this);if(idx<ia.length-1) ia[idx+1].focus()}this.classList.remove('error')})
+  inp.addEventListener('keydown',function(e){if(e.key==='Backspace'&&this.value.length==0){var p=this.parentElement,ia=p.querySelectorAll('input');var idx=Array.from(ia).indexOf(this);if(idx>0) ia[idx-1].focus()}})
+})
+// Inline event binding fallback for save buttons
+(function(){
+  var dltBtn=document.getElementById("dsf");
+  dltBtn.onclick=function(){sd()};
+  var ssqBtn=document.getElementById("ssf");
+  ssqBtn.onclick=function(){ss()};
+  console.log("[INIT] Save buttons bound");
+})()
+ld();syD();syS()
 </script>
 </body>
 </html>
