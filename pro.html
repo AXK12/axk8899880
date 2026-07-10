@@ -100,7 +100,10 @@ label:first-child{margin-top:0}
   <div class="input-row" id="dlt-fr"><input type="tel" maxlength="2" class="dlt-f"><input type="tel" maxlength="2" class="dlt-f"><input type="tel" maxlength="2" class="dlt-f"><input type="tel" maxlength="2" class="dlt-f"><input type="tel" maxlength="2" class="dlt-f"></div>
   <label>后区（2个,1~12）</label>
   <div class="input-row"><input type="tel" maxlength="2" class="dlt-b"><input type="tel" maxlength="2" class="dlt-b"></div>
-  <button class="btn" onclick="goDLT()">&#x26A1; 三引擎预测（大乐透）</button>
+  <div style="display:flex;gap:8px">
+    <button class="btn" style="flex:1;margin:0" onclick="goDLT()">&#x26A1; 三引擎预测</button>
+    <button id="dlt-auto-btn" class="btn" style="flex:1;margin:0;background:#1a3050;color:#3498db;font-size:12px" onclick="autoPredictDLT()">&#x1F916; 自动获取最新期号</button>
+  </div>
   <details style="margin-top:10px;cursor:pointer"><summary style="font-size:11px;padding:6px 0;color:#e67e22">&#x1F3AD; 大乐透高级设置</summary>
   <div style="background:#0e1525;border-radius:8px;padding:12px;margin-top:6px">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:12px;color:#8899b0">&#x1F52E; 密码集萃（大乐透）</span><span id="d-cb" class="cipher-toggle" onclick="tcD()" style="background:#1a4a20;color:#27ae60">已开启</span></div>
@@ -122,7 +125,10 @@ label:first-child{margin-top:0}
   <div class="input-row" id="ssq-fr"><input type="tel" maxlength="2" class="ssq-f"><input type="tel" maxlength="2" class="ssq-f"><input type="tel" maxlength="2" class="ssq-f"><input type="tel" maxlength="2" class="ssq-f"><input type="tel" maxlength="2" class="ssq-f"><input type="tel" maxlength="2" class="ssq-f"></div>
   <label>蓝球（1个,1~16）</label>
   <div class="input-row"><input type="tel" maxlength="2" id="sqb"></div>
-  <button class="btn" onclick="goSSQ()">&#x26A1; 三引擎预测（双色球）</button>
+  <div style="display:flex;gap:8px">
+    <button class="btn" style="flex:1;margin:0" onclick="goSSQ()">&#x26A1; 三引擎预测</button>
+    <button id="ssq-auto-btn" class="btn" style="flex:1;margin:0;background:#1a3050;color:#3498db;font-size:12px" onclick="autoPredictSSQ()">&#x1F916; 自动获取最新期号</button>
+  </div>
   <details style="margin-top:10px;cursor:pointer"><summary style="font-size:11px;padding:6px 0;color:#e67e22">&#x1F3AD; 双色球高级设置</summary>
   <div style="background:#0e1525;border-radius:8px;padding:12px;margin-top:6px">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:12px;color:#8899b0">&#x1F52E; 密码集萃（双色球）</span><span id="s-cb" class="cipher-toggle" onclick="tcS()" style="background:#1a4a20;color:#27ae60">已开启</span></div>
@@ -397,7 +403,60 @@ document.querySelectorAll('input[type="tel"]').forEach(function(inp){
   ssqBtn.onclick=function(){ss()};
   console.log("[INIT] Save buttons bound");
 })()
-ld();syD();syS()
+// ==================== AUTO PREDICT (从数据源自动获取最新期号) ====================
+var CACHED_DLT=null,CACHED_SSQ=null,DATA_VERSION=null
+function loadLotteryData(type){
+  return new Promise(function(resolve){
+    if((type==='ssq'&&CACHED_SSQ)||(type==='dlt'&&CACHED_DLT)){return resolve(type==='ssq'?CACHED_SSQ:CACHED_DLT)}
+    var xhr=new XMLHttpRequest();xhr.open('GET','data/'+type+'.json',true)
+    xhr.onload=function(){if(xhr.status>=200&&xhr.status<400){var j=JSON.parse(xhr.responseText);DATA_VERSION=j.updated_at;if(type==='ssq'){CACHED_SSQ=j.data;resolve(j.data)}else{CACHED_DLT=j.data;resolve(j.data)}}else{resolve(null)}}
+    xhr.onerror=function(){resolve(null)};xhr.send()
+  })
+}
+function getLastPeriodNumbers(type){return loadLotteryData(type).then(function(data){if(!data||data.length===0)return null;return data[data.length-1]})}
+function autoPredictDLT(){
+  var btn=g('dlt-auto-btn');btn.textContent='\u23F3 加载中...';btn.disabled=true
+  getLastPeriodNumbers('dlt').then(function(last){
+    if(!last){alert('\u6570\u636E\u6587\u4EF6\u4E0D\u5B58\u5728\u6216\u4E3A\u7A7A\u3002\u8BF7\u786E\u8BA4 data/dlt.json \u5DF2\u90E8\u7F72\u3002');btn.textContent='\u{1F916} \u81EA\u52A8\u83B7\u53D6\u6700\u65B0\u671F\u53F7';btn.disabled=false;return}
+    var f=g('card-dlt').querySelectorAll('.dlt-f'),b=g('card-dlt').querySelectorAll('.dlt-b')
+    for(var i=0;i<f.length;i++)f[i].value=last.fronts[i]
+    for(var i=0;i<b.length;i++)b[i].value=last.backs[i]
+    btn.textContent='\u2705 '+last.period+'\u671F('+last.date+') \u5DF2\u52A0\u8F7D';
+    setTimeout(function(){goDLT();btn.textContent='\u{1F916} \u81EA\u52A8\u83B7\u53D6\u6700\u65B0\u671F\u53F7';btn.disabled=false},200)
+  }).catch(function(){alert('\u6570\u636E\u52A0\u8F7D\u5931\u8D25');btn.textContent='\u{1F916} \u81EA\u52A8\u83B7\u53D6\u6700\u65B0\u671F\u53F7';btn.disabled=false})
+}
+function autoPredictSSQ(){
+  var btn=g('ssq-auto-btn');btn.textContent='\u23F3 加载中...';btn.disabled=true
+  getLastPeriodNumbers('ssq').then(function(last){
+    if(!last){alert('\u6570\u636E\u6587\u4EF6\u4E0D\u5B58\u5728\u6216\u4E3A\u7A7A\u3002\u8BF7\u786E\u8BA4 data/ssq.json \u5DF2\u90E8\u7F72\u3002');btn.textContent='\u{1F916} \u81EA\u52A8\u83B7\u53D6\u6700\u65B0\u671F\u53F7';btn.disabled=false;return}
+    var f=g('card-ssq').querySelectorAll('.ssq-f');g('sqb').value=last.blue
+    for(var i=0;i<f.length;i++)f[i].value=last.reds[i]
+    // Auto match blue history from data
+    updateBlueHistoryFromData()
+    btn.textContent='\u2705 '+last.period+'\u671F('+last.date+') \u5DF2\u52A0\u8F7D';
+    setTimeout(function(){goSSQ();btn.textContent='\u{1F916} \u81EA\u52A8\u83B7\u53D6\u6700\u65B0\u671F\u53F7';btn.disabled=false},300)
+  }).catch(function(){alert('\u6570\u636E\u52A0\u8F7D\u5931\u8D25');btn.textContent='\u{1F916} \u81EA\u52A8\u83B7\u53D6\u6700\u65B0\u671F\u53F7';btn.disabled=false})
+}
+function updateBlueHistoryFromData(){
+  var blue=parseInt(g('sqb').value),p2=g('sbp2')
+  if(isNaN(blue)){if(p2)p2.value='';return}
+  loadLotteryData('ssq').then(function(data){
+    if(!data)return
+    var idx=-1;for(var i=data.length-1;i>=0;i--){if(data[i].blue===blue){idx=i;break}}
+    var recentBlues=[]
+    if(idx===-1){
+      for(var j=Math.max(0,data.length-11);j<data.length;j++)recentBlues.push(data[j].blue)
+      var blueHist=g('sbp2');if(blueHist)blueHist.value=(data.length>=2?data[data.length-2].blue:'')
+    }else{
+      for(var j=Math.max(0,idx-11);j<idx;j++)recentBlues.push(data[j].blue)
+      if(idx-1>=0&&p2)p2.value=data[idx-1].blue
+    }
+  }).catch(function(){})
+}
+
+ld();syD();syS();
+// Preload data in background
+setTimeout(function(){loadLotteryData('dlt');loadLotteryData('ssq')},100)
 </script>
 </body>
 </html>
