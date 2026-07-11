@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 
 <html lang="zh-CN">
 
@@ -442,17 +442,7 @@ var DS={ce:1,ak:1,av:2,ck:1,cv:5,pk:0,pk2:1,pk3:1,dk:1,dk2:16,sk:1},SS={ce:1,cbs
 
 
 
-function ld(){
-  try{
-    var d=localStorage.getItem('dlts');console.log('[ld] dlts raw:',d);
-    if(d){var p=JSON.parse(d);Object.assign(DS,p)}
-    var s=localStorage.getItem('ssqs');console.log('[ld] ssqs raw:',s);
-    if(s){var p=JSON.parse(s);Object.assign(SS,p)}
-  }catch(e){console.warn('[ld] ERR:',e)}
-  console.log('[ld] DS.pk='+DS.pk+' SS.pk='+SS.pk);
-}
-
-function uc(pr,on){
+function ld(){  try{    var d=localStorage.getItem('dlts');console.log('[ld] dlts raw:',d);    if(d){var p=JSON.parse(d);Object.assign(DS,p);try{g('dp').checked=!!p.pk;g('da').checked=!!p.ak;g('dc').checked=!!p.ck;g('dpk').checked=!!p.dk;g('dpk2').checked=!!p.pk2;g('dpk3').checked=!!p.pk3;g('dh').checked=!!p.sk}catch(e){}}    var s=localStorage.getItem('ssqs');console.log('[ld] ssqs raw:',s);    if(s){var p=JSON.parse(s);Object.assign(SS,p);try{g('sp').checked=!!p.pk;g('sbl').checked=!!p.bl;g('sbm').checked=!!p.bm;g('sbj').checked=!!p.bj;g('sbs').checked=!!p.cbs;g('sa').checked=!!p.ak;g('sc').checked=!!p.ck;g('spk').checked=!!p.dk;g('spk2').checked=!!p.pk2;g('spk3').checked=!!p.pk3;g('spk4').checked=!!p.pk4;g('sh').checked=!!p.sk}catch(e){}}  }catch(e){console.warn('[ld] ERR:',e)}  console.log('[ld] DS.pk='+DS.pk+' SS.pk='+SS.pk+' DOM dp='+g('dp').checked);}function uc(pr,on){
 
   var b=g(pr+'-cb');b.textContent=on?'已开启':'已关闭';b.style.background=on?'#1a4a20':'#3a3a4a';b.style.color=on?'#27ae60':'#666';b.style.border=on?'1px solid #2a6a30':'1px solid #4a4a5a'
 
@@ -939,37 +929,7 @@ function updateBlueHistoryFromData(){
 
 
 
-ld();syD();syS();
-
-// FINAL sync: override DOM from localStorage (AFTER ld/syD, as last resort)
-(function(){
-  try{
-    var d=localStorage.getItem('dlts');
-    if(d){
-      var p=JSON.parse(d);
-      var ids=['da','dc','dp','dpk','dpk2','dpk3','dh'];
-      var ks=['ak','ck','pk','dk','pk2','pk3','sk'];
-      for(var i=0;i<ids.length;i++){
-        var el=document.getElementById(ids[i]);
-        if(el)el.checked=!!p[ks[i]];
-      }
-      console.log('[FINAL] AFTER ld: DLT dp='+!!p.pk+' DOM='+g('dp').checked);
-    }
-  }catch(e){console.warn('[FINAL] DLT err:',e)}
-  try{
-    var s=localStorage.getItem('ssqs');
-    if(s){
-      var p=JSON.parse(s);
-      var ids=['sbl','sbm','sbj','sbs','sa','sc','sp','spk','spk2','spk3','spk4','sh'];
-      var ks=['bl','bm','bj','cbs','ak','ck','pk','dk','pk2','pk3','pk4','sk'];
-      for(var i=0;i<ids.length;i++){
-        var el=document.getElementById(ids[i]);
-        if(el)el.checked=!!p[ks[i]];
-      }
-      console.log('[FINAL] AFTER ld: SSQ sp='+!!p.pk+' DOM='+g('sp').checked);
-    }
-  }catch(e){console.warn('[FINAL] SSQ err:',e)}
-})();
+ld();syD();syS();ld();syD();syS();
 
 // Preload lottery data for instant auto-fetch
 setTimeout(function(){
