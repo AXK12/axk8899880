@@ -696,7 +696,7 @@ function rr(cn,res,isS,S,front){
 
         var allC=gc(mp,sp,isS?6:5,isS?1:2,isS,S);if(allC.length>0){
 
-          shuf(allC);var first=allC[0],rest=allC.slice(1);first[0].sort(function(a,b){return a-b});shuf(rest);allC=[first].concat(rest);
+          var sd=front.map(function(n){return String(n)}).join(',')+','+sp.join(',')+(isS?'S':'D');function hsh(s){var h=0;for(var i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h=h&h}return Math.abs(h)}var si=hsh(sd)%allC.length;if(si<0||si>=allC.length)si=0;var first=allC[si],rest=allC.slice(0,si).concat(allC.slice(si+1));first[0].sort(function(a,b){return a-b});shuf(rest);allC=[first].concat(rest);
 
           allC=allC.map(function(c,i){var fr=c[0].slice();if(i>0)shuf(fr);return[fr,c[1]]});
 
