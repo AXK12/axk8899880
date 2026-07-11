@@ -48,7 +48,7 @@ label:first-child{margin-top:0}
 
 .input-row input.error{border-color:#e74c3c;box-shadow:0 0 8px rgba(231,76,60,.3)}
 
-.btn{display:block;width:100%;padding:14px;margin-top:14px;background:linear-gradient(135deg,#f0c040,#e0a830);color:#0a0e1a;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;transition:all .2s;letter-spacing:1px}
+.btn{display:block;width:100%;padding:14px;margin-top:14px;background:linear-gradient(135deg,#f0c040,#e0a830);color:#0a0e1a;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;transition:all .2s;letter-spacing:1px}.btn-auto{background:linear-gradient(135deg,#27ae60,#1a5a30);color:#fff}
 
 .btn:hover{background:linear-gradient(135deg,#f5c850,#e8b840);box-shadow:0 4px 20px rgba(240,192,64,.3);transform:translateY(-1px)}
 
@@ -212,7 +212,7 @@ label:first-child{margin-top:0}
 
     <button class="btn" style="flex:1;margin:0" onclick="goDLT()">&#x26A1; 三引擎预测</button>
 
-    
+    <button class="btn btn-auto" style="flex:1;margin:0" onclick="autoPredictDLT()" id="dlt-auto-btn">&#x1F504; 自动获取最新期号</button>
 
   </div>
 
@@ -262,7 +262,7 @@ label:first-child{margin-top:0}
 
     <button class="btn" style="flex:1;margin:0" onclick="goSSQ()">&#x26A1; 三引擎预测</button>
 
-    
+    <button class="btn btn-auto" style="flex:1;margin:0" onclick="autoPredictSSQ()" id="ssq-auto-btn">&#x1F504; 自动获取最新期号</button>
 
   </div>
 
@@ -929,7 +929,7 @@ function updateBlueHistoryFromData(){
 
 
 
-ld();syD();syS();ld();syD();syS();
+ld();syD();syS();
 
 // Preload lottery data for instant auto-fetch
 setTimeout(function(){
