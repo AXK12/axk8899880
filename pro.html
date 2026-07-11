@@ -112,12 +112,12 @@ label:first-child{margin-top:0}
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:12px;color:#8899b0">&#x1F52E; 密码集萃（大乐透）</span><span id="d-cb" class="cipher-toggle" onclick="tcD()" style="background:#1a4a20;color:#27ae60">已开启</span></div>
   <hr style="border:0;border-top:1px solid #1e2a40;margin:6px 0">
   <div style="font-size:12px;color:#f0c040;margin-bottom:6px">&#x1F3B2; 组合过滤</div>
-  <div style="margin-top:6px"><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="da"> AC&le;</label><input type="range" id="dav" min="1" max="5" value="2" style="width:44px;accent-color:#e74c3c" oninput="l('dal').textContent=this.value"><span id="dal" style="font-size:13px;color:#e74c3c">2</span></div>
-  <div><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="dc"> 最长连号&ge;</label><input type="range" id="dcv" min="4" max="7" value="5" style="width:44px;accent-color:#e74c3c" oninput="l('dcl').textContent=this.value"><span id="dcl" style="font-size:13px;color:#e74c3c">5</span></div>
+  <div style="margin-top:6px"><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="da" checked> AC&le;</label><input type="range" id="dav" min="1" max="5" value="2" style="width:44px;accent-color:#e74c3c" oninput="l('dal').textContent=this.value"><span id="dal" style="font-size:13px;color:#e74c3c">2</span></div>
+  <div><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="dc" checked> 最长连号&ge;</label><input type="range" id="dcv" min="4" max="7" value="5" style="width:44px;accent-color:#e74c3c" oninput="l('dcl').textContent=this.value"><span id="dcl" style="font-size:13px;color:#e74c3c">5</span></div>
   <div><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="dp"> 淘汰全质数</label></div>
-  <div><label style="font-size:11px">&#x1F504; 位置范围</label><div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-top:2px"><label style="font-size:11px;display:inline-flex;align-items:center;gap:2px"><input type="checkbox" id="dpk"> 启用</label><span style="font-size:10px;color:#f0c040">&#x2776;&#x2265;</span><input type="range" id="dpkv" min="14" max="26" value="16" style="width:40px;accent-color:#e67e22" oninput="l('dpkl').textContent=this.value"><span id="dpkl" style="font-size:11px;color:#e67e22">16</span><label style="font-size:9px;display:inline-flex;align-items:center;gap:1px"><input type="checkbox" id="dpk2"> &#x2777;&#x2265;10</label><label style="font-size:9px;display:inline-flex;align-items:center;gap:1px"><input type="checkbox" id="dpk3"> &#x2778;&#x2265;6</label></div></div>
+  <div><label style="font-size:11px">&#x1F504; 位置范围</label><div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-top:2px"><label style="font-size:11px;display:inline-flex;align-items:center;gap:2px"><input type="checkbox" id="dpk" checked> 启用</label><span style="font-size:10px;color:#f0c040">&#x2776;&#x2265;</span><input type="range" id="dpkv" min="14" max="26" value="16" style="width:40px;accent-color:#e67e22" oninput="l('dpkl').textContent=this.value"><span id="dpkl" style="font-size:11px;color:#e67e22">16</span><label style="font-size:9px;display:inline-flex;align-items:center;gap:1px"><input type="checkbox" id="dpk2" checked> &#x2777;&#x2265;10</label><label style="font-size:9px;display:inline-flex;align-items:center;gap:1px"><input type="checkbox" id="dpk3" checked> &#x2778;&#x2265;6</label></div></div>
   <div><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="dh" checked> 淘���历史头奖</label></div>
-  <div id="dsf" class="settings-footer" onclick="sd()">&#x1F4BE; 保存大乐透设置</div>
+  <div id="dsf" class="settings-footer">&#x1F4BE; 保存大乐透设置</div>
   </div></details>
   <div class="result-box" id="dr"><div id="dri"></div></div>
 </div>
@@ -139,12 +139,12 @@ label:first-child{margin-top:0}
   <div style="margin-top:4px;display:flex;gap:10px;flex-wrap:wrap"><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="sbl"> 孤码</label><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="sbm"> 中码</label><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="sbj"> 跳码</label><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="sbs"> 密码参与蓝球</label></div>
   <hr style="border:0;border-top:1px solid #1e2a40;margin:6px 0">
   <div style="font-size:12px;color:#f0c040;margin-bottom:6px">&#x1F3B2; 组合过滤</div>
-  <div style="margin-top:6px"><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="sa"> AC&le;</label><input type="range" id="sav" min="1" max="6" value="3" style="width:44px;accent-color:#e74c3c" oninput="l('sal').textContent=this.value"><span id="sal" style="font-size:13px;color:#e74c3c">3</span></div>
-  <div><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="sc"> 最长连号&ge;</label><input type="range" id="scv" min="4" max="7" value="5" style="width:44px;accent-color:#e74c3c" oninput="l('scl').textContent=this.value"><span id="scl" style="font-size:13px;color:#e74c3c">5</span></div>
+  <div style="margin-top:6px"><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="sa" checked> AC&le;</label><input type="range" id="sav" min="1" max="6" value="3" style="width:44px;accent-color:#e74c3c" oninput="l('sal').textContent=this.value"><span id="sal" style="font-size:13px;color:#e74c3c">3</span></div>
+  <div><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="sc" checked> 最长连号&ge;</label><input type="range" id="scv" min="4" max="7" value="5" style="width:44px;accent-color:#e74c3c" oninput="l('scl').textContent=this.value"><span id="scl" style="font-size:13px;color:#e74c3c">5</span></div>
   <div><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="sp"> 淘汰全红质数</label></div>
-  <div><label style="font-size:11px">&#x1F504; 位置范围</label><div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-top:2px"><label style="font-size:11px;display:inline-flex;align-items:center;gap:2px"><input type="checkbox" id="spk"> 启用</label><span style="font-size:10px;color:#f0c040">&#x2776;&#x2265;</span><input type="range" id="spkv" min="16" max="28" value="19" style="width:40px;accent-color:#e67e22" oninput="l('spkl').textContent=this.value"><span id="spkl" style="font-size:11px;color:#e67e22">19</span><label style="font-size:9px;display:inline-flex;align-items:center;gap:1px"><input type="checkbox" id="spk2"> &#x2777;&#x2265;13</label><label style="font-size:9px;display:inline-flex;align-items:center;gap:1px"><input type="checkbox" id="spk3"> &#x2778;&#x2265;4</label><label style="font-size:9px;display:inline-flex;align-items:center;gap:1px"><input type="checkbox" id="spk4"> &#x2779;&#x2265;7</label></div></div>
+  <div><label style="font-size:11px">&#x1F504; 位置范围</label><div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-top:2px"><label style="font-size:11px;display:inline-flex;align-items:center;gap:2px"><input type="checkbox" id="spk" checked> 启用</label><span style="font-size:10px;color:#f0c040">&#x2776;&#x2265;</span><input type="range" id="spkv" min="16" max="28" value="19" style="width:40px;accent-color:#e67e22" oninput="l('spkl').textContent=this.value"><span id="spkl" style="font-size:11px;color:#e67e22">19</span><label style="font-size:9px;display:inline-flex;align-items:center;gap:1px"><input type="checkbox" id="spk2" checked> &#x2777;&#x2265;13</label><label style="font-size:9px;display:inline-flex;align-items:center;gap:1px"><input type="checkbox" id="spk3" checked> &#x2778;&#x2265;4</label><label style="font-size:9px;display:inline-flex;align-items:center;gap:1px"><input type="checkbox" id="spk4" checked> &#x2779;&#x2265;7</label></div></div>
   <div><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="sh" checked> 淘汰历史头奖</label></div>
-  <div id="ssf" class="settings-footer" onclick="ss()">&#x1F4BE; 保存双色球设置</div>
+  <div id="ssf" class="settings-footer">&#x1F4BE; 保存双色球设置</div>
   </div></details>
   <div class="result-box" id="sr"><div id="sri"></div></div>
 </div>
@@ -218,10 +218,13 @@ var PR={2:1,3:1,5:1,7:1,11:1,13:1,17:1,19:1,23:1,29:1,31:1}
 function ap(ns){for(var i=0;i<ns.length;i++) if(!PR[ns[i]]) return false;return true}
 var H6=[],H5=[]
 
-var DS={ce:1,ak:1,av:2,ck:1,cv:5,pk:1,pk2:1,pk3:1,dk:1,dk2:16,sk:1},SS={ce:1,cbs:1,bl:1,bm:1,bj:1,ak:1,av:3,ck:1,cv:5,pk:1,pk2:1,pk3:1,pk4:1,dk:1,dk2:19,sk:1}
+var DS={ce:1,ak:1,av:2,ck:1,cv:5,pk:0,pk2:1,pk3:1,dk:1,dk2:16,sk:1},SS={ce:1,cbs:1,bl:1,bm:1,bj:1,ak:1,av:3,ck:1,cv:5,pk:0,pk2:1,pk3:1,pk4:1,dk:1,dk2:19,sk:1}
 
 function ld(){
-  try{var d=localStorage.getItem('dlts');if(d){var p=JSON.parse(d);Object.assign(DS,p)}var s=localStorage.getItem('ssqs');if(s){var p=JSON.parse(s);Object.assign(SS,p)}}catch(e){}
+  try{
+    var d=localStorage.getItem('dlts');if(d){var p=JSON.parse(d);Object.assign(DS,p);console.log('[LDS] loaded dlts:',p)}
+    var s=localStorage.getItem('ssqs');if(s){var p=JSON.parse(s);Object.assign(SS,p);console.log('[LDS] loaded ssqs:',p)}
+  }catch(e){console.warn('[LDS] load error:',e)}
 }
 function uc(pr,on){
   var b=g(pr+'-cb');b.textContent=on?'已开启':'已关闭';b.style.background=on?'#1a4a20':'#3a3a4a';b.style.color=on?'#27ae60':'#666';b.style.border=on?'1px solid #2a6a30':'1px solid #4a4a5a'
@@ -232,23 +235,24 @@ function syD(){g('da').checked=DS.ak;g('dav').value=DS.av;g('dal').textContent=D
 function syS(){g('sbl').checked=SS.bl;g('sbm').checked=SS.bm;g('sbj').checked=SS.bj;g('sbs').checked=SS.cbs;g('sa').checked=SS.ak;g('sav').value=SS.av;g('sal').textContent=SS.av;g('sc').checked=SS.ck;g('scv').value=SS.cv;g('scl').textContent=SS.cv;g('sp').checked=SS.pk;g('spk').checked=SS.dk;g('spkv').value=SS.dk2;g('spkl').textContent=SS.dk2;g('spk2').checked=SS.pk2;g('spk3').checked=SS.pk3;g('spk4').checked=SS.pk4;g('sh').checked=SS.sk;uc('s',SS.ce)}
 
 function rDS(){try{
-  DS.ak=g("da").checked;DS.av=parseInt(g("dav").value)||2;DS.ck=g("dc").checked;DS.cv=parseInt(g("dcv").value)||5;DS.pk=g("dp").checked;DS.dk=g("dpk").checked;DS.dk2=parseInt(g("dpkv").value)||16;DS.pk2=g("dpk2").checked;DS.pk3=g("dpk3").checked;DS.sk=g("dh").checked
-  localStorage.setItem("dlts",JSON.stringify(DS));var sf=g("dsf");sf.textContent="\u2705 \u5df2\u4fdd\u5b58";sf.className="settings-footer saved";setTimeout(function(){sf.textContent="\u{1F4BE} \u4fdd\u5b58\u5927\u4e50\u900f\u8bbe\u7f6e";sf.className="settings-footer"},1500)}catch(e){console.error("[rDS] FAIL:",e)}}
+  DS.ak=(g("da")||{}).checked||false;DS.av=parseInt(g("dav")?g("dav").value:2)||2;DS.ck=(g("dc")||{}).checked||false;DS.cv=parseInt(g("dcv")?g("dcv").value:5)||5;DS.pk=(g("dp")||{}).checked||false;DS.dk=(g("dpk")||{}).checked||false;DS.dk2=parseInt(g("dpkv")?g("dpkv").value:16)||16;DS.pk2=(g("dpk2")||{}).checked||false;DS.pk3=(g("dpk3")||{}).checked||false;DS.sk=(g("dh")||{}).checked||false
+  localStorage.setItem("dlts",JSON.stringify(DS));var sf=g("dsf");if(sf){sf.textContent="\u2705 \u5df2\u4fdd\u5b58";sf.className="settings-footer saved";setTimeout(function(){sf.textContent="\u{1F4BE} \u4fdd\u5b58\u5927\u4e50\u900f\u8bbe\u7f6e";sf.className="settings-footer"},1500)}}catch(e){console.error("[rDS] FAIL:",e)}}
 function rSS(){try{
-  SS.bl=g("sbl").checked;SS.bm=g("sbm").checked;SS.bj=g("sbj").checked;SS.cbs=g("sbs").checked;SS.ak=g("sa").checked;SS.av=parseInt(g("sav").value)||3;SS.ck=g("sc").checked;SS.cv=parseInt(g("scv").value)||5;SS.pk=g("sp").checked;SS.dk=g("spk").checked;SS.dk2=parseInt(g("spkv").value)||19;SS.pk2=g("spk2").checked;SS.pk3=g("spk3").checked;SS.pk4=g("spk4").checked;SS.sk=g("sh").checked
-  localStorage.setItem("ssqs",JSON.stringify(SS));var sf=g("ssf");sf.textContent="\u2705 \u5df2\u4fdd\u5b58";sf.className="settings-footer saved";setTimeout(function(){sf.textContent="\u{1F4BE} \u4fdd\u5b58\u53cc\u8272\u7403\u8bbe\u7f6e";sf.className="settings-footer"},1500)}catch(e){console.error("[rSS] FAIL:",e)}}
+  SS.bl=(g("sbl")||{}).checked||false;SS.bm=(g("sbm")||{}).checked||false;SS.bj=(g("sbj")||{}).checked||false;SS.cbs=(g("sbs")||{}).checked||false;SS.ak=(g("sa")||{}).checked||false;SS.av=parseInt(g("sav")?g("sav").value:3)||3;SS.ck=(g("sc")||{}).checked||false;SS.cv=parseInt(g("scv")?g("scv").value:5)||5;SS.pk=(g("sp")||{}).checked||false;SS.dk=(g("spk")||{}).checked||false;SS.dk2=parseInt(g("spkv")?g("spkv").value:19)||19;SS.pk2=(g("spk2")||{}).checked||false;SS.pk3=(g("spk3")||{}).checked||false;SS.pk4=(g("spk4")||{}).checked||false;SS.sk=(g("sh")||{}).checked||false
+  localStorage.setItem("ssqs",JSON.stringify(SS));var sf=g("ssf");if(sf){sf.textContent="\u2705 \u5df2\u4fdd\u5b58";sf.className="settings-footer saved";setTimeout(function(){sf.textContent="\u{1F4BE} \u4fdd\u5b58\u53cc\u8272\u7403\u8bbe\u7f6e";sf.className="settings-footer"},1500)}}catch(e){console.error("[rSS] FAIL:",e)}}
 function sd(){
   var btn=g("dsf");
   if(!btn) return;
   btn.textContent="\u23F3...";btn.style.color="#e67e22";btn.style.background="#1a2510";
   try{
-    DS.ak=g("da").checked;DS.av=parseInt(g("dav").value)||2;DS.ck=g("dc").checked;DS.cv=parseInt(g("dcv").value)||5;
-    DS.pk=g("dp").checked;DS.dk=g("dpk").checked;DS.dk2=parseInt(g("dpkv").value)||16;
-    DS.pk2=g("dpk2").checked;DS.pk3=g("dpk3").checked;DS.sk=g("dh").checked;
-    DS.ce=DS.ce;localStorage.setItem("dlts",JSON.stringify(DS));
+    DS.ak=(g("da")||{}).checked||false;DS.av=parseInt(g("dav")?g("dav").value:2)||2;DS.ck=(g("dc")||{}).checked||false;DS.cv=parseInt(g("dcv")?g("dcv").value:5)||5;
+    DS.pk=(g("dp")||{}).checked||false;DS.dk=(g("dpk")||{}).checked||false;DS.dk2=parseInt(g("dpkv")?g("dpkv").value:16)||16;
+    DS.pk2=(g("dpk2")||{}).checked||false;DS.pk3=(g("dpk3")||{}).checked||false;DS.sk=(g("dh")||{}).checked||false;
+    localStorage.setItem("dlts",JSON.stringify(DS));
     btn.textContent="\u2705";btn.style.color="#27ae60";btn.style.background="#1a3a20";
     setTimeout(function(){btn.textContent="\u{1F4BE} \u4fdd\u5b58\u5927\u4e50\u900f\u8bbe\u7f6e";btn.style.color="#f0c040";btn.style.background="#1a3050"},1500)
   }catch(e){
+    console.error('[sd] save error:',e);
     btn.textContent="\u2716";btn.style.color="#e74c3c"
   }
 }
@@ -257,14 +261,15 @@ function ss(){
   if(!btn) return;
   btn.textContent="\u23F3...";btn.style.color="#e67e22";btn.style.background="#1a2510";
   try{
-    SS.bl=g("sbl").checked;SS.bm=g("sbm").checked;SS.bj=g("sbj").checked;SS.cbs=g("sbs").checked;
-    SS.ak=g("sa").checked;SS.av=parseInt(g("sav").value)||3;SS.ck=g("sc").checked;SS.cv=parseInt(g("scv").value)||5;
-    SS.pk=g("sp").checked;SS.dk=g("spk").checked;SS.dk2=parseInt(g("spkv").value)||19;
-    SS.pk2=g("spk2").checked;SS.pk3=g("spk3").checked;SS.pk4=g("spk4").checked;SS.sk=g("sh").checked;
-    SS.ce=SS.ce;localStorage.setItem("ssqs",JSON.stringify(SS));
+    SS.bl=(g("sbl")||{}).checked||false;SS.bm=(g("sbm")||{}).checked||false;SS.bj=(g("sbj")||{}).checked||false;SS.cbs=(g("sbs")||{}).checked||false;
+    SS.ak=(g("sa")||{}).checked||false;SS.av=parseInt(g("sav")?g("sav").value:3)||3;SS.ck=(g("sc")||{}).checked||false;SS.cv=parseInt(g("scv")?g("scv").value:5)||5;
+    SS.pk=(g("sp")||{}).checked||false;SS.dk=(g("spk")||{}).checked||false;SS.dk2=parseInt(g("spkv")?g("spkv").value:19)||19;
+    SS.pk2=(g("spk2")||{}).checked||false;SS.pk3=(g("spk3")||{}).checked||false;SS.pk4=(g("spk4")||{}).checked||false;SS.sk=(g("sh")||{}).checked||false;
+    localStorage.setItem("ssqs",JSON.stringify(SS));
     btn.textContent="\u2705";btn.style.color="#27ae60";btn.style.background="#1a3a20";
     setTimeout(function(){btn.textContent="\u{1F4BE} \u4fdd\u5b58\u53cc\u8272\u7403\u8bbe\u7f6e";btn.style.color="#f0c040";btn.style.background="#1a3050"},1500)
   }catch(e){
+    console.error('[ss] save error:',e);
     btn.textContent="\u2716";btn.style.color="#e74c3c"
   }
 }
@@ -393,12 +398,17 @@ document.querySelectorAll('input[type="tel"]').forEach(function(inp){
   inp.addEventListener('input',function(){if(this.value.length>=this.maxLength){var p=this.parentElement,ia=p.querySelectorAll('input');var idx=Array.from(ia).indexOf(this);if(idx<ia.length-1) ia[idx+1].focus()}this.classList.remove('error')})
   inp.addEventListener('keydown',function(e){if(e.key==='Backspace'&&this.value.length==0){var p=this.parentElement,ia=p.querySelectorAll('input');var idx=Array.from(ia).indexOf(this);if(idx>0) ia[idx-1].focus()}})
 })
-// Inline event binding fallback for save buttons
+// Robust save button binding
 (function(){
-  var dltBtn=document.getElementById("dsf");
-  dltBtn.onclick=function(){sd()};
-  var ssqBtn=document.getElementById("ssf");
-  ssqBtn.onclick=function(){ss()};
+  function bindSave(id, fn){
+    var el=document.getElementById(id);
+    if(el){
+      el.removeEventListener('click', fn);
+      el.addEventListener('click', fn);
+    }
+  }
+  bindSave('dsf', sd);
+  bindSave('ssf', ss);
 })()
 // ==================== AUTO PREDICT (从数据源自动获取最新期号) ====================
 var CACHED_DLT=null,CACHED_SSQ=null,DATA_VERSION=null
