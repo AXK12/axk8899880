@@ -117,7 +117,7 @@ label:first-child{margin-top:0}
   <div><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="dp"> 淘汰全质数</label></div>
   <div><label style="font-size:11px">&#x1F504; 位置范围</label><div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-top:2px"><label style="font-size:11px;display:inline-flex;align-items:center;gap:2px"><input type="checkbox" id="dpk" checked> 启用</label><span style="font-size:10px;color:#f0c040">&#x2776;&#x2265;</span><input type="range" id="dpkv" min="14" max="26" value="16" style="width:40px;accent-color:#e67e22" oninput="l('dpkl').textContent=this.value"><span id="dpkl" style="font-size:11px;color:#e67e22">16</span><label style="font-size:9px;display:inline-flex;align-items:center;gap:1px"><input type="checkbox" id="dpk2" checked> &#x2777;&#x2265;10</label><label style="font-size:9px;display:inline-flex;align-items:center;gap:1px"><input type="checkbox" id="dpk3" checked> &#x2778;&#x2265;6</label></div></div>
   <div><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="dh" checked> 淘���历史头奖</label></div>
-  <div id="dsf" class="settings-footer">&#x1F4BE; 保存大乐透设置</div>
+  <div id="dsf" class="settings-footer" onclick="sd()">&#x1F4BE; 保存大乐透设置</div>
   </div></details>
   <div class="result-box" id="dr"><div id="dri"></div></div>
 </div>
@@ -144,7 +144,7 @@ label:first-child{margin-top:0}
   <div><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="sp"> 淘汰全红质数</label></div>
   <div><label style="font-size:11px">&#x1F504; 位置范围</label><div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-top:2px"><label style="font-size:11px;display:inline-flex;align-items:center;gap:2px"><input type="checkbox" id="spk" checked> 启用</label><span style="font-size:10px;color:#f0c040">&#x2776;&#x2265;</span><input type="range" id="spkv" min="16" max="28" value="19" style="width:40px;accent-color:#e67e22" oninput="l('spkl').textContent=this.value"><span id="spkl" style="font-size:11px;color:#e67e22">19</span><label style="font-size:9px;display:inline-flex;align-items:center;gap:1px"><input type="checkbox" id="spk2" checked> &#x2777;&#x2265;13</label><label style="font-size:9px;display:inline-flex;align-items:center;gap:1px"><input type="checkbox" id="spk3" checked> &#x2778;&#x2265;4</label><label style="font-size:9px;display:inline-flex;align-items:center;gap:1px"><input type="checkbox" id="spk4" checked> &#x2779;&#x2265;7</label></div></div>
   <div><label style="font-size:11px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="sh" checked> 淘汰历史头奖</label></div>
-  <div id="ssf" class="settings-footer">&#x1F4BE; 保存双色球设置</div>
+  <div id="ssf" class="settings-footer" onclick="ss()">&#x1F4BE; 保存双色球设置</div>
   </div></details>
   <div class="result-box" id="sr"><div id="sri"></div></div>
 </div>
@@ -241,8 +241,9 @@ function rSS(){try{
   SS.bl=(g("sbl")||{}).checked||false;SS.bm=(g("sbm")||{}).checked||false;SS.bj=(g("sbj")||{}).checked||false;SS.cbs=(g("sbs")||{}).checked||false;SS.ak=(g("sa")||{}).checked||false;SS.av=parseInt(g("sav")?g("sav").value:3)||3;SS.ck=(g("sc")||{}).checked||false;SS.cv=parseInt(g("scv")?g("scv").value:5)||5;SS.pk=(g("sp")||{}).checked||false;SS.dk=(g("spk")||{}).checked||false;SS.dk2=parseInt(g("spkv")?g("spkv").value:19)||19;SS.pk2=(g("spk2")||{}).checked||false;SS.pk3=(g("spk3")||{}).checked||false;SS.pk4=(g("spk4")||{}).checked||false;SS.sk=(g("sh")||{}).checked||false
   localStorage.setItem("ssqs",JSON.stringify(SS));var sf=g("ssf");if(sf){sf.textContent="\u2705 \u5df2\u4fdd\u5b58";sf.className="settings-footer saved";setTimeout(function(){sf.textContent="\u{1F4BE} \u4fdd\u5b58\u53cc\u8272\u7403\u8bbe\u7f6e";sf.className="settings-footer"},1500)}}catch(e){console.error("[rSS] FAIL:",e)}}
 function sd(){
+  console.log("[LDS] sd() called",new Date().toISOString());
   var btn=g("dsf");
-  if(!btn) return;
+  if(!btn){console.warn("[LDS] dsf not found!");return}
   btn.textContent="\u23F3...";btn.style.color="#e67e22";btn.style.background="#1a2510";
   try{
     DS.ak=(g("da")||{}).checked||false;DS.av=parseInt(g("dav")?g("dav").value:2)||2;DS.ck=(g("dc")||{}).checked||false;DS.cv=parseInt(g("dcv")?g("dcv").value:5)||5;
@@ -257,8 +258,9 @@ function sd(){
   }
 }
 function ss(){
+  console.log("[LDS] ss() called",new Date().toISOString());
   var btn=g("ssf");
-  if(!btn) return;
+  if(!btn){console.warn("[LDS] ssf not found!");return}
   btn.textContent="\u23F3...";btn.style.color="#e67e22";btn.style.background="#1a2510";
   try{
     SS.bl=(g("sbl")||{}).checked||false;SS.bm=(g("sbm")||{}).checked||false;SS.bj=(g("sbj")||{}).checked||false;SS.cbs=(g("sbs")||{}).checked||false;
@@ -399,16 +401,12 @@ document.querySelectorAll('input[type="tel"]').forEach(function(inp){
   inp.addEventListener('keydown',function(e){if(e.key==='Backspace'&&this.value.length==0){var p=this.parentElement,ia=p.querySelectorAll('input');var idx=Array.from(ia).indexOf(this);if(idx>0) ia[idx-1].focus()}})
 })
 // Robust save button binding
+// Save button binding (redundant with HTML onclick, keep as fallback)
 (function(){
-  function bindSave(id, fn){
-    var el=document.getElementById(id);
-    if(el){
-      el.removeEventListener('click', fn);
-      el.addEventListener('click', fn);
-    }
-  }
-  bindSave('dsf', sd);
-  bindSave('ssf', ss);
+  var dltBtn=document.getElementById("dsf");
+  if(dltBtn){dltBtn.onclick=sd;console.log('[LDS] dsf bound')}
+  var ssqBtn=document.getElementById("ssf");
+  if(ssqBtn){ssqBtn.onclick=ss;console.log('[LDS] ssf bound')}
 })()
 // ==================== AUTO PREDICT (从数据源自动获取最新期号) ====================
 var CACHED_DLT=null,CACHED_SSQ=null,DATA_VERSION=null
