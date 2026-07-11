@@ -939,10 +939,12 @@ function updateBlueHistoryFromData(){
 
 
 
+ld();syD();syS();
+
+// FINAL sync: override DOM from localStorage (AFTER ld/syD, as last resort)
 (function(){
   try{
     var d=localStorage.getItem('dlts');
-    console.log('[FINAL] dlts raw:',d);
     if(d){
       var p=JSON.parse(d);
       var ids=['da','dc','dp','dpk','dpk2','dpk3','dh'];
@@ -951,7 +953,7 @@ function updateBlueHistoryFromData(){
         var el=document.getElementById(ids[i]);
         if(el)el.checked=!!p[ks[i]];
       }
-      console.log('[FINAL] DLT dp='+!!p.pk);
+      console.log('[FINAL] AFTER ld: DLT dp='+!!p.pk+' DOM='+g('dp').checked);
     }
   }catch(e){console.warn('[FINAL] DLT err:',e)}
   try{
@@ -964,12 +966,11 @@ function updateBlueHistoryFromData(){
         var el=document.getElementById(ids[i]);
         if(el)el.checked=!!p[ks[i]];
       }
-      console.log('[FINAL] SSQ sp='+!!p.pk);
+      console.log('[FINAL] AFTER ld: SSQ sp='+!!p.pk+' DOM='+g('sp').checked);
     }
   }catch(e){console.warn('[FINAL] SSQ err:',e)}
 })();
 
-ld();syD();syS();
 // Preload lottery data for instant auto-fetch
 setTimeout(function(){
   loadLotteryData('dlt').then(function(d){console.log('[PRELOAD] DLT:',d?d.length+' records':'FAIL')});
