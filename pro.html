@@ -706,7 +706,7 @@ function rr(cn,res,isS,S,front){
 
           var first=allC[0],rest=allC.slice(1);shuf(rest);allC=[first].concat(rest);
 
-          allC=allC.map(function(c){var fr=c[0].slice();shuf(fr);return[fr,c[1]]});
+          allC=allC.map(function(c,i){var fr=c[0].slice();if(i>0)shuf(fr);return[fr,c[1]]});
 
           var show=Math.min(5,allC.length),pfx=isS?'sq':'dl'
 
