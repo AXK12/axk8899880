@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>方法八 · 彩票分析</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: #0a0e1a;
+  color: #e0e6f0;
+  padding: 16px;
+  min-height: 100vh;
+}
+.container { max-width: 500px; margin: 0 auto; }
+h1 {
+  text-align: center;
+  font-size: 22px;
+  padding: 16px 0;
+  color: #f0c040;
+  letter-spacing: 2px;
+}
+h1 small {
+  display: block;
+  font-size: 12px;
+  color: #8899b0;
+  margin-top: 4px;
+  letter-spacing: 0;
+}
+.tab-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.tab-btn {
+  flex: 1;
+  padding: 10px;
+  text-align: center;
+  border-radius: 10px;
+  border: 1px solid #1e2a40;
+  background: #111827;
+  color: #8899b0;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.tab-btn.active {
+  background: #1a2540;
+  border-color: #f0c040;
+  color: #f0c040;
+  font-weight: bold;
+}
+.card {
+  background: #111827;
+  border-radius: 14px;
+  border: 1px solid #1e2a40;
+  padding: 20px;
+  margin-bottom: 16px;
+  display: none;
+}
+.card.active { display: block; }
+.card h2 {
+  font-size: 16px;
+  color: #f0c040;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #1e2a40;
+}
+label {
+  display: block;
+  font-size: 13px;
+  color: #8899b0;
+  margin-bottom: 6px;
+  margin-top: 12px;
+}
+label:first-child { margin-top: 0; }
+.input-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.input-row input {
+  width: 48px;
+  height: 44px;
+  text-align: center;
+  background: #1a2540;
+  border: 1px solid #2a3a58;
+  border-radius: 8px;
+  color: #e0e6f0;
+  font-size: 18px;
+  font-weight: bold;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.input-row input:focus {
+  border-color: #f0c040;
+  box-shadow: 0 0 8px rgba(240,192,64,0.2);
+}
+.input-row input.error {
+  border-color: #e74c3c;
+  box-shadow: 0 0 8px rgba(231,76,60,0.3);
+}
+.btn {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  margin-top: 16px;
+  background: #f0c040;
+  color: #0a0e1a;
+  border: none;
+  border-radius: 10px;
+  font-size: 17px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn:active { background: #d4a830; }
+.btn:disabled {
+  background: #3a3a4a;
+  color: #666;
+  cursor: not-allowed;
+}
+.hint {
+  font-size: 12px;
+  color: #6a7a90;
+  margin-top: 8px;
+  text-align: center;
+}
+.result-box {
+  display: none;
+  margin-top: 16px;
+}
+.result-box.show { display: block; }
+.no-crash {
+  background: #1a2530;
+  border: 1px solid #2a3a50;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+}
+.no-crash .icon { font-size: 40px; margin-bottom: 10px; }
+.no-crash p { color: #8899b0; font-size: 14px; line-height: 1.6; }
+
+.crash-info {
+  background: #1a2530;
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+.crash-info .title {
+  color: #f0c040;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+.crash-page {
+  font-size: 12px;
+  color: #8899b0;
+  padding: 4px 0;
+  border-bottom: 1px solid #0e1525;
+}
+.crash-page:last-child { border-bottom: none; }
+
+.pool-section {
+  background: #1a2530;
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+.pool-title {
+  font-size: 14px;
+  color: #f0c040;
+  margin-bottom: 8px;
+}
+.pool-nums {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.pool-num {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #1e2a40;
+  color: #e0e6f0;
+  font-size: 13px;
+  font-weight: bold;
+}
+.pool-num.hit {
+  background: #27ae60;
+  color: #fff;
+  box-shadow: 0 0 8px rgba(39,174,96,0.4);
+}
+.pool-num.hit-red {
+  background: #e74c3c;
+  color: #fff;
+}
+.pool-count {
+  font-size: 12px;
+  color: #6a7a90;
+  margin-top: 8px;
+}
+
+.combos {
+  background: #1a2530;
+  border-radius: 10px;
+  padding: 14px;
+}
+.combos h3 {
+  font-size: 14px;
+  color: #f0c040;
+  margin-bottom: 10px;
+}
+.combo-item {
+  padding: 8px 0;
+  border-bottom: 1px solid #0e1525;
+  font-size: 14px;
+  font-family: monospace;
+}
+.combo-item:last-child { border-bottom: none; }
+.combo-item .num { color: #e0e6f0; }
+.combo-item .sp { color: #f0c040; }
+.combo-item .lb { color: #3498db; }
+.combo-label {
+  color: #6a7a90;
+  font-size: 12px;
+  font-family: -apple-system, sans-serif;
+}
+
+.footer {
+  text-align: center;
+  padding: 20px;
+  color: #3a4a5a;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+/* 彩种选择器 */
+.lotto-select {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.lotto-btn {
+  flex: 1;
+  padding: 8px;
+  text-align: center;
+  border-radius: 8px;
+  border: 1px solid #1e2a40;
+  background: #0e1525;
+  color: #6a7a90;
+  font-size: 13px;
+  cursor: pointer;
+}
+.lotto-btn.active {
+  border-color: #f0c040;
+  color: #f0c040;
+  background: #1a2540;
+}
+
+/* 验证区 */
+.verify-toggle {
+  text-align: right;
+  font-size: 12px;
+  color: #3a7a5a;
+  cursor: pointer;
+  margin-bottom: 8px;
+}
+.verify-area {
+  background: #0e1525;
+  border: 1px dashed #2a4a3a;
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 8px;
+  display: none;
+}
+.verify-area.show { display: block; }
+.verify-area label { margin-top: 0; }
+.verify-result {
+  margin-top: 8px;
+  font-size: 13px;
+}
+.verify-result .good { color: #27ae60; }
+.verify-result .bad { color: #e74c3c; }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.loading { animation: pulse 1s infinite; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>🎯 小工具<small>A款 / B款 · 简易分析法</small></h1>
+
+<div class="tab-bar">
+  <div class="tab-btn active" onclick="switchGame('dlt')">🎱 A款</div>
+  <div class="tab-btn" onclick="switchGame('ssq')">🔴 B款</div>
+</div>
+
+<!-- A款 -->
+<div id="card-dlt" class="card active">
+  <h2>A款 · 上期号码</h2>
+  <label>前组（5个，1~35）</label>
+  <div class="input-row" id="dlt-front">
+    <input type="tel" maxlength="2" class="dlt-f" placeholder="?">
+    <input type="tel" maxlength="2" class="dlt-f" placeholder="?">
+    <input type="tel" maxlength="2" class="dlt-f" placeholder="?">
+    <input type="tel" maxlength="2" class="dlt-f" placeholder="?">
+    <input type="tel" maxlength="2" class="dlt-f" placeholder="?">
+  </div>
+  <label>后组（2个，1~12）</label>
+  <div class="input-row" id="dlt-back">
+    <input type="tel" maxlength="2" class="dlt-b" placeholder="?">
+    <input type="tel" maxlength="2" class="dlt-b" placeholder="?">
+  </div>
+  <button class="btn" onclick="predictDLT()">🔍 开始分析</button>
+  <div class="hint">输入上期开奖号码，推演下期参考池</div>
+  
+  <div class="result-box" id="dlt-result">
+    <div id="dlt-result-inner"></div>
+  </div>
+</div>
+
+<!-- B款 -->
+<div id="card-ssq" class="card">
+  <h2>B款 · 上期号码</h2>
+  <label>红组（6个，1~33）</label>
+  <div class="input-row" id="ssq-front">
+    <input type="tel" maxlength="2" class="ssq-f" placeholder="?">
+    <input type="tel" maxlength="2" class="ssq-f" placeholder="?">
+    <input type="tel" maxlength="2" class="ssq-f" placeholder="?">
+    <input type="tel" maxlength="2" class="ssq-f" placeholder="?">
+    <input type="tel" maxlength="2" class="ssq-f" placeholder="?">
+    <input type="tel" maxlength="2" class="ssq-f" placeholder="?">
+  </div>
+  <label>蓝组（1个，1~16）</label>
+  <div class="input-row">
+    <input type="tel" maxlength="2" id="ssq-blue" class="ssq-b" placeholder="?">
+  </div>
+  <button class="btn" onclick="predictSSQ()">🔍 开始分析</button>
+  <div class="hint">输入上期开奖号码，推演下期参考池</div>
+  
+  <div class="result-box" id="ssq-result">
+    <div id="ssq-result-inner"></div>
+  </div>
+</div>
+
+<div class="footer">
+  🌙 数据支撑 · 仅供参考 · 安总好运
+</div>
+
+</div>
+
+<script>
+// ========== 核心引擎 ==========
+function calcPage(divisor, numbers) {
+  return numbers.map(num => {
+    if (num === 0) return { num, q: 0, r: 0, cp: null };
+    const q = Math.floor(divisor / num);
+    const r = divisor % num;
+    const cp = num - r + q;
+    return { num, q, r, cp };
+  });
+}
+
+function detectCollisions(cpList) {
+  const map = {};
+  cpList.forEach((item, i) => {
+    if (item.cp === null) return;
+    if (!map[item.cp]) map[item.cp] = [];
+    map[item.cp].push({ idx: i, ...item });
+  });
+  return Object.entries(map).filter(([cp, entries]) => entries.length >= 2);
+}
+
+function predictFromCollision(entries, maxVal) {
+  const predicts = new Set();
+  if (entries.length < 2) return [];
+  const qList = entries.map(e => e.q);
+  const rList = entries.map(e => e.r);
+  const cp = entries[0].cp;
+  
+  for (let i = 0; i < qList.length; i++) {
+    for (let j = i+1; j < qList.length; j++) {
+      for (const v of [qList[i]+qList[j], Math.abs(qList[i]-qList[j]),
+                       rList[i]+rList[j], Math.abs(rList[i]-rList[j])]) {
+        if (v >= 1 && v <= maxVal) predicts.add(v);
+      }
+    }
+  }
+  for (let i = 0; i < qList.length; i++) {
+    for (let j = i+1; j < qList.length; j++) {
+      const s = qList[i] + qList[j];
+      const d = rList[i] + rList[j];
+      for (const v of [s+d, Math.abs(s-d), s+d-entries[0].r]) {
+        if (v >= 1 && v <= maxVal) predicts.add(v);
+      }
+    }
+  }
+  if (rList.every(r => r === 0)) {
+    qList.forEach(q => { if (q >= 1 && q <= maxVal) predicts.add(q); });
+  }
+  if (cp !== null && cp >= 1 && cp <= maxVal) predicts.add(cp);
+  const sumQR = qList.reduce((a,b)=>a+b,0) + rList.reduce((a,b)=>a+b,0);
+  for (const v of [sumQR - cp, sumQR + cp]) {
+    if (v >= 1 && v <= maxVal) predicts.add(v);
+  }
+  return [...predicts].sort((a,b)=>a-b);
+}
+
+function predict(front, back, isSSQ) {
+  const allNums = [...front, ...back];
+  const total = allNums.reduce((a,b)=>a+b, 0);
+  let divisors, pageCount, maxVal;
+  
+  if (isSSQ) {
+    divisors = [total, ...front.map(f => total - f)];
+    pageCount = 7;
+    maxVal = 33;
+  } else {
+    divisors = [total, ...front.map(f => total - f), ...back.map(b => total - b)];
+    pageCount = 8;
+    maxVal = 35;
+  }
+  
+  const frontPreds = new Set();
+  const backPreds = new Set();
+  let crashCount = 0;
+  const pageDetails = [];
+  const pageNames = isSSQ
+    ? ['总和','减红1','减红2','减红3','减红4','减红5','减红6']
+    : ['总和','减前1','减前2','减前3','减前4','减前5','减后1','减后2'];
+  
+  for (let pi = 0; pi < pageCount; pi++) {
+    const res = calcPage(divisors[pi], allNums);
+    const fRes = res.slice(0, isSSQ ? 6 : 5);
+    const bRes = res.slice(isSSQ ? 6 : 5);
+    
+    const fColl = detectCollisions(fRes);
+    let bColl = [];
+    if (!isSSQ && pi >= 6) bColl = detectCollisions(bRes);
+    if (isSSQ && pi >= 0) bColl = []; // B款蓝组不算
+    
+    let pageCrash = false;
+    let info = '';
+    
+    if (fColl.length > 0) {
+      pageCrash = true;
+      fColl.forEach(([cp, entries]) => {
+        predictFromCollision(entries, maxVal).forEach(v => frontPreds.add(v));
+      });
+      info = fColl.map(([cp, es]) => 'CP='+cp+'('+es.map(e=>e.num).join('+')+')').join(' | ');
+    }
+    
+    if (bColl.length > 0) {
+      pageCrash = true;
+      bColl.forEach(([cp, entries]) => {
+        predictFromCollision(entries, 12).forEach(v => backPreds.add(v));
+      });
+      info += (info ? ' ' : '') + '后组:' + bColl.map(([cp, es]) => 'CP='+cp+'('+es.map(e=>e.num).join('+')+')').join(' | ');
+    }
+    
+    if (pageCrash) crashCount++;
+    pageDetails.push({ name: pageNames[pi], divisor: divisors[pi], crash: pageCrash, info });
+  }
+  
+  // B款蓝组简单分析
+  let bluePreds = [];
+  if (isSSQ && back.length > 0) {
+    const b = back[0];
+    for (const v of [b, b+1, b-1, b+2, b-2, b+3, b-3, 17-b]) {
+      if (v >= 1 && v <= 16) bluePreds.push(v);
+    }
+    bluePreds = [...new Set(bluePreds)].sort((a,b)=>a-b);
+  }
+  
+  return {
+    front_preds: [...frontPreds].sort((a,b)=>a-b),
+    back_preds: [...backPreds].sort((a,b)=>a-b),
+    blue_preds: bluePreds,
+    crash_pages: crashCount,
+    has_crash: crashCount > 0,
+    page_details: pageDetails,
+  };
+}
+
+// ========== 历史一等奖杀号 ==========
+var HISTORICAL_SSQ_FRONTS = [];
+var HISTORICAL_DLT_FRONTS = [];
+var _historicalFilteredCount = 0;
+
+function loadHistoricalData(type) {
+  return new Promise(function(resolve) {
+    if ((type === 'ssq' && HISTORICAL_SSQ_FRONTS.length > 0) || (type === 'dlt' && HISTORICAL_DLT_FRONTS.length > 0)) {
+      return resolve();
+    }
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', 'data/' + type + '.json', true);
+    xhr.onload = function() {
+      if (xhr.status >= 200 && xhr.status < 400) {
+        var json = JSON.parse(xhr.responseText);
+        if (type === 'ssq') {
+          HISTORICAL_SSQ_FRONTS = json.data.map(function(d) { return d.reds.slice().sort(function(a,b){return a-b}).join(','); });
+        } else {
+          HISTORICAL_DLT_FRONTS = json.data.map(function(d) { return d.fronts.slice().sort(function(a,b){return a-b}).join(','); });
+        }
+      }
+      resolve();
+    };
+    xhr.onerror = function() { resolve(); };
+    xhr.send();
+  });
+}
+
+function preloadHistorical() {
+  loadHistoricalData('ssq');
+  loadHistoricalData('dlt');
+}
+setTimeout(preloadHistorical, 500);
+
+function genCombos(pool, pool2, cnt, size1, size2, isSSQ) {
+  if (pool.length < size1) return [];
+  _historicalFilteredCount = 0;
+  const combos = [];
+  const histSet = isSSQ ? HISTORICAL_SSQ_FRONTS : HISTORICAL_DLT_FRONTS;
+  
+  // 尝试生成 cnt 注（最多尝试 500 次避免死循环）
+  let attempts = 0;
+  while (combos.length < cnt && attempts < 500) {
+    attempts++;
+    var seed = combos.length * 137 + attempts * 42;
+    let s = pool.slice();
+    for (let i = s.length-1; i > 0; i--) {
+      const j = Math.floor((Math.sin(seed + i) * 10000) % (i + 1));
+      if (j < 0) { const t = -j; [s[i], s[t % (i+1)]] = [s[t % (i+1)], s[i]]; }
+      else { [s[i], s[j]] = [s[j], s[i]]; }
+    }
+    const f6 = s.slice(0, size1).sort((a,b)=>a-b);
+    
+    // 历史一等奖过滤
+    if (histSet.length > 0) {
+      var key = f6.join(',');
+      if (histSet.indexOf(key) >= 0) { _historicalFilteredCount++; continue; }
+    }
+    
+    let sc = pool2.slice();
+    for (let i = sc.length-1; i > 0; i--) {
+      const j = Math.floor((Math.sin(seed + i + 100) * 10000) % (i + 1));
+      if (j < 0) { const t = -j; [sc[i], sc[t % (i+1)]] = [sc[t % (i+1)], sc[i]]; }
+      else { [sc[i], sc[j]] = [sc[j], sc[i]]; }
+    }
+    const bk = sc.slice(0, size2).sort((a,b)=>a-b);
+    combos.push([f6, bk]);
+  }
+  return combos;
+}
+
+// ========== UI ==========
+function switchGame(game) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+  if (game === 'dlt') {
+    document.querySelectorAll('.tab-btn')[0].classList.add('active');
+    document.getElementById('card-dlt').classList.add('active');
+  } else {
+    document.querySelectorAll('.tab-btn')[1].classList.add('active');
+    document.getElementById('card-ssq').classList.add('active');
+  }
+}
+
+function getInputs(cls, max, min) {
+  const vals = [];
+  document.querySelectorAll('.'+cls).forEach(inp => {
+    const v = parseInt(inp.value);
+    if (isNaN(v) || v < min || v > max) {
+      inp.classList.add('error');
+      setTimeout(() => inp.classList.remove('error'), 1000);
+      return null;
+    }
+    vals.push(v);
+  });
+  if (vals.length === 0) return null;
+  const uniq = new Set(vals);
+  if (uniq.size !== vals.length) return null;
+  return vals;
+}
+
+function showResult(id, html) {
+  const el = document.getElementById(id);
+  el.querySelector('#dlt-result-inner, #ssq-result-inner').innerHTML = html;
+  el.classList.add('show');
+}
+
+function renderPool(nums, maxVal, hits) {
+  let html = '';
+  const hitSet = new Set(hits || []);
+  for (let i = 1; i <= maxVal; i++) {
+    const isHit = hitSet.has(i);
+    const inPool = nums.includes(i);
+    let cls = 'pool-num';
+    if (isHit) cls += ' hit';
+    else if (inPool) cls += ' hit-red';
+    html += `<div class="${cls}">${i}</div>`;
+  }
+  return html;
+}
+
+function predictDLT() {
+  const front = getInputs('dlt-f', 35, 1);
+  const back = getInputs('dlt-b', 12, 1);
+  if (!front || !back || front.length !== 5 || back.length !== 2) {
+    alert('请正确输入5个前组(1-35)和2个后组(1-12)');
+    return;
+  }
+  
+  const result = predict(front, back, false);
+  const inner = document.getElementById('dlt-result-inner');
+  inner.classList.add('loading');
+  
+  // 模拟计算延迟
+  setTimeout(() => {
+    inner.classList.remove('loading');
+    let html = '';
+    
+    if (!result.has_crash) {
+      html = `<div class="no-crash">
+        <div class="icon">😴</div>
+        <p><strong style="color:#f0c040;">本期无触发</strong><br>
+        方法八不适用，等下一期试试<br>
+        <span style="font-size:12px;color:#5a6a80;">下期大概率会恢复触发</span></p>
+      </div>`;
+    } else {
+      const crashPages = result.page_details.filter(p => p.crash);
+      html += `<div class="crash-info">
+        <div class="title">🔥 触发触发 ${crashPages.length}/${result.page_details.length} 页</div>
+        ${crashPages.map(p => `<div class="crash-page">▸ ${p.name}(÷${p.divisor}) ${p.info}</div>`).join('')}
+      </div>`;
+      
+      const fp = result.front_preds;
+      const bp = result.back_preds;
+      const ratio = fp.length > 0 ? (35/fp.length).toFixed(1) : 1;
+      
+      html += `<div class="pool-section">
+        <div class="pool-title">🎯 前组参考池 (1~35) — ${fp.length}个 (缩小${ratio}倍)</div>
+        <div class="pool-nums">${renderPool(fp, 35)}</div>
+        <div class="pool-count">历史参考：触发后平均命中2.55/5</div>
+      </div>`;
+      
+      html += `<div class="pool-section">
+        <div class="pool-title">🎯 后组参考池 (1~12) — ${bp.length}个</div>
+        <div class="pool-nums">${renderPool(bp, 12)}</div>
+      </div>`;
+      
+      const combos = genCombos(fp, bp, 3, 5, 2, false);
+      if (combos.length > 0) {
+        var histNote = _historicalFilteredCount > 0 ? ' <span style="font-size:11px;color:#e67e22">(已过滤'+_historicalFilteredCount+'注历史一等奖)</span>' : '';
+        html += `<div class="combos">
+          <h3>🎲 参考组合${histNote}</h3>
+          ${combos.map((c, i) => `<div class="combo-item">
+            <span class="combo-label">#${i+1}</span>
+            <span class="num">[${c[0].join(', ')}]</span>
+            <span class="sp">+</span>
+            <span class="lb">[${c[1].join(', ')}]</span>
+          </div>`).join('')}
+        </div>`;
+      }
+    }
+    
+    inner.innerHTML = html;
+    document.getElementById('dlt-result').classList.add('show');
+  }, 200);
+}
+
+function predictSSQ() {
+  const front = getInputs('ssq-f', 33, 1);
+  const blueInp = document.getElementById('ssq-blue');
+  const blue = parseInt(blueInp.value);
+  
+  if (!front || front.length !== 6 || isNaN(blue) || blue < 1 || blue > 16) {
+    if (isNaN(blue) || blue < 1 || blue > 16) {
+      blueInp.classList.add('error');
+      setTimeout(() => blueInp.classList.remove('error'), 1000);
+    }
+    alert('请正确输入6个红组(1-33)和1个蓝组(1-16)');
+    return;
+  }
+  
+  const result = predict(front, [blue], true);
+  const inner = document.getElementById('ssq-result-inner');
+  inner.classList.add('loading');
+  
+  setTimeout(() => {
+    inner.classList.remove('loading');
+    let html = '';
+    
+    if (!result.has_crash) {
+      html = `<div class="no-crash">
+        <div class="icon">😴</div>
+        <p><strong style="color:#f0c040;">本期无触发</strong><br>
+        方法八不适用，等下一期试试<br>
+        <span style="font-size:12px;color:#5a6a80;">下一期大概率会恢复触发</span></p>
+      </div>`;
+    } else {
+      const crashPages = result.page_details.filter(p => p.crash);
+      html += `<div class="crash-info">
+        <div class="title">🔥 触发触发 ${crashPages.length}/${result.page_details.length} 页</div>
+        ${crashPages.map(p => `<div class="crash-page">▸ ${p.name}(÷${p.divisor}) ${p.info}</div>`).join('')}
+      </div>`;
+      
+      const fp = result.front_preds;
+      const bp = result.blue_preds;
+      const ratio = fp.length > 0 ? (33/fp.length).toFixed(1) : 1;
+      
+      html += `<div class="pool-section">
+        <div class="pool-title">🎯 红组参考池 (1~33) — ${fp.length}个 (缩小${ratio}倍)</div>
+        <div class="pool-nums">${renderPool(fp, 33)}</div>
+        <div class="pool-count">历史参考：触发后平均命中3.65/6，全中6红概率13.8%</div>
+      </div>`;
+      
+      html += `<div class="pool-section">
+        <div class="pool-title">🎯 蓝组参考池 (1~16) — ${bp.length}个</div>
+        <div class="pool-nums">${renderPool(bp, 16)}</div>
+      </div>`;
+      
+      const combos = genCombos(fp, bp, 3, 6, 1, true);
+      if (combos.length > 0) {
+        var histNote = _historicalFilteredCount > 0 ? ' <span style="font-size:11px;color:#e67e22">(已过滤'+_historicalFilteredCount+'注历史一等奖)</span>' : '';
+        html += `<div class="combos">
+          <h3>🎲 参考组合${histNote}</h3>
+          ${combos.map((c, i) => `<div class="combo-item">
+            <span class="combo-label">#${i+1}</span>
+            <span class="num">[${c[0].join(', ')}]</span>
+            <span class="sp">+</span>
+            <span class="lb">[${c[1].join(', ')}]</span>
+          </div>`).join('')}
+        </div>`;
+      }
+    }
+    
+    inner.innerHTML = html;
+    document.getElementById('ssq-result').classList.add('show');
+  }, 200);
+}
+
+// 自动输入框切换
+document.querySelectorAll('input[type="tel"]').forEach(inp => {
+  inp.addEventListener('input', function() {
+    if (this.value.length >= this.maxLength) {
+      const parent = this.parentElement;
+      const inputs = parent.querySelectorAll('input');
+      const idx = Array.from(inputs).indexOf(this);
+      if (idx < inputs.length - 1) inputs[idx+1].focus();
+    }
+    this.classList.remove('error');
+  });
+  inp.addEventListener('keydown', function(e) {
+    if (e.key === 'Backspace' && this.value.length === 0) {
+      const parent = this.parentElement;
+      const inputs = parent.querySelectorAll('input');
+      const idx = Array.from(inputs).indexOf(this);
+      if (idx > 0) inputs[idx-1].focus();
+    }
+  });
+});
+</script>
+</body>
+</html>
