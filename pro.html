@@ -839,19 +839,24 @@ document.querySelectorAll('input[type="tel"]').forEach(function(inp){
 var CACHED_DLT=null,CACHED_SSQ=null,DATA_VERSION=null
 
 function loadLotteryData(type){
-
-  return new Promise(function(resolve){
-
-    if((type==='ssq'&&CACHED_SSQ)||(type==='dlt'&&CACHED_DLT)){return resolve(type==='ssq'?CACHED_SSQ:CACHED_DLT)}
-
-    var xhr=new XMLHttpRequest();xhr.open('GET','data/'+type+'.json',true)
-
-    xhr.onload=function(){if(xhr.status>=200&&xhr.status<400){var j=JSON.parse(xhr.responseText);DATA_VERSION=j.updated_at;if(type==='ssq'){CACHED_SSQ=j.data;resolve(j.data)}else{CACHED_DLT=j.data;resolve(j.data)}}else{resolve(null)}}
-
-    xhr.onerror=function(){resolve(null)};xhr.send()
-
-  })
-
+  if(type==='ssq'&&CACHED_SSQ)return Promise.resolve(CACHED_SSQ);
+  if(type==='dlt'&&CACHED_DLT)return Promise.resolve(CACHED_DLT);
+  try{
+    var sk='_ld_'+type, sc=sessionStorage.getItem(sk);
+    if(sc){var p=JSON.parse(sc);
+      if(type==='ssq'){CACHED_SSQ=p;return Promise.resolve(p)}
+      else{CACHED_DLT=p;return Promise.resolve(p)}
+    }
+  }catch(e){}
+  return fetch('data/'+type+'.json').then(function(r){
+    if(!r.ok)return null;
+    return r.json().then(function(j){
+      var d=j.data; DATA_VERSION=j.updated_at;
+      if(type==='ssq')CACHED_SSQ=d;else CACHED_DLT=d;
+      try{sessionStorage.setItem('_ld_'+type,JSON.stringify(d))}catch(e){}
+      return d;
+    });
+  }).catch(function(){return null});
 }
 
 function getLastPeriodNumbers(type){return loadLotteryData(type).then(function(data){if(!data||data.length===0)return null;return data[data.length-1]})}
@@ -964,7 +969,13 @@ function updateBlueHistoryFromData(){
   }catch(e){console.warn('[FINAL] SSQ err:',e)}
 })();
 
-ld();syD();syS();(function(){console.log('[FINISH] dp='+((g('dp')||{}).checked||false))})();
+ld();syD();syS();
+// Preload lottery data for instant auto-fetch
+setTimeout(function(){
+  loadLotteryData('dlt').then(function(d){console.log('[PRELOAD] DLT:',d?d.length+' records':'FAIL')});
+  loadLotteryData('ssq').then(function(d){console.log('[PRELOAD] SSQ:',d?d.length+' records':'FAIL')});
+},100);
+(function(){console.log('[FINISH] dp='+((g('dp')||{}).checked||false))})();
 
 </script>
 
