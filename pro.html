@@ -212,7 +212,7 @@ label:first-child{margin-top:0}
 
     <button class="btn" style="flex:1;margin:0" onclick="goDLT()">&#x26A1; 三引擎预测</button>
 
-    <button id="dlt-auto-btn" class="btn" style="flex:1;margin:0;background:#1a3050;color:#3498db;font-size:12px" onclick="autoPredictDLT()">&#x1F916; 自动获取最新期号</button>
+    
 
   </div>
 
@@ -262,7 +262,7 @@ label:first-child{margin-top:0}
 
     <button class="btn" style="flex:1;margin:0" onclick="goSSQ()">&#x26A1; 三引擎预测</button>
 
-    <button id="ssq-auto-btn" class="btn" style="flex:1;margin:0;background:#1a3050;color:#3498db;font-size:12px" onclick="autoPredictSSQ()">&#x1F916; 自动获取最新期号</button>
+    
 
   </div>
 
@@ -856,7 +856,7 @@ function loadLotteryData(type){
 
 function getLastPeriodNumbers(type){return loadLotteryData(type).then(function(data){if(!data||data.length===0)return null;return data[data.length-1]})}
 
-function autoPredictDLT(){
+function autoPredictDLT(){alert("请手动输入上期号码");return;
 
   var btn=g('dlt-auto-btn');btn.textContent='\u23F3 加载中..';btn.disabled=true
 
@@ -878,7 +878,7 @@ function autoPredictDLT(){
 
 }
 
-function autoPredictSSQ(){
+function autoPredictSSQ(){alert("请手动输入上期号码");return;
 
   var btn=g('ssq-auto-btn');btn.textContent='\u23F3 加载中..';btn.disabled=true
 
@@ -934,7 +934,37 @@ function updateBlueHistoryFromData(){
 
 
 
-ld();syD();syS();
+(function(){
+  try{
+    var d=localStorage.getItem('dlts');
+    console.log('[FINAL] dlts raw:',d);
+    if(d){
+      var p=JSON.parse(d);
+      var ids=['da','dc','dp','dpk','dpk2','dpk3','dh'];
+      var ks=['ak','ck','pk','dk','pk2','pk3','sk'];
+      for(var i=0;i<ids.length;i++){
+        var el=document.getElementById(ids[i]);
+        if(el)el.checked=!!p[ks[i]];
+      }
+      console.log('[FINAL] DLT dp='+!!p.pk);
+    }
+  }catch(e){console.warn('[FINAL] DLT err:',e)}
+  try{
+    var s=localStorage.getItem('ssqs');
+    if(s){
+      var p=JSON.parse(s);
+      var ids=['sbl','sbm','sbj','sbs','sa','sc','sp','spk','spk2','spk3','spk4','sh'];
+      var ks=['bl','bm','bj','cbs','ak','ck','pk','dk','pk2','pk3','pk4','sk'];
+      for(var i=0;i<ids.length;i++){
+        var el=document.getElementById(ids[i]);
+        if(el)el.checked=!!p[ks[i]];
+      }
+      console.log('[FINAL] SSQ sp='+!!p.pk);
+    }
+  }catch(e){console.warn('[FINAL] SSQ err:',e)}
+})();
+
+ld();syD();syS();(function(){console.log('[FINISH] dp='+((g('dp')||{}).checked||false))})();
 
 </script>
 
