@@ -983,11 +983,13 @@ function expandCombos(isSSQ, suffix) {
   if (combos.length === 0) { list.innerHTML = ''; btn.innerHTML = '无数据'; return; }
   var isExpanded = btn.textContent.indexOf('收起') >= 0;
   function comboHtml(c, i) {
-    return '<div class="combo-item">' +
-      '<span class="combo-label">#' + (i + 1) + (i === 0 ? ' ⭐推荐' : '') + '</span> ' +
+    return '<div class="combo-item" style="display:flex;align-items:center;justify-content:space-between">' +
+      '<span><span class="combo-label">#' + (i + 1) + (i === 0 ? ' ⭐推荐' : '') + '</span> ' +
       '<span class="num">[' + c[0].join(', ') + ']</span> ' +
       '<span class="sp">+</span> ' +
-      '<span class="lb">[' + c[1].join(', ') + ']</span></div>';
+      '<span class="lb">[' + c[1].join(', ') + ']</span></span>' +
+      '<span onclick="copySingleCombo(\'' + prefix + '\',' + i + ');event.stopPropagation()" style="font-size:11px;color:#27ae60;cursor:pointer;padding:2px 8px;border:1px solid #2a5a30;border-radius:5px;background:#1a3a20;white-space:nowrap">📋复制</span>' +
+      '</div>';
   }
   if (isExpanded) {
     list.innerHTML = combos.slice(0, Math.min(5, combos.length)).map(comboHtml).join('');
@@ -1016,6 +1018,50 @@ function copyCombos(prefix, isSSQ) {
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(text).then(function() {
       alert('✅ 已复制 ' + combos.length + ' 注组合到剪贴板，每5注空一行');
+    }).catch(function() {
+      fallbackCopy(text);
+    });
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function copyTop5Combos(prefix, isSSQ) {
+  var key = prefix + '_combo_store';
+  var combos = window[key] || [];
+  if (combos.length === 0) { alert('无组合可复制'); return; }
+  var count = Math.min(5, combos.length);
+  var lines = [];
+  for (var i = 0; i < count; i++) {
+    var c = combos[i];
+    var reds = c[0].map(function(n) { return ('0' + n).slice(-2); }).join(' ');
+    var blues = c[1].map(function(n) { return ('0' + n).slice(-2); }).join(' ');
+    lines.push('#' + (i + 1) + ': ' + reds + ' + ' + blues);
+  }
+  var text = lines.join('\n');
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function() {
+      alert('✅ 已复制前' + count + '注到剪贴板');
+    }).catch(function() {
+      fallbackCopy(text);
+    });
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function copySingleCombo(prefix, index) {
+  var key = prefix + '_combo_store';
+  var combos = window[key] || [];
+  if (!combos || index >= combos.length) return;
+  var c = combos[index];
+  if (!c) return;
+  var reds = c[0].map(function(n) { return ('0' + n).slice(-2); }).join(' ');
+  var blues = c[1].map(function(n) { return ('0' + n).slice(-2); }).join(' ');
+  var text = '#' + (index + 1) + ': ' + reds + ' + ' + blues;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function() {
+      alert('✅ 已复制第' + (index + 1) + '注');
     }).catch(function() {
       fallbackCopy(text);
     });
@@ -1610,10 +1656,15 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
         }
       }
 
-      var secPool = isSSQ ? result.blue_preds
-        : (Array.from(new Set(result.back_consensus.concat(result.back_a).concat(result.back_b))).sort(function(a, b) { return a - b; }));
-
-      if (secPool.length === 0) secPool = isSSQ ? [1] : [1, 2];
+      // DLT后区：全包围策略 - 所有12个后区号码(C12-2=66种组合全部覆盖)
+      // SSQ蓝球：沿用分析预测池
+      var secPool;
+      if (isSSQ) {
+        secPool = result.blue_preds;
+        if (secPool.length === 0) secPool = [1];
+      } else {
+        secPool = [1,2,3,4,5,6,7,8,9,10,11,12];
+      }
 
       // 生成全部组合 + 折叠显示
       var priorityNums = (result.front_consensus_3 && result.front_consensus_3.length >= 2) ? result.front_consensus_3 : result.front_consensus;
@@ -1627,19 +1678,24 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
           histFilterNote = ' <span style="font-size:11px;color:#e67e22">（已排除' + _filteredHistoricalCount + '注历史一等奖）</span>';
         }
         var capNote = (allCombos.length >= 100) ? ' <span style="font-size:11px;color:#e67e22">（上限100注）</span>' : '';
-        html += '<div class="combos"><h3>🎰 参考组合（共识优先，共' + allCombos.length + '注' + capNote + '）' + histFilterNote + '</h3><div id="' + prefix + '-combo-list">' +
+        var fullBackNote = (!isSSQ) ? ' <span style="font-size:11px;color:#3498db">（后区66注全包围）</span>' : '';
+        html += '<div class="combos"><h3>🎰 参考组合（共识优先，共' + allCombos.length + '注' + capNote + fullBackNote + '）' + histFilterNote + '</h3><div id="' + prefix + '-combo-list">' +
           allCombos.slice(0, showCount).map(function(c, i) {
-            return '<div class="combo-item">' +
-              '<span class="combo-label">#' + (i + 1) + (i === 0 ? ' ⭐推荐' : '') + '</span> ' +
+            return '<div class="combo-item" style="display:flex;align-items:center;justify-content:space-between">' +
+              '<span><span class="combo-label">#' + (i + 1) + (i === 0 ? ' ⭐推荐' : '') + '</span> ' +
               '<span class="num">[' + c[0].join(', ') + ']</span> ' +
               '<span class="sp">+</span> ' +
-              '<span class="lb">[' + c[1].join(', ') + ']</span>' +
+              '<span class="lb">[' + c[1].join(', ') + ']</span></span>' +
+              '<span onclick="copySingleCombo(\'' + prefix + '\',' + i + ');event.stopPropagation()" style="font-size:11px;color:#27ae60;cursor:pointer;padding:2px 8px;border:1px solid #2a5a30;border-radius:5px;background:#1a3a20;white-space:nowrap">📋复制</span>' +
               '</div>';
           }).join('') + '</div>';
         if (allCombos.length > showCount) {
           html += '<div id="' + prefix + '-combo-expand-btn" onclick="expandCombos(' + (isSSQ ? 'true' : 'false') + ',\'\')" style="text-align:center;padding:8px;margin-top:6px;background:#1a3050;border-radius:6px;color:#3498db;font-size:11px;cursor:pointer">📂 展开全部' + allCombos.length + '注</div>';
         }
-        html += '<div onclick="copyCombos(\'' + prefix + '\',' + (isSSQ ? 'true' : 'false') + ')" style="text-align:center;padding:8px;margin-top:4px;background:#1a3a20;border-radius:6px;color:#27ae60;font-size:11px;cursor:pointer;border:1px solid #2a5a30">📋 复制全部' + allCombos.length + '注（每5注空行）</div>';
+        html += '<div style="display:flex;gap:6px;margin-top:4px">' +
+          '<div onclick="copyCombos(\'' + prefix + '\',' + (isSSQ ? 'true' : 'false') + ')" style="flex:1;text-align:center;padding:8px;background:#1a3a20;border-radius:6px;color:#27ae60;font-size:11px;cursor:pointer;border:1px solid #2a5a30">📋 复制全部</div>' +
+          '<div onclick="copyTop5Combos(\'' + prefix + '\',' + (isSSQ ? 'true' : 'false') + ')" style="flex:1;text-align:center;padding:8px;background:#1a3050;border-radius:6px;color:#3498db;font-size:11px;cursor:pointer;border:1px solid #2a4a60">📋 复制前5注</div>' +
+          '</div>';
         html += '</div>';
       }
     }
