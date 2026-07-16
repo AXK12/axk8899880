@@ -109,8 +109,8 @@ label:first-child{margin-top:0}
     <input type="tel" maxlength="2" class="dlt-b" placeholder="?">
   </div>
   <div style="display:flex;gap:8px;margin-top:14px">
-    <button class="btn" style="flex:1;margin:0" onclick="predictDLT()">🔬 双引擎分析</button>
-    <button id="dlt-auto-btn" class="btn" style="flex:1;margin:0;background:#1a3050;color:#3498db;font-size:12px" onclick="autoPredictDLT()">🤖 自动获取最新期号</button>
+    <button class="btn" style="flex:1;margin:0" onclick="predictDLT()">🔬 三引擎分析</button>
+    <button id="dlt-auto-btn" class="btn" style="flex:1;margin:0;background:#1a6b3c;color:#4ade80;font-size:12px" onclick="autoPredictDLT()">🤖 自动获取最新期号</button>
   </div>
   <div class="hint">输入上期开奖号码 → 方法A+方法B+密码集萃 同时计算 → 共识号码=高置信度</div>
 
@@ -354,8 +354,8 @@ label:first-child{margin-top:0}
     </div>
   </details>
   <div style="display:flex;gap:8px;margin-top:14px">
-    <button class="btn" style="flex:1;margin:0" onclick="predictSSQ()">🔬 双引擎分析</button>
-    <button id="ssq-auto-btn" class="btn" style="flex:1;margin:0;background:#1a3050;color:#3498db;font-size:12px" onclick="autoPredictSSQ()">🤖 自动获取最新期号</button>
+    <button class="btn" style="flex:1;margin:0" onclick="predictSSQ()">🔬 三引擎分析</button>
+    <button id="ssq-auto-btn" class="btn" style="flex:1;margin:0;background:#1a6b3c;color:#4ade80;font-size:12px" onclick="autoPredictSSQ()">🤖 自动获取最新期号</button>
   </div>
   <div class="hint">输入上期开奖号码 → 方法A+方法B+密码集萃 同时计算 → 共识号码=高置信度</div>
 
@@ -364,7 +364,7 @@ label:first-child{margin-top:0}
   </div>
 </div>
 
-<div class="footer">🌙 Pro版 · 双引擎融合 · 方法A+B共识验证 · 安总好运</div>
+<div class="footer">🌙 Pro版 · 三引擎融合 · 方法A+B+密码集萃共识验证 · 安总好运</div>
 </div>
 
 <script>
@@ -1217,7 +1217,7 @@ function genCombos(pool, pool2, size1, size2, isSSQ, priorityNums) {
   var acKill = isSSQ ? 3 : 2;
   var histSet = isSSQ ? HISTORICAL_SSQ_FRONTS : HISTORICAL_DLT_FRONTS;
 
-  var MAX_COMBOS = 100, combos = [];
+  var MAX_COMBOS = 100, combos = [], validFronts = [];
   // 排序：共识号排前面 → DFS优先使用
   var sorted = pool.slice().sort(function(a, b) {
     if (consSet) {
@@ -1229,119 +1229,133 @@ function genCombos(pool, pool2, size1, size2, isSSQ, priorityNums) {
   });
 
   // 生成全部后区组合C(pool2, size2)并排序（一次性）
-  function backCombosGen(arr, k) {
-    var result = [];
-    function dfs(start, depth, cur) {
-      if (depth === k) { result.push(cur.slice()); return; }
-      for (var i = start; i < arr.length; i++) {
-        cur.push(arr[i]);
-        dfs(i + 1, depth + 1, cur);
+  var allBacks = (function(arr, k) {
+    var r = [];
+    (function dfs(s, d, cur) { if (d===k) { r.push(cur.slice()); return; } for (var i=s; i<arr.length; i++) { cur.push(arr[i]); dfs(i+1,d+1,cur); cur.pop(); } })(0,0,[]);
+    return r;
+  })(pool2, size2);
+
+  // 共享过滤函数
+  function frontPassesFilter(f) {
+    if (settings.filterAcKill && acValue(f) <= acKill) return false;
+    if (settings.filterConsecKill && getMaxConsecutiveRun(f) >= settings.consecMaxRun) return false;
+    if (isSSQ && settings.filterAllPrimeKill && isAllPrime(f)) return false;
+    if (settings.filterHistoricalKill && histSet.length > 0) {
+      var key = f.join(',');
+      if (histSet.indexOf(key) >= 0) { _filteredHistoricalCount++; return false; }
+    }
+    if ((isSSQ && settings.filterSumKill && settings.filterSumKillSSQ) || (!isSSQ && settings.filterSumKillDLT)) {
+      var sumVal = f.reduce(function(a,b){return a+b;},0);
+      var minSum = isSSQ ? settings.sumMinSSQ : settings.sumMin;
+      var maxSum = isSSQ ? settings.sumMaxSSQ : settings.sumMax;
+      if (minSum !== undefined && (sumVal < minSum || sumVal > maxSum)) return false;
+    }
+    if ((isSSQ && settings.filterSpanKill) || (!isSSQ && settings.filterSpanKillDLT)) {
+      var spanMin = isSSQ ? (settings.spanMinSSQ || 8) : (settings.spanMinDLT || 6);
+      if ((f[f.length-1] - f[0]) < spanMin) return false;
+    }
+    if ((isSSQ && settings.filterOddEvenKill) || (!isSSQ && settings.filterOddEvenKillDLT)) {
+      var odds = 0;
+      for (var oi = 0; oi < f.length; oi++) { if (f[oi] % 2 === 1) odds++; }
+      if (odds === 0 || odds === f.length) return false;
+    }
+    if (isSSQ) {
+      if (settings.filterPosKillSSQ) {
+        if (f[5] < settings.posKillSSQMax) return false;
+        if (settings.posKillSSQV2 && f[4] < 13) return false;
+        if (settings.posKillSSQV3 && f[3] < 4) return false;
+        if (settings.posKillSSQV4 && f[2] < 7) return false;
+      }
+    } else {
+      if (settings.filterPosKillDLT) {
+        if (f[4] < settings.posKillDLTMax) return false;
+        if (settings.posKillDLTV2 && f[3] < 10) return false;
+        if (settings.posKillDLTV3 && f[2] < 6) return false;
+      }
+    }
+    return true;
+  }
+
+  if (isSSQ) {
+    // SSQ：每个前区×全部后区（蓝球通常1-2个，没问题）
+    function frontDFS(start, depth, cur) {
+      if (combos.length >= MAX_COMBOS) return;
+      if (depth === size1) {
+        var f = cur.slice();
+        if (!frontPassesFilter(f)) return;
+        for (var bj = 0; bj < allBacks.length; bj++) {
+          combos.push([f, allBacks[bj]]);
+          if (combos.length >= MAX_COMBOS) return;
+        }
+        return;
+      }
+      for (var i = start; i < sorted.length; i++) {
+        cur.push(sorted[i]);
+        frontDFS(i + 1, depth + 1, cur);
+        cur.pop();
+        if (combos.length >= MAX_COMBOS) return;
+      }
+    }
+    frontDFS(0, 0, []);
+  } else {
+    // DLT：先收集所有通过过滤的前区组合，再均匀分配后区
+    function collectFronts(start, depth, cur) {
+      if (depth === size1) {
+        var f = cur.slice();
+        if (frontPassesFilter(f)) validFronts.push(f);
+        return;
+      }
+      for (var i = start; i < sorted.length; i++) {
+        cur.push(sorted[i]);
+        collectFronts(i + 1, depth + 1, cur);
         cur.pop();
       }
     }
-    dfs(0, 0, []);
-    return result;
-  }
-  var allBacks = backCombosGen(pool2, size2);
+    collectFronts(0, 0, []);
+    if (validFronts.length === 0) return [];
 
-  // 前区DFS：每个通过过滤的前区组合，立即乘以所有后区组合
-  function frontDFS(start, depth, cur) {
-    if (combos.length >= MAX_COMBOS) return;
-    if (depth === size1) {
-      var f = cur.slice();
-
-      // AC值过滤
-      if (settings.filterAcKill && acValue(f) <= acKill) return;
-
-      // 连号过滤
-      if (settings.filterConsecKill && getMaxConsecutiveRun(f) >= settings.consecMaxRun) return;
-
-      // 全质号过滤（仅SSQ）
-      if (isSSQ && settings.filterAllPrimeKill && isAllPrime(f)) return;
-
-      // 历史一等奖过滤
-      if (settings.filterHistoricalKill && histSet.length > 0) {
-        var key = f.join(',');
-        if (histSet.indexOf(key) >= 0) { _filteredHistoricalCount++; return; }
+    // 第1轮：每个前区配若干个后区，确保所有66种后区全覆盖
+    var backsPerFront = Math.ceil(allBacks.length / validFronts.length);
+    for (var fi = 0; fi < validFronts.length && combos.length < MAX_COMBOS; fi++) {
+      var startB = fi * backsPerFront;
+      var endB = Math.min(startB + backsPerFront, allBacks.length);
+      for (var bi = startB; bi < endB && combos.length < MAX_COMBOS; bi++) {
+        combos.push([validFronts[fi], allBacks[bi]]);
       }
-
-      // —— 新过滤条件：和值范围 ——
-      if ((isSSQ && settings.filterSumKill && settings.filterSumKillSSQ) || (!isSSQ && settings.filterSumKillDLT)) {
-        var sumVal = f.reduce(function(a,b){return a+b;},0);
-        var minSum, maxSum;
-        if (isSSQ) {
-          minSum = settings.sumMinSSQ;
-          maxSum = settings.sumMaxSSQ;
-        } else {
-          minSum = settings.sumMin;
-          maxSum = settings.sumMax;
-        }
-        if (minSum !== undefined && (sumVal < minSum || sumVal > maxSum)) return;
-      }
-
-      // —— 新过滤条件：跨度(首尾差) ——
-      if ((isSSQ && settings.filterSpanKill) || (!isSSQ && settings.filterSpanKillDLT)) {
-        var spanMin = isSSQ ? (settings.spanMinSSQ || 8) : (settings.spanMinDLT || 6);
-        if ((f[f.length-1] - f[0]) < spanMin) return;
-      }
-
-      // —— 新过滤条件：全奇/全偶淘汰 ——
-      if ((isSSQ && settings.filterOddEvenKill) || (!isSSQ && settings.filterOddEvenKillDLT)) {
-        var odds = 0;
-        for (var oi = 0; oi < f.length; oi++) { if (f[oi] % 2 === 1) odds++; }
-        if (odds === 0 || odds === f.length) return;
-      }
-
-      // 位置范围过滤
-      if (isSSQ) {
-        if (settings.filterPosKillSSQ) {
-          if (f[5] < settings.posKillSSQMax) return;
-          if (settings.posKillSSQV2 && f[4] < 13) return;
-          if (settings.posKillSSQV3 && f[3] < 4) return;
-          if (settings.posKillSSQV4 && f[2] < 7) return;
-        }
-      } else {
-        if (settings.filterPosKillDLT) {
-          if (f[4] < settings.posKillDLTMax) return;
-          if (settings.posKillDLTV2 && f[3] < 10) return;
-          if (settings.posKillDLTV3 && f[2] < 6) return;
-        }
-      }
-
-      // 通过过滤 → 乘以全部后区组合
-      for (var bj = 0; bj < allBacks.length; bj++) {
-        combos.push([f, allBacks[bj]]);
-        if (combos.length >= MAX_COMBOS) return;
-      }
-      return;
     }
-    for (var i = start; i < sorted.length; i++) {
-      cur.push(sorted[i]);
-      frontDFS(i + 1, depth + 1, cur);
-      cur.pop();
-      if (combos.length >= MAX_COMBOS) return;
+    // 第2轮：有空位再轮换补充
+    var backIdx = 0;
+    while (combos.length < MAX_COMBOS) {
+      var fi2 = combos.length % validFronts.length;
+      combos.push([validFronts[fi2], allBacks[backIdx % allBacks.length]]);
+      backIdx++;
     }
-  }
-
-  frontDFS(0, 0, []);
-  // 按质量排序：含共识号越多越靠前
-  if (consSet && combos.length > 1) {
-    combos.sort(function(a, b) {
-      var ca = 0, cb = 0;
-      for (var i = 0; i < a[0].length; i++) { if (consSet.has(a[0][i])) ca++; }
-      for (var j = 0; j < b[0].length; j++) { if (consSet.has(b[0][j])) cb++; }
-      if (ca !== cb) return cb - ca;
-      // 次优：按和值接近均值排列
-      var sumA = a[0].reduce(function(s,n){return s+n;},0);
-      var sumB = b[0].reduce(function(s,n){return s+n;},0);
-      var avg = isSSQ ? 102 : 92;
-      return Math.abs(sumA - avg) - Math.abs(sumB - avg);
-    });
   }
   return combos;
 }
 
 // ==================== UI HELPERS ====================
+// 复制号码池到剪贴板
+function copyPool(nums, label, btnEl) {
+  if (!nums || nums.length === 0) { alert('暂无号码可复制'); return; }
+  var txt = nums.join(' ');
+  function done() {
+    if (btnEl) { var orig = btnEl.textContent; btnEl.textContent = '✓已复制'; setTimeout(function(){ btnEl.textContent = orig; }, 1200); }
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt).then(done).catch(function(){ done(); });
+  } else {
+    var ta = document.createElement('textarea');
+    ta.value = txt;
+    ta.style.position = 'fixed'; ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch(e) {}
+    document.body.removeChild(ta);
+    done();
+  }
+}
+
 function renderPool(nums, maxVal, consensus, aOnly, bOnly) {
   var cSet = {};
   var aSet = {};
@@ -1376,7 +1390,7 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
         // 1) 展示密码池
         html = '<div class="pool-section" style="border:1px solid #e67e22;background:linear-gradient(135deg,#1a2020,#1e2820)">' +
           '<div class="engine-header"><span class="pool-title">🔐 密码集萃 · 兜底引擎 ⚡ A/B未触发</span>' +
-            '<span style="font-size:10px;padding:3px 8px;border-radius:12px;background:rgba(230,126,34,.2);color:#e67e22;border:1px solid #e67e22">兜底</span></div>' +
+            '<span style="font-size:10px;padding:3px 8px;border-radius:12px;background:rgba(230,126,34,.2);color:#e67e22;border:1px solid #e67e22">兜底</span><span onclick="copyPool(' + JSON.stringify(result.front_cipher) + ',\'密码集萃兜底\', this)" style="font-size:10px;color:#e67e22;cursor:pointer;margin-left:auto">📋复制</span></div>' +
           '<span class="pool-badge gold" style="margin-bottom:6px">' + result.front_cipher.length + '个(确定性衍生池,不受撞车影响)</span>' +
           '<div class="pool-nums">' + result.front_cipher.map(function(cn) {
             return '<div class="pool-num" style="background:#2a2020;border:1px solid #e67e22;color:#e6a040">' + cn + '</div>';
@@ -1480,7 +1494,7 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
       // CONSENSUS
       if (result.front_consensus.length > 0) {
         html += '<div class="consensus-box">' +
-          '<h3>⭐ 双引擎共识号码 · 高置信度(' + result.front_consensus.length + '个)</h3>' +
+          '<h3>⭐ 双引擎共识号码 · 高置信度(' + result.front_consensus.length + '个) <span onclick="copyPool(' + JSON.stringify(result.front_consensus) + ',\'共识号\', this)" style="font-size:10px;color:#f0c040;cursor:pointer;float:right">📋复制</span></h3>' +
           '<div class="pool-nums">' + renderPool(result.front_consensus, frontMax, result.front_consensus, [], []) + '</div>' +
           '<div class="db-ref"><strong>💡 说明:</strong>共识号码 = 方法A+方法B同时预测 → 两个不同引擎独立验证一致 → 置信度最高</div></div>';
       } else {
@@ -1490,7 +1504,7 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
       // TRI-ENGINE CONSENSUS (A ∩ B ∩ 密码集萃)
       if (BLUE_SETTINGS && BLUE_SETTINGS.cipherEnabled && result.front_consensus_3 && result.front_consensus_3.length > 0) {
         html += '<div class="consensus-3-box">' +
-          '<h3>🔥 三引擎共识号码 · 最高置信度(' + result.front_consensus_3.length + '个)</h3>' +
+          '<h3>🔥 三引擎共识号码 · 最高置信度(' + result.front_consensus_3.length + '个) <span onclick="copyPool(' + JSON.stringify(result.front_consensus_3) + ',\'三共识\', this)" style="font-size:10px;color:#ff6600;cursor:pointer;float:right">📋复制</span></h3>' +
           '<div class="pool-nums">' + result.front_consensus_3.map(function(n) {
             return '<div class="pool-num" style="background:#2a2010;border:3px solid #ff6600;color:#ffa040;font-size:14px;font-weight:bold;box-shadow:0 0 15px rgba(255,102,0,.4)">'+n+'</div>';
           }).join('') + '</div>' +
@@ -1500,7 +1514,7 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
       // Method A
       if (result.front_a.length > 0) {
         html += '<div class="pool-section">' +
-          '<div class="engine-header"><span class="pool-title">📘 方法A(书上11规则引擎)</span><span class="engine-tag book">书上方法</span></div>' +
+          '<div class="engine-header"><span class="pool-title">📘 方法A(书上11规则引擎)</span><span class="engine-tag book">书上方法</span><span onclick="copyPool(' + JSON.stringify(result.front_a) + ',\'方法A\', this)" style="font-size:10px;color:#3498db;cursor:pointer;margin-left:auto">📋复制</span></div>' +
           '<span class="pool-badge blue" style="margin-bottom:6px">' + result.front_a.length + '个</span>' +
           '<div class="pool-nums">' + renderPool(result.front_a, frontMax, result.front_consensus, result.a_only.filter(function(x) { return result.front_consensus.indexOf(x) === -1; }), []) + '</div>';
         if (result.a_only.length > 0 && result.a_only.length <= 12) {
@@ -1516,7 +1530,7 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
       // Method B
       if (result.front_b.length > 0) {
         html += '<div class="pool-section">' +
-          '<div class="engine-header"><span class="pool-title">📗 方法B(Q-R算术引擎)</span><span class="engine-tag qr">Q-R引擎</span></div>' +
+          '<div class="engine-header"><span class="pool-title">📗 方法B(Q-R算术引擎)</span><span class="engine-tag qr">Q-R引擎</span><span onclick="copyPool(' + JSON.stringify(result.front_b) + ',\'方法B\', this)" style="font-size:10px;color:#27ae60;cursor:pointer;margin-left:auto">📋复制</span></div>' +
           '<span class="pool-badge" style="margin-bottom:6px">' + result.front_b.length + '个</span>' +
           '<div class="pool-nums">' + renderPool(result.front_b, frontMax, result.front_consensus, [], result.b_only.filter(function(x) { return result.front_consensus.indexOf(x) === -1; })) + '</div>' +
           '</div>';
@@ -1533,7 +1547,7 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
       if (BLUE_SETTINGS.cipherEnabled && result.front_cipher && result.front_cipher.length > 0) {
         html += '<div class="pool-section" style="border:1px solid #e67e22;background:linear-gradient(135deg,#1a2020,#1e2820)">' +
           '<div class="engine-header"><span class="pool-title">🔐 密码集萃引擎</span>' +
-            '<span style="font-size:10px;padding:3px 8px;border-radius:12px;background:rgba(230,126,34,.2);color:#e67e22;border:1px solid #e67e22">确定性运算</span></div>' +
+            '<span style="font-size:10px;padding:3px 8px;border-radius:12px;background:rgba(230,126,34,.2);color:#e67e22;border:1px solid #e67e22">确定性运算</span><span onclick="copyPool(' + JSON.stringify(result.front_cipher) + ',\'密码集萃\', this)" style="font-size:10px;color:#e67e22;cursor:pointer;margin-left:auto">📋复制</span></div>' +
           '<span class="pool-badge gold" style="margin-bottom:6px">' + result.front_cipher.length + '个(和+差+蓝球自加/原号)</span>' +
           '<div class="pool-nums">';
         // Render cipher numbers with orange style
@@ -1572,7 +1586,7 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
         var backPool = Array.from(new Set(result.back_a.concat(result.back_b))).sort(function(a, b) { return a - b; });
         if (backPool.length > 0) {
           html += '<div class="pool-section">' +
-            '<div class="pool-title">🎱 后区参考池 <span class="pool-badge gold">' + backPool.length + '个</span></div>' +
+            '<div class="pool-title">🎱 后区参考池 <span class="pool-badge gold">' + backPool.length + '个</span><span onclick="copyPool(' + JSON.stringify(backPool) + ',\'后区\', this)" style="font-size:10px;color:#f0c040;cursor:pointer;margin-left:auto">📋复制</span></div>' +
             '<div class="pool-nums">' + renderPool(backPool, backMax, result.back_consensus, [], []) + '</div>' +
             (result.back_consensus.length > 0 ? '<div class="db-ref">⭐ 后区共识:' + result.back_consensus.join(', ') + '</div>' : '') +
             '</div>';
@@ -1587,7 +1601,7 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
           // Show filtered first (孤中跳冷)
           if (filtered.length > 0) {
             html += '<div class="pool-section" style="border:1px solid #f0c040">' +
-              '<div class="pool-title">🔵 蓝球推荐 <span class="pool-badge gold">' + filtered.length + '个（孤+中+跳）</span></div>' +
+              '<div class="pool-title">🔵 蓝球推荐 <span class="pool-badge gold">' + filtered.length + '个（孤+中+跳）</span><span onclick="copyPool(' + JSON.stringify(filtered) + ',\'蓝球推荐\', this)" style="font-size:10px;color:#f0c040;cursor:pointer;margin-left:auto">📋复制</span></div>' +
               '<div class="pool-nums">' + renderPool(filtered, 16, [], [], []) + '</div>' +
               '<div class="db-ref"><strong>过滤规则：</strong>孤码(非传非邻) + 中码(非复非隔) + 跳码(非重非斜)</div></div>';
           } else {
@@ -1613,12 +1627,12 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
           
           // Also show all B engine blues
           html += '<div class="pool-section">' +
-            '<div class="pool-title">🔵 方法B全量蓝球池 <span class="pool-badge blue">' + all.length + '个</span></div>' +
+            '<div class="pool-title">🔵 方法B全量蓝球池 <span class="pool-badge blue">' + all.length + '个</span><span onclick="copyPool(' + JSON.stringify(all) + ',\'蓝球全量\', this)" style="font-size:10px;color:#3498db;cursor:pointer;margin-left:auto">📋复制</span></div>' +
             '<div class="pool-nums">' + renderPool(all, 16, filtered, [], []) + '</div>' +
             '<div class="db-ref">⭐ = 通过孤+中+跳过滤 | 其余 = 被过滤排除</div></div>';
         } else {
           html += '<div class="pool-section">' +
-            '<div class="pool-title">🔵 蓝球参考（方法B引擎） <span class="pool-badge blue">' + result.blue_preds.length + '个</span></div>' +
+            '<div class="pool-title">🔵 蓝球参考（方法B引擎） <span class="pool-badge blue">' + result.blue_preds.length + '个</span><span onclick="copyPool(' + JSON.stringify(result.blue_preds) + ',\'蓝球参考\', this)" style="font-size:10px;color:#3498db;cursor:pointer;margin-left:auto">📋复制</span></div>' +
             '<div class="pool-nums">' + renderPool(result.blue_preds, 16, [], [], []) + '</div>' +
             '<div class="db-ref">💡 展开上方蓝球过滤设置，输入上上期蓝号可启用三重过滤</div></div>';
         }
