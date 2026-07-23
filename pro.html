@@ -923,12 +923,58 @@ var CACHED_SSQ = null;
 var CACHED_DLT = null;
 var DATA_VERSION = null;
 
+// ==================== 遗漏值尾数支持 ====================
+// 每期开奖号码的最后出现索引（用于计算遗漏值）
+var SSQ_LAST_SEEN = {};
+var DLT_LAST_SEEN = {};
+var SSQ_TOTAL = 0;
+var DLT_TOTAL = 0;
+
+// 构建遗漏值尾数映射（遍历全部历史，记录每个号码最后出现期号）
+function buildMissingTailMaps() {
+  // SSQ: 号码1~33的last_seen
+  SSQ_LAST_SEEN = {};
+  SSQ_TOTAL = CACHED_SSQ ? CACHED_SSQ.length : 0;
+  if (CACHED_SSQ) {
+    for (var idx = 0; idx < CACHED_SSQ.length; idx++) {
+      var nums = CACHED_SSQ[idx].reds;
+      for (var j = 0; j < nums.length; j++) {
+        SSQ_LAST_SEEN[nums[j]] = idx;
+      }
+    }
+  }
+  // DLT: 号码1~35的last_seen
+  DLT_LAST_SEEN = {};
+  DLT_TOTAL = CACHED_DLT ? CACHED_DLT.length : 0;
+  if (CACHED_DLT) {
+    for (var idx = 0; idx < CACHED_DLT.length; idx++) {
+      var nums = CACHED_DLT[idx].fronts;
+      for (var j = 0; j < nums.length; j++) {
+        DLT_LAST_SEEN[nums[j]] = idx;
+      }
+    }
+  }
+}
+
+// 获取号码的遗漏值尾数（距上次开出期数 % 10）
+function getMissingTail(num, isSSQ) {
+  var lastSeen = isSSQ ? SSQ_LAST_SEEN : DLT_LAST_SEEN;
+  var total = isSSQ ? SSQ_TOTAL : DLT_TOTAL;
+  if (total === 0) return -1;
+  if (lastSeen.hasOwnProperty(num)) {
+    return (total - 1 - lastSeen[num]) % 10;
+  } else {
+    return total % 10;
+  }
+}
+
 // 历史一等奖前区集合 [SSQ: 6红, DLT: 5前]
 var HISTORICAL_SSQ_FRONTS = [];
 var HISTORICAL_DLT_FRONTS = [];
 
 // 从原始数据构建可比较的键值集合
 function buildHistoricalFrontSets() {
+  buildMissingTailMaps(); // 同时构建遗漏值尾数映射
   if (CACHED_SSQ) {
     HISTORICAL_SSQ_FRONTS = CACHED_SSQ.map(function(d) { return d.reds.slice().sort(function(a,b){return a-b}).join(','); });
   }
@@ -1336,37 +1382,33 @@ function genCombos(pool, pool2, size1, size2, isSSQ, priorityNums) {
 
 
 // ==================== 最小遗漏值尾数过滤（组选遗漏尾数） ====================
-// 来源：历史开奖回测，最小组选遗漏尾数=0的概率约90%以上
-// 例如2026083期双色球开奖：07 14 15 23 28 33
-// 组选遗漏尾数（合值）= 0，覆盖号码：07 09 13 14 15 23 28 33
-// 至少其中1个号码会出现
+// 组选最小遗漏合值（尾数）：全号码池中每个号码查距上次开出期数%10
+// 取最小值 = 最小组选遗漏合值尾数。筛选：保留至少包含1个遗漏尾数=0号码的组合
+// 回测结果（桌面Excel全量历史）：SSQ 78.47% | DLT 65.26%
+// DLT后区（蓝）：近期100%未测
 
 // 计算一组号码的组选遗漏尾数
-function getCombinationMissingTail(nums) {
-  // 对号码排序，计算每个号码的遗漏尾数（简化：使用号码间最小跨度）
-  // 实际需要历史遗漏值，这里使用简化的号码尾数关系
-  var sorted = nums.slice().sort(function(a,b){return a-b;});
-  var tails = [];
-  for (var i = 0; i < sorted.length; i++) {
-    tails.push(sorted[i] % 10);
+function getCombinationMissingTail(nums, isSSQ) {
+  // 计算号码组合的遗漏值尾数：取每个号码的遗漏尾数，返回最小值
+  if (!nums || nums.length === 0) return -1;
+  var minTail = 99;
+  for (var i = 0; i < nums.length; i++) {
+    var tail = getMissingTail(nums[i], isSSQ);
+    if (tail >= 0 && tail < minTail) minTail = tail;
   }
-  // 组选遗漏值 = 最小相邻差
-  var minGap = 99;
-  for (var i = 1; i < sorted.length; i++) {
-    var gap = sorted[i] - sorted[i-1];
-    if (gap < minGap) minGap = gap;
-  }
-  return minGap % 10; // 取尾数
+  return minTail === 99 ? -1 : minTail;
 }
 
 // 过滤：保留最小组选遗漏尾数=0的号码组合
-function filterByMissingTailZero(combos) {
+function filterByMissingTailZero(combos, isSSQ) {
   if (!combos || combos.length === 0) return combos;
+  // 数据未加载时跳过过滤
+  if ((isSSQ && SSQ_TOTAL === 0) || (!isSSQ && DLT_TOTAL === 0)) return combos;
   var keep = [];
   for (var i = 0; i < combos.length; i++) {
     var combo = combos[i];
     if (Array.isArray(combo) && Array.isArray(combo[0])) {
-      var tail = getCombinationMissingTail(combo[0]);
+      var tail = getCombinationMissingTail(combo[0], isSSQ);
       if (tail === 0) {
         keep.push(combo);
       }
@@ -1376,7 +1418,7 @@ function filterByMissingTailZero(combos) {
 }
 
 // 分析号码池：找出属于遗漏尾数0的号码
-function getMissingTailZeroCandidates(pool, maxNum) {
+function getMissingTailZeroCandidates(pool, maxNum, isSSQ) {
   if (!pool || pool.length === 0) {
     pool = [];
     for (var i = 1; i <= maxNum; i++) pool.push(i);
@@ -1384,10 +1426,8 @@ function getMissingTailZeroCandidates(pool, maxNum) {
   var candidates = [];
   for (var i = 0; i < pool.length; i++) {
     var n = pool[i];
-    // 号码遗漏尾数简化：相邻跨度的尾数
-    // 实际选取号码尾数差值小的号码
-    var tail = (n * 7) % 10; // 简化映射（真实场景需历史遗漏值）
-    if (tail === 0 || tail === 1 || tail === 2) {
+    var tail = getMissingTail(n, isSSQ);
+    if (tail === 0) {
       candidates.push(n);
     }
   }
@@ -2333,7 +2373,7 @@ function applyTargetFilter(game, isSSQ) {
   // 最小遗漏尾数0过滤
   if (tfMissingTail && tfMissingTail.checked && allCombos.length > 0) {
     var before = allCombos.length;
-    allCombos = filterByMissingTailZero(allCombos);
+    allCombos = filterByMissingTailZero(allCombos, isSSQ);
     if (allCombos.length === 0) {
       alert('最小遗漏尾数过滤后无可用组合，请取消该条件');
       return;
