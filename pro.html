@@ -1465,21 +1465,12 @@ function renderPool(nums, maxVal, consensus, aOnly, bOnly) {
 
   var html = '';
   for (var i = 1; i <= maxVal; i++) {
+    if (nums.indexOf(i) === -1) continue;
     var cls = 'pool-num';
-    var sty = '';
-    if (cSet[i]) {
-      cls += ' hl-red';
-      sty = 'background:#4a1010;border:2px solid #e8443a;color:#ff5540;box-shadow:0 0 10px rgba(232,68,58,.5)';
-    } else if (aSet[i]) {
-      cls += ' hl-red';
-      sty = 'background:#3a1510;border:2px solid #d46b37;color:#ff6a40;box-shadow:0 0 8px rgba(212,107,55,.4)';
-    } else if (bSet[i]) {
-      cls += ' hl-red';
-      sty = 'background:#3a1510;border:2px solid #d46b37;color:#ff6a40;box-shadow:0 0 8px rgba(212,107,55,.4)';
-    } else {
-      sty = 'opacity:0.4;background:#15202a;border:1px solid #2a3a48;color:#506070;font-weight:normal';
-    }
-    html += '<div class="' + cls + '" style="' + sty + '">' + i + '</div>';
+    if (cSet[i]) cls += ' consensus';
+    else if (aSet[i]) cls += ' method-a';
+    else if (bSet[i]) cls += ' method-b';
+    html += '<div class="' + cls + '">' + i + '</div>';
   }
   return html;
 }
