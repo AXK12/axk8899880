@@ -1594,7 +1594,9 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
       if (result.front_consensus.length > 0) {
         html += '<div class="consensus-box">' +
           '<h3>⭐ 双引擎共识号码 · 高置信度(' + result.front_consensus.length + '个) <span onclick="copyPool(' + JSON.stringify(result.front_consensus) + ',\'共识号\', this)" style="font-size:10px;color:#f0c040;cursor:pointer;float:right">📋复制</span></h3>' +
-          '<div class="pool-nums">' + renderPool(result.front_consensus, frontMax, result.front_consensus, [], []) + '</div>' +
+          '<div class="pool-nums">' + result.front_consensus.map(function(n) {
+            return '<div class="pool-num" style="border:2px solid #f0c040;color:#f0c040;box-shadow:0 0 12px rgba(240,192,64,.5)">' + n + '</div>';
+          }).join('') + '</div>' +
           '<div class="db-ref"><strong>💡 说明:</strong>共识号码 = 方法A+方法B同时预测 → 两个不同引擎独立验证一致 → 置信度最高</div></div>';
       } else {
         html += '<div class="pool-section" style="text-align:center;color:#6a7a90;padding:14px">⚠️ 两种方法本次没有共识号码,请结合各自池综合判断</div>';
