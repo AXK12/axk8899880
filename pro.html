@@ -1491,7 +1491,9 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
           '<div class="engine-header"><span class="pool-title">🔐 密码集萃 · 兜底引擎 ⚡ A/B未触发</span>' +
             '<span style="font-size:10px;padding:3px 8px;border-radius:12px;background:rgba(230,126,34,.2);color:#e67e22;border:1px solid #e67e22">兜底</span><span onclick="copyPool(' + JSON.stringify(result.front_cipher) + ',\'密码集萃兜底\', this)" style="font-size:10px;color:#e67e22;cursor:pointer;margin-left:auto">📋复制</span></div>' +
           '<span class="pool-badge gold" style="margin-bottom:6px">' + result.front_cipher.length + '个(确定性衍生池,不受撞车影响)</span>' +
-          '<div class="pool-nums">' + renderPool(result.front_cipher, frontMax, result.front_cipher, [], []) + '</div>' +
+          '<div class="pool-nums">' + result.front_cipher.map(function(cn) {
+            return '<div class="pool-num" style="background:#2a2020;border:1px solid #e67e22;color:#e6a040">' + cn + '</div>';
+          }).join('') + '</div>' +
           '<div class="db-ref"><strong>📊 回测(' + (isSSQ ? 'SSQ 3471期):平均命中3.45/6球 | 脱靶率0.58% | 池均' + result.front_cipher.length + '码' : 'DLT 2891期):平均命中1.97/5球 | 脱靶率8.09% | 池均' + result.front_cipher.length + '码') + '</strong></div></div>';
 
         // 2) 从密码池生成组合（应用所有过滤：历史杀号+AC+连号+全质号+天平支点）
@@ -1602,7 +1604,9 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
       if (BLUE_SETTINGS && BLUE_SETTINGS.cipherEnabled && result.front_consensus_3 && result.front_consensus_3.length > 0) {
         html += '<div class="consensus-3-box">' +
           '<h3>🔥 三引擎共识号码 · 最高置信度(' + result.front_consensus_3.length + '个) <span onclick="copyPool(' + JSON.stringify(result.front_consensus_3) + ',\'三共识\', this)" style="font-size:10px;color:#ff6600;cursor:pointer;float:right">📋复制</span></h3>' +
-          '<div class="pool-nums">' + renderPool(result.front_consensus_3, frontMax, result.front_consensus_3, [], []) + '</div>' +
+          '<div class="pool-nums">' + result.front_consensus_3.map(function(n) {
+            return '<div class="pool-num" style="background:#2a2010;border:3px solid #ff6600;color:#ffa040;font-size:14px;font-weight:bold;box-shadow:0 0 15px rgba(255,102,0,.4)">'+n+'</div>';
+          }).join('') + '</div>' +
           '<div class="db-ref"><strong>🔥 三引擎验证:</strong>方法A + 方法B + 密码集萃 三个独立算法同时命中 → 置信度最高级别,建议优先参考</div></div>';
       }
 
@@ -1636,7 +1640,7 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
       
       // Legend
       html += '<div style="font-size:10px;color:#6a7a90;margin:4px 0 8px;display:flex;gap:14px;flex-wrap:wrap">' +
-        '<span style="color:#ff5540">●红色高亮=选中号码</span></div>';
+        '<span>⭐发光=共识号码</span><span style="color:#3498db">●蓝圈=仅方法A</span><span style="color:#27ae60">●绿圈=仅方法B</span></div>';
 
       // 密码集萃引擎显示
       if (BLUE_SETTINGS.cipherEnabled && result.front_cipher && result.front_cipher.length > 0) {
