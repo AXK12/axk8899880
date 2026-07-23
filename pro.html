@@ -1846,12 +1846,10 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
 
     inner.innerHTML = html;
     document.getElementById(containerId).classList.add('show');
+    // 先更新SSQ再更新DLT（容器已存在）
+    updateTargetPool('ssq');
+    updateTargetPool('dlt');
   }, 150);
-// 更新目标池展示（两个游戏都初始化，显示全号码池）
-setTimeout(function() {
-  var fn = window['updateTargetPool'];
-  if (fn) { fn('ssq'); fn('dlt'); }
-}, 100);
 }
 
 // ==================== PREDICT FUNCTIONS ====================
