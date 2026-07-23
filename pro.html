@@ -1845,11 +1845,10 @@ function renderResult(containerId, innerId, result, frontMax, backMax, isSSQ) {
     inner.innerHTML = html;
     document.getElementById(containerId).classList.add('show');
   }, 150);
-// 更新目标池展示
+// 更新目标池展示（两个游戏都初始化，显示全号码池）
 setTimeout(function() {
-  var g = backMax === 12 ? 'dlt' : 'ssq';
   var fn = window['updateTargetPool'];
-  if (fn) fn(g);
+  if (fn) { fn('ssq'); fn('dlt'); }
 }, 100);
 }
 
@@ -2240,12 +2239,16 @@ function shuffleArray(arr) {
 function updateTargetPool(game) {
   var isSSQ = (game === 'ssq');
   var data = window[game + '_result_data'];
-  if (!data) return;
   var frontMax = isSSQ ? 33 : 35;
-  var consensus2 = data.front_consensus || [];
-  var consensus3 = data.front_consensus_3 || [];
   var container = document.getElementById('tf-nums-' + game);
   if (!container) return;
+  
+  var consensus2 = [];
+  var consensus3 = [];
+  if (data) {
+    consensus2 = data.front_consensus || [];
+    consensus3 = data.front_consensus_3 || [];
+  }
   
   var tfConsensus2 = document.getElementById('tf-consensus2-' + game);
   var tfConsensus3 = document.getElementById('tf-consensus3-' + game);
@@ -2265,18 +2268,22 @@ function updateTargetPool(game) {
     selectedNums[n] = [];
   }
   
-  if (tfConsensus2 && tfConsensus2.checked) {
-    consensus2.forEach(function(n) {
-      if (selectedNums[n]) selectedNums[n].push('consensus2');
-    });
-  }
-  if (tfConsensus3 && tfConsensus3.checked) {
-    consensus3.forEach(function(n) {
-      if (selectedNums[n]) selectedNums[n].push('consensus3');
-    });
+  var ckCons2 = tfConsensus2 && tfConsensus2.checked;
+  var ckCons3 = tfConsensus3 && tfConsensus3.checked;
+  if (data) {
+    if (ckCons3) {
+      consensus3.forEach(function(n) {
+        if (selectedNums[n]) selectedNums[n].push('consensus3');
+      });
+    }
+    if (ckCons2) {
+      consensus2.forEach(function(n) {
+        if (selectedNums[n]) selectedNums[n].push('consensus2');
+      });
+    }
   }
   
-  // 渲染号码
+  // 渲染全部号码 1~frontMax
   var html = '';
   for (var n = 1; n <= frontMax; n++) {
     var hasC2 = selectedNums[n].indexOf('consensus2') >= 0;
@@ -2286,19 +2293,18 @@ function updateTargetPool(game) {
     var title = '#' + n;
     
     if (hasC3) {
-      // 三引擎共识 - 最高优先级高亮
-      cls += ' filter-highlight-3';
-      style = 'background:#2a2010;border:3px solid #ff6600;color:#ffa040;box-shadow:0 0 12px rgba(255,102,0,.5)';
-      title += ' [三引擎共识]';
+      // 三引擎共识 - 红色高亮
+      cls += ' hl-red';
+      style = 'background:#4a1010;border:2px solid #e8443a;color:#ff5540;box-shadow:0 0 10px rgba(232,68,58,.5)';
+      title += ' [三引擎]';
     } else if (hasC2) {
-      // 双引擎共识高亮
-      cls += ' filter-highlight-2';
-      style = 'border:2px solid #f0c040;background:#1a3020;color:#f0c040';
-      title += ' [双引擎共识]';
+      // 双引擎共识 - 红色高亮（稍弱）
+      cls += ' hl-red';
+      style = 'background:#3a1510;border:2px solid #d46b37;color:#ff6a40;box-shadow:0 0 8px rgba(212,107,55,.4)';
+      title += ' [双引擎]';
     } else {
-      // 基础池号码
-      style = 'opacity:0.6;border:1px solid #2a4a3a';
-      title += ' [基础]';
+      // 默认浅色背景
+      style = 'opacity:0.5;background:#15202a;border:1px solid #2a3a48;color:#607080;font-weight:normal';
     }
     
     html += '<div class="' + cls + '" style="' + style + '" title="' + title + '">' + n + '</div>';
